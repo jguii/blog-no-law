@@ -1,0 +1,5 @@
+# Windows download markers (WSL)
+*:Zone.Identifier
+
+# GSD research cache
+.planning/research/.cache/
