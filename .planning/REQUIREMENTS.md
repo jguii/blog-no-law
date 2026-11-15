@@ -126,12 +126,67 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| AUTH-01 | Phase 3 | Pending |
+| AUTH-02 | Phase 3 | Pending |
+| AUTH-03 | Phase 3 | Pending |
+| AUTH-04 | Phase 3 | Pending |
+| AUTH-05 | Phase 3 | Pending |
+| AUTH-06 | Phase 3 | Pending |
+| POST-01 | Phase 4 | Pending |
+| POST-02 | Phase 5 | Pending |
+| POST-03 | Phase 5 | Pending |
+| POST-04 | Phase 4 | Pending |
+| POST-05 | Phase 4 | Pending |
+| POST-06 | Phase 4 | Pending |
+| POST-07 | Phase 4 | Pending |
+| POST-08 | Phase 4 | Pending |
+| POST-09 | Phase 5 | Pending |
+| POST-10 | Phase 4 | Pending |
+| MOD-01 | Phase 4 | Pending |
+| MOD-02 | Phase 4 | Pending |
+| MOD-03 | Phase 5 | Pending |
+| MOD-04 | Phase 7 | Pending |
+| MOD-05 | Phase 6 | Pending |
+| MOD-06 | Phase 4 | Pending |
+| FEED-01 | Phase 6 | Pending |
+| FEED-02 | Phase 6 | Pending |
+| FEED-03 | Phase 6 | Pending |
+| FEED-04 | Phase 6 | Pending |
+| FEED-05 | Phase 5 | Pending |
+| FEED-06 | Phase 6 | Pending |
+| FEED-07 | Phase 6 | Pending |
+| FEED-08 | Phase 8 | Pending |
+| SOC-01 | Phase 7 | Pending |
+| SOC-02 | Phase 7 | Pending |
+| SOC-03 | Phase 7 | Pending |
+| SOC-04 | Phase 7 | Pending |
+| SOC-05 | Phase 7 | Pending |
+| SOC-06 | Phase 8 | Pending |
+| UX-01 | Phase 2 | Pending |
+| UX-02 | Phase 2 | Pending |
+| UX-03 | Phase 2 | Pending |
+| UX-04 | Phase 6 | Pending |
+| VIS-01 | Phase 2 | Pending |
+| VIS-02 | Phase 2 | Pending |
+| VIS-03 | Phase 2 | Pending |
+| VIS-04 | Phase 2 | Pending |
+| SEC-01 | Phase 3 | Pending |
+| SEC-02 | Phase 7 | Pending |
+| SEC-03 | Phase 1 | Pending |
+| SEC-04 | Phase 1 | Pending |
+| QA-01 | Phase 1 | Pending |
+| QA-02 | Phase 1 | Pending |
+| QA-03 | Phase 1 | Pending |
+| QA-04 | Phase 1 | Pending |
+| OPS-01 | Phase 1 | Pending |
+| OPS-02 | Phase 1 | Pending |
+| OPS-03 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 55 total
-- Mapped to phases: 0
-- Unmapped: 55 ⚠️
+- Mapped to phases: 55
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-11-14*
-*Last updated: 2026-11-14 after initial definition*
+*Last updated: 2026-11-14 after roadmap creation*
