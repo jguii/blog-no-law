@@ -76,8 +76,8 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 
 - **Tech stack**: TypeScript ponta a ponta; Next.js (frontend), NestJS (backend), Supabase (Postgres, Auth, Storage) — escolha do autor
 - **Budget**: custo mensal zero (apenas planos gratuitos) — projeto pessoal/comunitário
-- **Deploy**: Next.js na Vercel; NestJS em VPS Oracle Cloud Always Free com Docker (plano B: mesmo container em Render/Koyeb) — NestJS é servidor persistente, não serverless
-- **Portabilidade**: API containerizada e configurada por variáveis de ambiente — protege contra limitações do free tier da Oracle (capacidade ARM, recuperação de instância ociosa)
+- **Deploy**: Next.js na Vercel; NestJS em container Docker num PaaS gratuito (Render ou Koyeb, um primário e outro como plano B — definido na pesquisa da Fase 1). Oracle descartada (cadastro exige CNPJ). NestJS é servidor persistente, não serverless
+- **Portabilidade**: API containerizada e configurada por variáveis de ambiente — protege contra limitações e mudanças dos free tiers (hibernação, remoção de plano gratuito)
 - **Security**: aplicação pública na internet; seguir práticas de produção (auth, rate limit, validação, XSS, auditoria)
 - **Práticas de engenharia**: TDD (RED→GREEN→REFACTOR obrigatório), SDD (especificação e contratos Zod antes do código), BDD (cenários Dado/Quando/Então viram E2E), DDD pragmático (contextos Identidade, Publicação, Moderação, Engajamento, História do Clã; padrões táticos completos em Publicação e Moderação)
 - **Testes**: nada sobe para o GitHub sem testes passando
@@ -91,17 +91,17 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 | Posts com aprovação de moderador | Controle de qualidade/conteúdo num blog público | — Pending |
 | Vídeos só por embed | Custo zero de armazenamento | — Pending |
 | Frontend fala só com NestJS (Supabase como banco/storage), RLS como 2ª camada | Regras de negócio centralizadas; defesa em profundidade | — Pending |
-| NestJS em VPS Oracle com Docker | Grátis, servidor sempre ligado, máximo aprendizado de infra | — Pending |
+| ~~NestJS em VPS Oracle com Docker~~ → NestJS em Docker num PaaS gratuito (Render/Koyeb) | Oracle exige CNPJ (2026-11-15); container portátil mantém o custo zero | — Pending |
 | Papéis gerenciados no blog (não pelos cargos do Discord) | Independência da moderação do blog em relação ao servidor | — Pending |
 | Achievements manuais na v1 | São homenagens da história do clã, criadas por admins | — Pending |
 | Cargos do Discord via bot somente-leitura | Supabase não guarda/renova o token do Discord; bot consulta membresia e cargos a qualquer momento | — Pending |
 | Next.js como BFF: navegador fala só com o Next, que chama o NestJS server-to-server com Bearer | Cookies httpOnly ficam num só domínio; sem CORS/cookies cross-site | — Pending |
-| API em subdomínio gratuito com HTTPS (Caddy) | Mantém custo zero; cookies nunca chegam ao domínio da API | — Pending |
+| API no domínio HTTPS nativo da plataforma (`*.onrender.com`/`*.koyeb.app`) | Mantém custo zero; cookies nunca chegam ao domínio da API (BFF) | — Pending |
 | Corpo do post em Tiptap JSON (sem HTML armazenado) | Superfície de XSS mínima, renderização por componentes React | — Pending |
 | "Ano do acontecimento" (só ano) escolhido pelo autor | Filtro por ano e eras refletem quando aconteceu, não quando foi postado | — Pending |
 | Edição de post aprovado via revisão pendente | Não permite burlar a moderação; versão pública nunca some | — Pending |
 | Vídeos só do YouTube; vários vídeos/imagens por post | Simplicidade e segurança de embed | — Pending |
-| VPS Oracle descartável + plano B (sem PAYG) | Oracle pode recuperar instâncias ociosas; custo zero | — Pending |
+| Repo público, branch por fase + PR na `main` protegida, deploy automático no merge | Proteção de branch grátis só em repo público; portões reais | — Pending |
 | Tailwind + shadcn/ui, com fase dedicada de identidade visual | Visual não é o forte do autor; componentes acessíveis e customizáveis | — Pending |
 | TDD/SDD/BDD/DDD pragmático; Vitest + Playwright; pre-push e CI bloqueiam sem testes | Qualidade e aprendizado são objetivos explícitos | — Pending |
 | Itens sem versão definida ficam em "Ideias futuras" | Autor decide conforme a necessidade | — Pending |
@@ -124,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-11-14 after requirements definition*
+*Last updated: 2026-11-15 after Phase 1 discussion (Oracle → PaaS gratuito)*

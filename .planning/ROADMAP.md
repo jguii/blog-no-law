@@ -2,7 +2,7 @@
 
 ## Overview
 
-O Blog No Law sai do zero e vira um acervo público e moderado da história do clã em 8 fatias verticais. Cada fatia termina implantada em produção (Vercel + Oracle + Supabase) e protegida por testes. A ordem é esta:
+O Blog No Law sai do zero e vira um acervo público e moderado da história do clã em 8 fatias verticais. Cada fatia termina implantada em produção (Vercel + PaaS gratuito para a API + Supabase) e protegida por testes. A ordem é esta:
 
 1. Um esqueleto no ar com os portões de qualidade (pre-push, CI, `main` protegida) e as defesas de base.
 2. A identidade visual do clã, para que toda tela real já nasça com a cara do No Law.
@@ -38,11 +38,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Nothing (first phase)
 **Requirements**: QA-01, QA-02, QA-03, QA-04, OPS-01, OPS-02, OPS-03, SEC-03, SEC-04
 **Success Criteria** (what must be TRUE):
-  1. Qualquer pessoa abre o site na Vercel e vê uma página com dados vindos da API NestJS na Oracle. O Next chama a API servidor a servidor, por HTTPS, num subdomínio gratuito. O mesmo container da API já subiu com sucesso ao menos uma vez no plano B (Render ou Koyeb).
+  1. Qualquer pessoa abre o site na Vercel e vê uma página com dados vindos da API NestJS no PaaS gratuito primário (Render ou Koyeb). O Next chama a API servidor a servidor, por HTTPS, no domínio da plataforma. O mesmo container da API já subiu com sucesso ao menos uma vez na outra plataforma (plano B).
   2. Um push com lint, typecheck ou teste falhando é bloqueado pelo hook de pre-push. Um PR para `main` só pode ser mergeado com a CI verde: Vitest na API e no web (com Postgres real) e Playwright E2E com verificação axe.
   3. `/health` informa se a API está viva e se o banco responde. Um erro provocado aparece no Sentry. Os logs da API saem em JSON estruturado, sem tokens nem segredos.
   4. A API rejeita entrada inválida com erro de validação, responde com os headers do Helmet e recusa origens fora da lista de CORS. A CI falha se o código web renderizar HTML bruto.
-  5. Uma chamada anônima direta à API de dados do Supabase não lê nenhuma tabela: o RLS está ativo em todas e a CI confere isso. A API conecta com um papel de banco sem bypass de RLS. O backup noturno do banco é gravado fora da VM e já foi restaurado com sucesso uma vez, e o keep-alive diário impede a pausa do Supabase.
+  5. Uma chamada anônima direta à API de dados do Supabase não lê nenhuma tabela: o RLS está ativo em todas e a CI confere isso. A API conecta com um papel de banco sem bypass de RLS. O backup noturno do banco é gravado fora do Supabase, em destino privado, e já foi restaurado com sucesso uma vez, e o keep-alive diário impede a pausa do Supabase.
 **Plans**: TBD
 
 ### Phase 2: Identidade visual No Law
@@ -164,10 +164,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - Log de auditoria só de inserção.
 
 **Spikes indicados pela pesquisa:**
-- Fase 1: capacidade da Oracle A1 e recuperação de instância ociosa; HTTPS em subdomínio gratuito (limites do Let's Encrypt); conexão da VM pelo pooler do Supabase (session mode, porta 5432).
+- Fase 1: termos gratuitos atuais de Render e Koyeb (hibernação, horas, RAM, regiões, deploy por imagem); colocação de regiões API/banco/Vercel; conexão da API pelo pooler do Supabase (session mode, porta 5432); destino gratuito e privado para o backup.
 - Fase 3: consulta de membro do servidor pelo bot sem intent privilegiada; cookies httpOnly com `@supabase/ssr`; contas Discord sem e-mail.
 - Fase 4: renderizador React tipado para Tiptap JSON; enfileirar job do pg-boss dentro da transação (senão, outbox próprio).
-- Fase 5: `sharp` no shape real da VM; upload assinado para bucket de quarentena; política para GIFs animados.
+- Fase 5: `sharp` no container real do PaaS (~512 MB); upload assinado para bucket de quarentena; política para GIFs animados.
 - Fase 6: Cache Components do Next 16 (`cacheTag`, `cacheLife`, `revalidateTag`); preview real no Discord e no WhatsApp.
 
 ## Progress

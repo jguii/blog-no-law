@@ -12,8 +12,8 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 
 - **Tech stack**: TypeScript ponta a ponta; Next.js (frontend), NestJS (backend), Supabase (Postgres, Auth, Storage) — escolha do autor
 - **Budget**: custo mensal zero (apenas planos gratuitos) — projeto pessoal/comunitário
-- **Deploy**: Next.js na Vercel; NestJS em VPS Oracle Cloud Always Free com Docker (plano B: mesmo container em Render/Koyeb) — NestJS é servidor persistente, não serverless
-- **Portabilidade**: API containerizada e configurada por variáveis de ambiente — protege contra limitações do free tier da Oracle (capacidade ARM, recuperação de instância ociosa)
+- **Deploy**: Next.js na Vercel; NestJS em container Docker num PaaS gratuito (Render ou Koyeb, um primário e outro como plano B — definido na pesquisa da Fase 1). Oracle descartada (cadastro exige CNPJ). NestJS é servidor persistente, não serverless
+- **Portabilidade**: API containerizada e configurada por variáveis de ambiente — protege contra limitações e mudanças dos free tiers (hibernação, remoção de plano gratuito)
 - **Security**: aplicação pública na internet; seguir práticas de produção (auth, rate limit, validação, XSS, auditoria)
 - **Práticas de engenharia**: TDD (RED→GREEN→REFACTOR obrigatório), SDD (especificação e contratos Zod antes do código), BDD (cenários Dado/Quando/Então viram E2E), DDD pragmático (contextos Identidade, Publicação, Moderação, Engajamento, História do Clã; padrões táticos completos em Publicação e Moderação)
 - **Testes**: nada sobe para o GitHub sem testes passando
@@ -176,6 +176,8 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 | GitHub Actions | `actions/checkout@v7`, `actions/setup-node@v7`, `pnpm/action-setup@v6`, `docker/setup-buildx-action@v4`, `docker/login-action@v4`, `docker/metadata-action@v6`, `docker/build-push-action@v7`, `actions/upload-artifact@v7`, `actions/cache@v6` | CI and image build | Majors read from the GitHub releases API on 2026-11-14. Pin third-party actions by commit SHA and enable Dependabot for Actions. | HIGH |
 
 ### Infrastructure (Oracle Always Free VM + Docker)
+
+> **SUPERADO (2026-11-15):** a Oracle foi descartada (exige CNPJ). A API roda em PaaS gratuito (Render/Koyeb) com HTTPS nativo da plataforma; sem VM, sem Caddy, sem DuckDNS. Ver `.planning/phases/01-esqueleto-no-ar-com-testes-e-ci/01-CONTEXT.md` (D-01 a D-04). O texto abaixo fica só como histórico.
 
 | Technology | Version | Purpose | Why | Confidence |
 |---|---|---|---|---|
