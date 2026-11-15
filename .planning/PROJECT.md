@@ -23,10 +23,11 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 - [ ] Cargos (roles) do servidor Discord — nome e cor — sincronizados e exibidos como insígnias no perfil do membro (via bot Discord somente-leitura)
 
 **Posts e moderação**
-- [ ] Membro cria post com texto, imagens (upload) e vídeos (embed de link YouTube/outros)
-- [ ] Membro escolhe tags/categorias ao criar o post (SA-MP como principal, outros jogos, memes, etc.)
+- [ ] Membro cria post com texto rico, uma ou mais imagens (upload) e um ou mais vídeos (embed do YouTube, somente)
+- [ ] Membro escolhe tags/categorias ao criar o post (SA-MP como principal, outros jogos, memes, etc.) e o ano do acontecimento (só o ano)
 - [ ] Posts de membros passam por fila de aprovação de moderador/admin antes de ficarem públicos
-- [ ] Comentários e reações em posts
+- [ ] Comentários (com respostas de 1 nível) e reações em posts; moderador remove comentários
+- [ ] Edição de post aprovado vira revisão pendente; versão pública fica no ar até a aprovação
 
 **Navegação**
 - [ ] Aba "Explorar": feed sequencial (cronológico) de posts de todos os membros, com suas tags
@@ -39,6 +40,9 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 - [ ] Notificações no site (comentários e reações nos seus posts, aprovação/rejeição de post)
 - [ ] Webhook no Discord do clã anunciando posts aprovados
 
+**Identidade visual**
+- [ ] Fase dedicada de identidade visual no início: tokens a partir da paleta do clã (claro/escuro), logo aplicada, kit de componentes (Tailwind + shadcn/ui), direção visual aprovada pelo autor via mockups
+
 **Qualidade de produção (essenciais)**
 - [ ] Autenticação correta: JWT do Supabase validado em Guard no NestJS, cookies httpOnly
 - [ ] Rate limiting por rota (login, comentários, upload, criação de post)
@@ -47,7 +51,7 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 - [ ] RLS habilitado no Supabase como defesa em profundidade
 - [ ] Log de auditoria de ações de moderação/admin
 - [ ] Logs estruturados, monitoramento de erros, health check
-- [ ] Testes automatizados e CI
+- [ ] Testes automatizados: Vitest (unit/integração) e Playwright (E2E); pre-push bloqueia push sem testes verdes; CI com branch `main` protegida
 - [ ] SEO/Open Graph nos posts públicos (preview bonito ao compartilhar no Discord/WhatsApp)
 
 ### Out of Scope
@@ -63,7 +67,9 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 - Clã com 15–50 pessoas ativas no blog; existe há 10+ anos, com várias saídas e retornos ao servidor SA-MP onde joga — por isso filtro por ano e eras fazem sentido.
 - O clã já tem servidor Discord com cargos (roles) estabelecidos.
 - O autor é desenvolvedor e quer um projeto "FODA" que consolide conhecimentos de ponta a ponta: frontend, backend, banco, segurança, infra e deploy. Valor educacional é um objetivo explícito — preferir fazer do jeito certo a fazer do jeito mais rápido.
-- Discord: login via OAuth com escopo `guilds.members.read` informa os IDs de cargos do membro no servidor; nomes/cores dos cargos exigem um bot no servidor (consulta via NestJS).
+- Discord: o Supabase não guarda nem renova o token do Discord do usuário, então membresia e cargos são consultados por um bot somente-leitura (REST) no login e em ressincronizações; nomes/cores dos cargos vêm do mesmo bot.
+- Identidade visual não é o ponto forte do autor; ele já tem a logo do clã e cores para a paleta, e pode usar sites como referência (sem copiar marca/código).
+- Pesquisa de domínio em `.planning/research/` (2026-11-14).
 
 ## Constraints
 
@@ -72,6 +78,8 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 - **Deploy**: Next.js na Vercel; NestJS em VPS Oracle Cloud Always Free com Docker (plano B: mesmo container em Render/Koyeb) — NestJS é servidor persistente, não serverless
 - **Portabilidade**: API containerizada e configurada por variáveis de ambiente — protege contra limitações do free tier da Oracle (capacidade ARM, recuperação de instância ociosa)
 - **Security**: aplicação pública na internet; seguir práticas de produção (auth, rate limit, validação, XSS, auditoria)
+- **Práticas de engenharia**: TDD (RED→GREEN→REFACTOR obrigatório), SDD (especificação e contratos Zod antes do código), BDD (cenários Dado/Quando/Então viram E2E), DDD pragmático (contextos Identidade, Publicação, Moderação, Engajamento, História do Clã; padrões táticos completos em Publicação e Moderação)
+- **Testes**: nada sobe para o GitHub sem testes passando
 
 ## Key Decisions
 
@@ -85,7 +93,17 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 | NestJS em VPS Oracle com Docker | Grátis, servidor sempre ligado, máximo aprendizado de infra | — Pending |
 | Papéis gerenciados no blog (não pelos cargos do Discord) | Independência da moderação do blog em relação ao servidor | — Pending |
 | Achievements manuais na v1 | São homenagens da história do clã, criadas por admins | — Pending |
-| Cargos do Discord via bot somente-leitura | OAuth só retorna IDs de cargos, não nomes/cores | — Pending |
+| Cargos do Discord via bot somente-leitura | Supabase não guarda/renova o token do Discord; bot consulta membresia e cargos a qualquer momento | — Pending |
+| Next.js como BFF: navegador fala só com o Next, que chama o NestJS server-to-server com Bearer | Cookies httpOnly ficam num só domínio; sem CORS/cookies cross-site | — Pending |
+| API em subdomínio gratuito com HTTPS (Caddy) | Mantém custo zero; cookies nunca chegam ao domínio da API | — Pending |
+| Corpo do post em Tiptap JSON (sem HTML armazenado) | Superfície de XSS mínima, renderização por componentes React | — Pending |
+| "Ano do acontecimento" (só ano) escolhido pelo autor | Filtro por ano e eras refletem quando aconteceu, não quando foi postado | — Pending |
+| Edição de post aprovado via revisão pendente | Não permite burlar a moderação; versão pública nunca some | — Pending |
+| Vídeos só do YouTube; vários vídeos/imagens por post | Simplicidade e segurança de embed | — Pending |
+| VPS Oracle descartável + plano B (sem PAYG) | Oracle pode recuperar instâncias ociosas; custo zero | — Pending |
+| Tailwind + shadcn/ui, com fase dedicada de identidade visual | Visual não é o forte do autor; componentes acessíveis e customizáveis | — Pending |
+| TDD/SDD/BDD/DDD pragmático; Vitest + Playwright; pre-push e CI bloqueiam sem testes | Qualidade e aprendizado são objetivos explícitos | — Pending |
+| Itens sem versão definida ficam em "Ideias futuras" | Autor decide conforme a necessidade | — Pending |
 
 ## Evolution
 
@@ -105,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-11-12 after initialization*
+*Last updated: 2026-11-14 after requirements definition*
