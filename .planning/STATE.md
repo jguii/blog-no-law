@@ -1,6 +1,13 @@
 ---
-gsd_state_version: '1.0'
+gsd_state_version: "1.0"
+current_phase: 1
+current_phase_name: Esqueleto no ar com testes e CI
 status: planning
+stopped_at: Phase 1 context gathered
+last_updated: "2026-11-15T16:20:30.417Z"
+last_activity: 2026-11-14
+last_activity_desc: Roadmap criado (8 fases, 55/55 requisitos v1 mapeados)
+state_head: 5a87cb8492ff966d0f81fed884f40e143e4793e6
 progress:
   total_phases: 8
   completed_phases: 0
@@ -58,6 +65,7 @@ Recent decisions affecting current work:
 - [Roadmap]: A auditoria e os jobs (pg-boss) entram com a moderação (Fase 4); os comentários só depois das ferramentas de moderação (Fase 7).
 - [Roadmap]: O SEC-02 (rate limit) é verificado em conjunto na Fase 7; cada fase aplica limite e validação às rotas que cria.
 - [Roadmap]: Eras e conquistas ficam isoladas na Fase 8 (dependem só da Fase 6) e podem ser adiadas sem bloquear o lançamento.
+- [Fase 1]: Oracle descartada (exige CNPJ); API em PaaS gratuito (Render/Koyeb). Repo público, branch por fase + PR, deploy automático. ORM: Prisma 7.10.1.
 
 ### Pending Todos
 
@@ -65,8 +73,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Fase 1] ORM a confirmar pelo autor. A pesquisa recomenda Prisma 7.10.1 com pin exato; o RLS fica em SQL puro de qualquer forma.
-- [Fase 1] A região home da Oracle é irreversível: decidir antes de criar a tenancy. Não contar com PAYG até confirmar com a Oracle.
+- [Fase 1] Criar o projeto Supabase só depois de definida a região da API (região do Supabase é imutável).
+- [Fase 5] `sharp` num container de ~512 MB pode estourar memória.
 - [Fase 5] Definir a política para GIFs animados: recusar, usar o primeiro quadro ou converter para WebP animado com limite.
 - [Fase 7] Qualquer usuário Discord pode comentar, mas ban/mute e denúncia estão em "Ideias futuras". Mitigação: rate limit e remoção por moderador. Reavaliar antes de divulgar o blog.
 - [Fases 1, 3, 4, 5, 6] Há spikes indicados pela pesquisa; ver "Notas transversais" no ROADMAP.md.
@@ -81,6 +89,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-14
-Stopped at: Roadmap criado; aguardando aprovação do autor
-Resume file: None
+Last session: 2026-11-15T16:20:30.380Z
+Stopped at: Phase 1 context gathered
+Resume file: .planning/phases/01-esqueleto-no-ar-com-testes-e-ci/01-CONTEXT.md
