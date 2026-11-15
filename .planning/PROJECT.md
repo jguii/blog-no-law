@@ -70,6 +70,7 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 - Discord: o Supabase não guarda nem renova o token do Discord do usuário, então membresia e cargos são consultados por um bot somente-leitura (REST) no login e em ressincronizações; nomes/cores dos cargos vêm do mesmo bot.
 - Identidade visual não é o ponto forte do autor; ele já tem a logo do clã e cores para a paleta, e pode usar sites como referência (sem copiar marca/código).
 - Pesquisa de domínio em `.planning/research/` (2026-11-14).
+- Insumos de marca (paleta preto/vermelho #000000, #420b0d, #ac020f + bege #d3aa82, clima nostálgico e original, estrutura inspirada em comunidades tipo Reddit) em `.planning/BRAND-BRIEF.md`.
 
 ## Constraints
 
