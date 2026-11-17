@@ -65,7 +65,7 @@ Recent decisions affecting current work:
 - [Roadmap]: A auditoria e os jobs (pg-boss) entram com a moderação (Fase 4); os comentários só depois das ferramentas de moderação (Fase 7).
 - [Roadmap]: O SEC-02 (rate limit) é verificado em conjunto na Fase 7; cada fase aplica limite e validação às rotas que cria.
 - [Roadmap]: Eras e conquistas ficam isoladas na Fase 8 (dependem só da Fase 6) e podem ser adiadas sem bloquear o lançamento.
-- [Fase 1]: Oracle descartada (exige CNPJ); API em PaaS gratuito (Render/Koyeb). Repo público, branch por fase + PR, deploy automático. ORM: Prisma 7.10.1.
+- [Fase 1]: Oracle descartada (exige CNPJ); API na Render (Virginia), plano B Railway em boot único; Supabase us-east-1, Vercel iad1. Só .claude/CLAUDE.md vai para o repo público. Repo público, branch por fase + PR, deploy automático. ORM: Prisma 7.10.1.
 
 ### Pending Todos
 

@@ -76,7 +76,7 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 
 - **Tech stack**: TypeScript ponta a ponta; Next.js (frontend), NestJS (backend), Supabase (Postgres, Auth, Storage) — escolha do autor
 - **Budget**: custo mensal zero (apenas planos gratuitos) — projeto pessoal/comunitário
-- **Deploy**: Next.js na Vercel; NestJS em container Docker num PaaS gratuito (Render ou Koyeb, um primário e outro como plano B — definido na pesquisa da Fase 1). Oracle descartada (cadastro exige CNPJ). NestJS é servidor persistente, não serverless
+- **Deploy**: Next.js na Vercel; NestJS em container Docker num PaaS gratuito (Render como primária; Railway como plano B de boot único — Koyeb eliminada por não ter mais plano grátis). Oracle descartada (cadastro exige CNPJ). NestJS é servidor persistente, não serverless
 - **Portabilidade**: API containerizada e configurada por variáveis de ambiente — protege contra limitações e mudanças dos free tiers (hibernação, remoção de plano gratuito)
 - **Security**: aplicação pública na internet; seguir práticas de produção (auth, rate limit, validação, XSS, auditoria)
 - **Práticas de engenharia**: TDD (RED→GREEN→REFACTOR obrigatório), SDD (especificação e contratos Zod antes do código), BDD (cenários Dado/Quando/Então viram E2E), DDD pragmático (contextos Identidade, Publicação, Moderação, Engajamento, História do Clã; padrões táticos completos em Publicação e Moderação)
@@ -91,12 +91,12 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 | Posts com aprovação de moderador | Controle de qualidade/conteúdo num blog público | — Pending |
 | Vídeos só por embed | Custo zero de armazenamento | — Pending |
 | Frontend fala só com NestJS (Supabase como banco/storage), RLS como 2ª camada | Regras de negócio centralizadas; defesa em profundidade | — Pending |
-| ~~NestJS em VPS Oracle com Docker~~ → NestJS em Docker num PaaS gratuito (Render/Koyeb) | Oracle exige CNPJ (2026-11-15); container portátil mantém o custo zero | — Pending |
+| ~~NestJS em VPS Oracle com Docker~~ → NestJS em Docker num PaaS gratuito (Render; plano B Railway) | Oracle exige CNPJ (2026-11-15); container portátil mantém o custo zero | — Pending |
 | Papéis gerenciados no blog (não pelos cargos do Discord) | Independência da moderação do blog em relação ao servidor | — Pending |
 | Achievements manuais na v1 | São homenagens da história do clã, criadas por admins | — Pending |
 | Cargos do Discord via bot somente-leitura | Supabase não guarda/renova o token do Discord; bot consulta membresia e cargos a qualquer momento | — Pending |
 | Next.js como BFF: navegador fala só com o Next, que chama o NestJS server-to-server com Bearer | Cookies httpOnly ficam num só domínio; sem CORS/cookies cross-site | — Pending |
-| API no domínio HTTPS nativo da plataforma (`*.onrender.com`/`*.koyeb.app`) | Mantém custo zero; cookies nunca chegam ao domínio da API (BFF) | — Pending |
+| API no domínio HTTPS nativo da plataforma (`*.onrender.com`) | Mantém custo zero; cookies nunca chegam ao domínio da API (BFF) | — Pending |
 | Corpo do post em Tiptap JSON (sem HTML armazenado) | Superfície de XSS mínima, renderização por componentes React | — Pending |
 | "Ano do acontecimento" (só ano) escolhido pelo autor | Filtro por ano e eras refletem quando aconteceu, não quando foi postado | — Pending |
 | Edição de post aprovado via revisão pendente | Não permite burlar a moderação; versão pública nunca some | — Pending |

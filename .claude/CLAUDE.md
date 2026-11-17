@@ -12,7 +12,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 
 - **Tech stack**: TypeScript ponta a ponta; Next.js (frontend), NestJS (backend), Supabase (Postgres, Auth, Storage) — escolha do autor
 - **Budget**: custo mensal zero (apenas planos gratuitos) — projeto pessoal/comunitário
-- **Deploy**: Next.js na Vercel; NestJS em container Docker num PaaS gratuito (Render ou Koyeb, um primário e outro como plano B — definido na pesquisa da Fase 1). Oracle descartada (cadastro exige CNPJ). NestJS é servidor persistente, não serverless
+- **Deploy**: Next.js na Vercel; NestJS em container Docker num PaaS gratuito (Render como primária; Railway como plano B de boot único — Koyeb eliminada por não ter mais plano grátis). Oracle descartada (cadastro exige CNPJ). NestJS é servidor persistente, não serverless
 - **Portabilidade**: API containerizada e configurada por variáveis de ambiente — protege contra limitações e mudanças dos free tiers (hibernação, remoção de plano gratuito)
 - **Security**: aplicação pública na internet; seguir práticas de produção (auth, rate limit, validação, XSS, auditoria)
 - **Práticas de engenharia**: TDD (RED→GREEN→REFACTOR obrigatório), SDD (especificação e contratos Zod antes do código), BDD (cenários Dado/Quando/Então viram E2E), DDD pragmático (contextos Identidade, Publicação, Moderação, Engajamento, História do Clã; padrões táticos completos em Publicação e Moderação)
@@ -177,7 +177,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 
 ### Infrastructure (Oracle Always Free VM + Docker)
 
-> **SUPERADO (2026-11-15):** a Oracle foi descartada (exige CNPJ). A API roda em PaaS gratuito (Render/Koyeb) com HTTPS nativo da plataforma; sem VM, sem Caddy, sem DuckDNS. Ver `.planning/phases/01-esqueleto-no-ar-com-testes-e-ci/01-CONTEXT.md` (D-01 a D-04). O texto abaixo fica só como histórico.
+> **SUPERADO (2026-11-15):** a Oracle foi descartada (exige CNPJ). A API roda na Render (plano B: Railway, boot único) com HTTPS nativo da plataforma; sem VM, sem Caddy, sem DuckDNS. Ver `.planning/phases/01-esqueleto-no-ar-com-testes-e-ci/01-CONTEXT.md` (D-01 a D-04). O texto abaixo fica só como histórico.
 
 | Technology | Version | Purpose | Why | Confidence |
 |---|---|---|---|---|

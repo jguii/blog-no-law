@@ -91,7 +91,7 @@ Requisitos do lançamento. Cada um mapeia para exatamente uma fase do roadmap.
 ### Operação (OPS)
 
 - [ ] **OPS-01**: Logs estruturados, monitoramento de erros (Sentry) e health check da API
-- [ ] **OPS-02**: Deploy do Next na Vercel e da API em Docker num PaaS gratuito (Render ou Koyeb) com HTTPS; plano B de hospedagem testado ao menos uma vez
+- [ ] **OPS-02**: Deploy do Next na Vercel e da API em Docker num PaaS gratuito (Render) com HTTPS; plano B de hospedagem (Railway) testado ao menos uma vez
 - [ ] **OPS-03**: Backup noturno do banco fora do Supabase, em destino privado, e keep-alive que impede a pausa do Supabase
 
 ## Ideias futuras (sem versão definida)

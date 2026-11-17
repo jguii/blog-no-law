@@ -38,7 +38,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Nothing (first phase)
 **Requirements**: QA-01, QA-02, QA-03, QA-04, OPS-01, OPS-02, OPS-03, SEC-03, SEC-04
 **Success Criteria** (what must be TRUE):
-  1. Qualquer pessoa abre o site na Vercel e vê uma página com dados vindos da API NestJS no PaaS gratuito primário (Render ou Koyeb). O Next chama a API servidor a servidor, por HTTPS, no domínio da plataforma. O mesmo container da API já subiu com sucesso ao menos uma vez na outra plataforma (plano B).
+  1. Qualquer pessoa abre o site na Vercel e vê uma página com dados vindos da API NestJS no PaaS gratuito primário (Render). O Next chama a API servidor a servidor, por HTTPS, no domínio da plataforma. O mesmo container da API já subiu com sucesso ao menos uma vez no plano B (Railway, boot único).
   2. Um push com lint, typecheck ou teste falhando é bloqueado pelo hook de pre-push. Um PR para `main` só pode ser mergeado com a CI verde: Vitest na API e no web (com Postgres real) e Playwright E2E com verificação axe.
   3. `/health` informa se a API está viva e se o banco responde. Um erro provocado aparece no Sentry. Os logs da API saem em JSON estruturado, sem tokens nem segredos.
   4. A API rejeita entrada inválida com erro de validação, responde com os headers do Helmet e recusa origens fora da lista de CORS. A CI falha se o código web renderizar HTML bruto.
@@ -164,7 +164,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - Log de auditoria só de inserção.
 
 **Spikes indicados pela pesquisa:**
-- Fase 1: termos gratuitos atuais de Render e Koyeb (hibernação, horas, RAM, regiões, deploy por imagem); colocação de regiões API/banco/Vercel; conexão da API pelo pooler do Supabase (session mode, porta 5432); destino gratuito e privado para o backup.
+- Fase 1: Render aceita imagem do GHCR no plano Free; número de hops do `trust proxy` da Render; termos gratuitos de Render e Railway (hibernação, horas, RAM, regiões, deploy por imagem); colocação de regiões API/banco/Vercel; conexão da API pelo pooler do Supabase (session mode, porta 5432); destino gratuito e privado para o backup.
 - Fase 3: consulta de membro do servidor pelo bot sem intent privilegiada; cookies httpOnly com `@supabase/ssr`; contas Discord sem e-mail.
 - Fase 4: renderizador React tipado para Tiptap JSON; enfileirar job do pg-boss dentro da transação (senão, outbox próprio).
 - Fase 5: `sharp` no container real do PaaS (~512 MB); upload assinado para bucket de quarentena; política para GIFs animados.

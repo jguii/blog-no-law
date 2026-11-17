@@ -18,7 +18,7 @@ Monorepo (`apps/web` Next.js, `apps/api` NestJS, `packages/shared` Zod) publicad
 
 Requisitos: QA-01, QA-02, QA-03, QA-04, OPS-01, OPS-02, OPS-03, SEC-03, SEC-04.
 
-**Mudança importante desta discussão:** a API **não** vai mais para a Oracle Cloud (o cadastro exige CNPJ). A API roda em PaaS gratuito com Docker (Render ou Koyeb). Isso substitui as partes de VM Oracle, Caddy, DuckDNS e arm64 na pesquisa e no `.claude/CLAUDE.md`.
+**Mudança importante desta discussão:** a API **não** vai mais para a Oracle Cloud (o cadastro exige CNPJ). A API roda em PaaS gratuito com Docker: **Render** como primária e **Railway** como plano B de boot único (ver D-11; a Koyeb foi eliminada porque deixou de ter plano grátis). Isso substitui as partes de VM Oracle, Caddy, DuckDNS e arm64 na pesquisa e no `.claude/CLAUDE.md`.
 
 </domain>
 
@@ -35,7 +35,7 @@ Requisitos: QA-01, QA-02, QA-03, QA-04, OPS-01, OPS-02, OPS-03, SEC-03, SEC-04.
   - health check;
   - exigência de cartão.
   — **Reversibility:** reversible — o container é portátil e configurado só por env. Trocar de host é apontar `API_URL` para outro lugar.
-- **D-02:** O HTTPS usa o domínio nativo da plataforma (`*.onrender.com` ou `*.koyeb.app`). Não há DuckDNS, Caddy nem VM. Como o Next é BFF, nenhum cookie vive no domínio da API, então o hostname da plataforma basta. Configurar `trust proxy` do Express para o proxy da plataforma escolhida; o pesquisador confirma o número de hops.
+- **D-02:** O HTTPS usa o domínio nativo da plataforma (`*.onrender.com` na Render; o domínio gerado pela Railway no teste do plano B). Não há DuckDNS, Caddy nem VM. Como o Next é BFF, nenhum cookie vive no domínio da API, então o hostname da plataforma basta. Configurar `trust proxy` do Express para o proxy da plataforma escolhida; o pesquisador confirma o número de hops.
 - **D-03:** O pesquisador decide a hibernação: manter a API acordada com ping externo a cada 5 a 10 minutos, ou projetar para o sono (crons movidos para o GitHub Actions chamando endpoints protegidos, fallback ou cache no Next). A recomendação precisa considerar:
   - o impacto em `@nestjs/schedule` e nos futuros jobs pg-boss (Fase 4);
   - o timeout das funções da Vercel durante um cold start;
@@ -44,7 +44,7 @@ Requisitos: QA-01, QA-02, QA-03, QA-04, OPS-01, OPS-02, OPS-03, SEC-03, SEC-04.
   - se os termos da plataforma permitem o ping.
 - **D-04:** Colocação. A regra prioritária é API e banco na **mesma região** (ou a mais próxima possível), porque cada requisição faz várias consultas. As funções da Vercel ficam na região mais próxima da API (`regions` no config da Vercel). O pesquisador escolhe a região concreta depois de definir o host. Nenhuma das plataformas tem região no Brasil; se o host for o Render na Virginia, a recomendação é Supabase em `us-east-1` e Vercel em `iad1`.
 - **D-05:** O projeto Supabase **ainda não foi criado** (a conta existe). Ele será criado depois da D-04, na região escolhida, como tarefa manual do autor (checkpoint humano no plano). — **Reversibility:** one-way — a região de um projeto Supabase é imutável. Mudar depois exige um projeto novo e a migração dos dados. Hoje é barato porque o projeto estaria vazio.
-- **D-06:** Contas existentes: GitHub e Vercel; a conta Supabase existe, sem projeto. Precisam ser criadas pelo autor (tarefas manuais no plano): Render, Koyeb, Sentry e o monitor de uptime, se o pesquisador escolher um.
+- **D-06:** Contas existentes: GitHub e Vercel; a conta Supabase existe, sem projeto. Precisam ser criadas pelo autor (tarefas manuais no plano): Render, Railway, Sentry, UptimeRobot e o projeto Supabase em `us-east-1`.
 
 ### Repositório, portões de qualidade e deploy
 - **D-07:** Repositório **público** no GitHub. Com isso, os rulesets e a branch protection valem de graça, os minutos do Actions são ilimitados e o repo serve de portfólio. Consequências obrigatórias:
@@ -62,6 +62,10 @@ Requisitos: QA-01, QA-02, QA-03, QA-04, OPS-01, OPS-02, OPS-03, SEC-03, SEC-04.
   - **API:** o workflow do GitHub Actions gera a imagem, publica no GHCR e aciona o deploy hook da plataforma primária.
   - A arquitetura da imagem acompanha o host escolhido (provavelmente `linux/amd64`; arm64 deixa de ser requisito).
   - `prisma migrate deploy` roda no pipeline antes da nova versão da API subir, usando a credencial de migração (`postgres`). O passo exato fica a critério do Claude.
+
+### Decisões travadas depois da pesquisa (2026-11-17)
+- **D-11:** Plataforma primária da API: **Render** (Free web service, região Virginia, serviço criado manualmente pelo painel, imagem pública do GHCR; fallback: runtime Docker a partir do Dockerfile do repo com deploy hook). Plano B: **Railway**, em **boot único**. A mesma imagem do GHCR sobe uma vez no trial de US$ 5 (sem cartão), prova a portabilidade e é desligada depois. Fica um runbook de emergência para religar se a Render cair. A Railway **não** é standby gratuito permanente. A Koyeb está eliminada (exige plano Pro de US$ 29 e cartão). Regiões: Supabase `us-east-1`, Vercel `iad1`. — **Reversibility:** reversible — o container é portátil; trocar de host é mudar `API_URL` e o deploy hook.
+- **D-12:** Da pasta `.claude/`, **só `.claude/CLAUDE.md` entra no git** do repo público. Vão para o `.gitignore` antes do primeiro push: `.claude/gsd-core/`, `.claude/agents/`, `.claude/commands/`, `.claude/hooks/`, `.claude/scripts/`, `.claude/.gsd-profile`, `.claude/gsd-file-manifest.json`, `.claude/gsd-install-state.json` e `.claude/settings.local.json`. A CI e o pre-push não podem depender desses arquivos. — **Reversibility:** costly — o que for publicado no repo público pode ter sido clonado; por isso o `.gitignore` vem antes do primeiro push.
 
 ### Claude's Discretion
 O autor não quis discutir estes pontos. Seguir a pesquisa (`.planning/research/`) salvo justificativa:
@@ -125,7 +129,8 @@ O autor não quis discutir estes pontos. Seguir a pesquisa (`.planning/research/
 ## Specific Ideas
 
 - O autor disse: "Vamos usar Render ou Koyeb gratuito para a API em vez da Oracle, pois a Oracle exige CNPJ."
-- O autor delegou ao pesquisador a escolha entre Render e Koyeb, a política de hibernação e a colocação das regiões. A pesquisa precisa trazer uma recomendação concreta, não uma lista de opções.
+- O autor delegou ao pesquisador a escolha entre Render e Koyeb, a política de hibernação e a colocação das regiões. A pesquisa recomendou Render + Railway (boot único), e o autor aceitou em 2026-11-17 (D-11).
+- O autor aceitou versionar só o `.claude/CLAUDE.md` do diretório `.claude/` (D-12).
 
 </specifics>
 
