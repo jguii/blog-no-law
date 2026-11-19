@@ -1,0 +1,53 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": null,
+  "phases": [
+    {
+      "number": "1",
+      "name": "Esqueleto no ar com testes e CI",
+      "status": "pending"
+    },
+    {
+      "number": "2",
+      "name": "Identidade visual No Law",
+      "status": "pending"
+    },
+    {
+      "number": "3",
+      "name": "Login com Discord e controle de acesso",
+      "status": "pending"
+    },
+    {
+      "number": "4",
+      "name": "Publicar e moderar posts",
+      "status": "pending"
+    },
+    {
+      "number": "5",
+      "name": "Imagens e YouTube nos posts",
+      "status": "pending"
+    },
+    {
+      "number": "6",
+      "name": "Explorar, perfis e acervo",
+      "status": "pending"
+    },
+    {
+      "number": "7",
+      "name": "Comunidade e engajamento",
+      "status": "pending"
+    },
+    {
+      "number": "8",
+      "name": "Eras e conquistas",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd-progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 1 of 8 · 0% · executing"
+  },
+  "updated_at": "2026-11-19T13:31:13.186Z"
+}

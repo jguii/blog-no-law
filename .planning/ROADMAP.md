@@ -43,7 +43,44 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `/health` informa se a API está viva e se o banco responde. Um erro provocado aparece no Sentry. Os logs da API saem em JSON estruturado, sem tokens nem segredos.
   4. A API rejeita entrada inválida com erro de validação, responde com os headers do Helmet e recusa origens fora da lista de CORS. A CI falha se o código web renderizar HTML bruto.
   5. Uma chamada anônima direta à API de dados do Supabase não lê nenhuma tabela: o RLS está ativo em todas e a CI confere isso. A API conecta com um papel de banco sem bypass de RLS. O backup noturno do banco é gravado fora do Supabase, em destino privado, e já foi restaurado com sucesso uma vez, e o keep-alive diário impede a pausa do Supabase.
-**Plans**: TBD
+**Plans**: 14 plans
+
+Plans:
+**Wave 1**
+- [ ] 01-01-PLAN.md — Workspace pnpm, contrato Zod `/status` (SDD), `.gitignore` da D-12 e CLAUDE.md sem a infra Oracle
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 01-02-PLAN.md — API NestJS 12 (ESM) servindo `/status` e `/health/live`, env validada por Zod
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 01-03-PLAN.md — Home Next 16 (RSC/BFF) mostrando o status da API, degradação e lint contra HTML bruto
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 01-04-PLAN.md — Postgres local e migration baseline (`app_api` sem bypass, RLS) provada por teste
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 01-05-PLAN.md — API lê `heartbeat` como `app_api`: `/health/ready` e status real do banco
+- [ ] 01-06-PLAN.md — Supabase de produção (us-east-1), [BLOCKING] `prisma migrate deploy` e prova anônima do PostgREST
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [ ] 01-07-PLAN.md — Endurecimento da API: Helmet, CORS, trust proxy, logs Pino redigidos, Sentry por `--import`
+- [ ] 01-14-PLAN.md — Gates testados como scripts (wave 6): HTML bruto com allowlist vazia (SEC-03) e modo estrito anônimo do smoke PostgREST (D-14)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+- [ ] 01-08-PLAN.md — Pre-push com Turborepo e Husky (lint, typecheck, testes com Postgres real; cliente Prisma gerado antes de qualquer tarefa que o usa)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+- [ ] 01-09-PLAN.md — Repo público (bootstrap docs-only da `main`), CI com `ci-ok`, gates do 01-14 ligados na CI (HTML bruto e PostgREST anônimo pré-merge, D-14), Dependabot e ruleset
+
+**Wave 9** *(blocked on Wave 8 completion)*
+- [ ] 01-10-PLAN.md — E2E Playwright + axe na CI e Sentry no web
+- [ ] 01-11-PLAN.md — Imagem no GHCR, API na Render (Virginia) e boot único na Railway
+
+**Wave 10** *(blocked on Wave 9 completion)*
+- [ ] 01-12-PLAN.md — Deploy automático no merge (primeiro merge no meio da fase, D-13) e web na Vercel (iad1)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+- [ ] 01-13-PLAN.md — Backup noturno cifrado (segundo merge no meio da fase, D-13), restore drill e keep-alive
 
 ### Phase 2: Identidade visual No Law
 **Goal:** As a visitante do blog, I want to navegar por um site com a cara do clã No Law (logo, paleta, tema claro e escuro) no celular e no desktop, so that o blog seja reconhecido como a casa do clã antes mesmo dos primeiros posts.
@@ -177,7 +214,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Esqueleto no ar com testes e CI | 0/TBD | Not started | - |
+| 1. Esqueleto no ar com testes e CI | 0/14 | Not started | - |
 | 2. Identidade visual No Law | 0/TBD | Not started | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |

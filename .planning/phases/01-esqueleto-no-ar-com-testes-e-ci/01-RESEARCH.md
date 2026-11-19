@@ -153,7 +153,7 @@ Versões confirmadas com `npm view` em 2026-11-15, exceto quando indicado `[CITE
 |---------|---------|---------|--------------|
 | Node.js | 26.x (dev 26.13.1) | Runtime | Default na Vercel (26.x); LTS; imagem `node:26-bookworm-slim` `[CITED: STACK.md]` |
 | TypeScript | `~6.0.3` (registry: 6.0.3) | Linguagem | Limite de typescript-eslint e Nest CLI `[VERIFIED: npm registry]` |
-| pnpm | registry 12.21.0 (STACK diz 12.18.0) | Workspaces | Fixar via `packageManager`; `allowBuilds` em `pnpm-workspace.yaml` substitui `onlyBuiltDependencies` `[CITED: pnpm.io/cli/approve-builds]` |
+| pnpm | 12.21.0 (registry `[VERIFIED: npm registry]`; nota de 2026-11-19: o STACK.md trazia uma versão anterior, alinhada a 12.21.0 pelo 01-01 Task 3) | Workspaces | Fixar via `packageManager`; `allowBuilds` em `pnpm-workspace.yaml` substitui `onlyBuiltDependencies` `[CITED: pnpm.io/cli/approve-builds]` |
 | Turborepo | 2.11.11 | Tarefas com cache | `[VERIFIED: npm registry]` |
 | Next.js / React | 16.4.6 / 19.3.1 | Web | `[VERIFIED: npm registry]` |
 | NestJS (`@nestjs/common`/`core`/`platform-express`/`testing`) | 12.5.0 | API | `[VERIFIED: npm registry]` |
@@ -639,19 +639,19 @@ expect(r[0]).toEqual({ rolbypassrls: false, rolsuper: false });
 | A14 | Token fine-grained com expiração de até 1 ano é aceito para a conta pessoal | Backup | Rotação anual no runbook |
 | A15 | Limite do Supabase Data API: recomendar manter habilitada na Fase 1 (para o smoke fazer sentido) e avaliar desabilitar depois | SEC-04 | Se o autor preferir desabilitar, o smoke vira trivial |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Render aceita imagem do GHCR no plano Free?** (A1)
+1. **Render aceita imagem do GHCR no plano Free?** (A1) — RESOLVED (planejamento): o plano 01-11 cria o serviço por imagem existente; se a opção não aparecer no Free, usa o runtime Docker do repositório com deploy hook (instrução no checkpoint do 01-11, Task 2).
    - O que sabemos: a página de deploy de imagem não restringe instance type; docs de preço não confirmam.
    - Lacuna: confirmação na criação do serviço.
    - Recomendação: spike de Wave 0 (criar serviço grátis a partir de `ghcr.io/...` público); se não houver a opção, adotar o fallback com Dockerfile no repo.
-2. **Número de hops do `trust proxy` na Render.**
+2. **Número de hops do `trust proxy` na Render.** — RESOLVED (planejamento): `TRUST_PROXY_HOPS` validado por Zod com default 1 (01-02/01-07); a sonda roda no 01-11 Task 3 com `X-Forwarded-For` forjado e leitura do `clientIp` no log da Render, com regra de decisão no `docs/runbooks/render.md`.
    - Sonda proposta (task do plano, primeiro deploy): endpoint temporário protegido por flag devolvendo `req.ip`, `req.ips`, `x-forwarded-for`, `cf-connecting-ip`, `true-client-ip` para um `curl` com `X-Forwarded-For: 1.2.3.4`. Se `req.ip` com hops=1 não for o IP real, usar 2. Remover a rota depois. Teste automatizado: com hops=N, valor forjado à esquerda é ignorado.
-3. **O autor aceita Railway como plano B de "boot único" (não standby contínuo)?** Se quiser um plano B realmente gratuito e contínuo, hoje não há opção sem cartão confirmada. A alternativa é aceitar um cartão em Google Cloud Run/Northflank apenas para o teste.
-4. **Quais partes de `.claude/` vão para o repo público?** (`gsd-core`, agents, hooks, manifestos). Recomendação: versionar só `.claude/CLAUDE.md`; ignorar o resto e `settings.local.json`. Exige decisão rápida do autor antes do primeiro push.
-5. **Editar `.claude/CLAUDE.md`:** remover/reescrever as seções Oracle/Caddy/arm64 para refletir Render (tarefa de documentação do plano).
-6. **Sentry + Nest 12 em ESM com `--import`:** spike de 15 minutos no Slice 4.
-7. **TLS do pooler com `pg` no Prisma 7:** o STACK recomenda `NODE_EXTRA_CA_CERTS` com a CA do Supabase; validar contra o pooler real no primeiro conectar.
+3. **O autor aceita Railway como plano B de "boot único" (não standby contínuo)?** — RESOLVED pela D-11 (2026-11-17): sim, boot único + runbook de emergência. Se quiser um plano B realmente gratuito e contínuo, hoje não há opção sem cartão confirmada. A alternativa é aceitar um cartão em Google Cloud Run/Northflank apenas para o teste.
+4. **Quais partes de `.claude/` vão para o repo público?** — RESOLVED pela D-12: só `.claude/CLAUDE.md`; o resto entra no `.gitignore` antes do primeiro push (01-01 Task 2). (`gsd-core`, agents, hooks, manifestos). Recomendação: versionar só `.claude/CLAUDE.md`; ignorar o resto e `settings.local.json`. Exige decisão rápida do autor antes do primeiro push.
+5. **Editar `.claude/CLAUDE.md`:** remover/reescrever as seções Oracle/Caddy/arm64 para refletir Render (tarefa de documentação do plano). — RESOLVED: 01-01 Task 3 reescreve a seção no CLAUDE.md e no STACK.md.
+6. **Sentry + Nest 12 em ESM com `--import`:** spike de 15 minutos no Slice 4. — RESOLVED (planejamento): 01-07 Task 3 prova com teste que sobe o `dist` real por `--import` contra um ingest falso local; o 01-11 repete na Railway com o Sentry real.
+7. **TLS do pooler com `pg` no Prisma 7:** o STACK recomenda `NODE_EXTRA_CA_CERTS` com a CA do Supabase; validar contra o pooler real no primeiro conectar. — RESOLVED (planejamento): CA versionada em `apps/api/certs/supabase-ca.crt`; `NODE_EXTRA_CA_CERTS` no runtime e nos scripts; `sslrootcert` relativo na URL do Prisma se preciso (01-06 Task 2, 01-11).
 
 ## Environment Availability
 
