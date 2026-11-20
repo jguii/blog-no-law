@@ -89,3 +89,45 @@ test('ligação 5: no @blog/api, build gera o cliente, typecheck não gera e tes
     'test:integration precisa rodar também node --test scripts/*.test.mjs',
   );
 });
+
+test('ligação 6: .oxlintrc.json exige no-floating-promises e ignora dist e o cliente gerado', () => {
+  const config = readJson('.oxlintrc.json');
+  assert.equal(config.rules?.['typescript/no-floating-promises'], 'error');
+  const ignored = config.ignorePatterns ?? [];
+  assert.ok(ignored.includes('**/dist/**'), 'ignorePatterns sem **/dist/**');
+  assert.ok(ignored.includes('**/src/generated/**'), 'ignorePatterns sem **/src/generated/**');
+});
+
+test('ligação 7: lint do api e do shared via oxlint com versões exatas, lint do web segue no eslint', () => {
+  const api = readJson('apps/api/package.json');
+  const shared = readJson('packages/shared/package.json');
+  const web = readJson('apps/web/package.json');
+  assert.equal(api.scripts?.lint, 'oxlint --type-aware -c ../../.oxlintrc.json src/ test/');
+  assert.equal(shared.scripts?.lint, 'oxlint --type-aware -c ../../.oxlintrc.json src/');
+  assert.equal(web.scripts?.lint, 'eslint .');
+  for (const pkg of [api, shared]) {
+    for (const name of ['oxlint', 'oxlint-tsgolint']) {
+      assert.match(
+        pkg.devDependencies?.[name] ?? '',
+        EXACT_VERSION,
+        `${pkg.name}: ${name} sem versão exata`,
+      );
+    }
+  }
+});
+
+test('ligação 8: verify roda format:check antes do turbo run e o .prettierignore cobre o que não se formata', () => {
+  const pkg = readJson('package.json');
+  const verify = pkg.scripts?.verify ?? '';
+  const formatAt = verify.indexOf('format:check');
+  const turboAt = verify.indexOf('turbo run');
+  assert.notEqual(formatAt, -1, 'verify precisa chamar format:check');
+  assert.notEqual(turboAt, -1, 'verify precisa chamar turbo run');
+  assert.ok(formatAt < turboAt, 'format:check precisa vir antes do turbo run');
+  const ignored = readText('.prettierignore')
+    .split('\n')
+    .map((line) => line.trim());
+  for (const entry of ['pnpm-lock.yaml', '.planning', '.claude', 'apps/api/src/generated']) {
+    assert.ok(ignored.includes(entry), `.prettierignore sem ${entry}`);
+  }
+});

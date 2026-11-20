@@ -4,7 +4,7 @@
 # o hook roda sobre a working tree.
 #
 # Casos: A teste falhando, B erro de tipo (ambos bloqueados), C push limpo (passa),
-#        D push repetido sem mudanças (passa, com FULL TURBO).
+#        D push repetido sem mudanças (passa, com FULL TURBO), E promessa flutuante (lint).
 set -euo pipefail
 
 ROOT=$(git rev-parse --show-toplevel)
@@ -16,7 +16,8 @@ STATUS_BEFORE=$(git status --porcelain)
 
 PROBE_TEST=packages/shared/src/__prepush_probe.test.ts
 PROBE_TYPE=packages/shared/src/__prepush_probe.ts
-PROBE_FILES=("$PROBE_TEST" "$PROBE_TYPE")
+PROBE_LINT=apps/api/src/__prepush_probe.ts
+PROBE_FILES=("$PROBE_TEST" "$PROBE_TYPE" "$PROBE_LINT")
 
 cleanup() {
   rm -f "${PROBE_FILES[@]}"
@@ -78,6 +79,15 @@ export const sondaDoPrePush: number = 'não é número';
 EOF
 expect_blocked B probe-b
 rm -f "$PROBE_TYPE"
+
+# Caso E: promessa flutuante (lint type-aware do oxlint).
+cat > "$PROBE_LINT" <<'EOF'
+export async function sondaDoPrePush(): Promise<void> {
+  Promise.resolve(1);
+}
+EOF
+expect_blocked E probe-e
+rm -f "$PROBE_LINT"
 
 # Caso C: árvore limpa passa.
 push_to probe-c
