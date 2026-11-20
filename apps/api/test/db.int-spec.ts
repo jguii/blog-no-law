@@ -154,7 +154,8 @@ describe('API com o banco fora do ar ou travado', () => {
       });
       await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
       const address = server.address();
-      if (address === null || typeof address === 'string') throw new Error('porta do servidor TCP indisponível');
+      if (address === null || typeof address === 'string')
+        throw new Error('porta do servidor TCP indisponível');
       app = await createApp(appApiUrlAt('127.0.0.1', address.port));
     });
 

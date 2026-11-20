@@ -62,7 +62,10 @@ test('ligação 3: test:integration declara DATABASE_URL_TEST_ADMIN em env e pri
   for (const key of ['test:integration', '@blog/api#test:integration']) {
     const task = tasks[key];
     assert.ok(task, `turbo.json precisa ter a entrada ${key}`);
-    assert.ok(task.env?.includes('DATABASE_URL_TEST_ADMIN'), `${key}: env sem DATABASE_URL_TEST_ADMIN`);
+    assert.ok(
+      task.env?.includes('DATABASE_URL_TEST_ADMIN'),
+      `${key}: env sem DATABASE_URL_TEST_ADMIN`,
+    );
     assert.ok(task.inputs?.includes('prisma/**'), `${key}: inputs sem prisma/**`);
   }
 });
@@ -81,9 +84,15 @@ test('ligação 4: tarefas do @blog/api que usam o cliente Prisma dependem do bu
 
 test('ligação 5: no @blog/api, build gera o cliente, typecheck não gera e test:integration roda os scripts node:test', () => {
   const scripts = readJson('apps/api/package.json').scripts ?? {};
-  assert.ok((scripts.build ?? '').startsWith('prisma generate'), 'build precisa começar com prisma generate');
+  assert.ok(
+    (scripts.build ?? '').startsWith('prisma generate'),
+    'build precisa começar com prisma generate',
+  );
   assert.ok(scripts.typecheck !== undefined, 'typecheck precisa existir');
-  assert.ok(!scripts.typecheck.includes('prisma generate'), 'typecheck não pode rodar prisma generate');
+  assert.ok(
+    !scripts.typecheck.includes('prisma generate'),
+    'typecheck não pode rodar prisma generate',
+  );
   assert.ok(
     (scripts['test:integration'] ?? '').includes('node --test scripts/*.test.mjs'),
     'test:integration precisa rodar também node --test scripts/*.test.mjs',

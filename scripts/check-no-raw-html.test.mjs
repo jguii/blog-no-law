@@ -65,11 +65,16 @@ test('allowlist com o caminho da fixture insegura: sai 0', () => {
 });
 
 test('allowlist podre (item que não existe mais): sai 1 com STALE_ALLOWLIST', () => {
-  withTempAllowlist([unsafeFile, 'scripts/__fixtures__/raw-html/unsafe/removido.tsx'], (allowlist) => {
-    const result = run(['--root', unsafeRoot, '--allowlist', allowlist]);
-    assert.equal(result.status, 1, result.stdout + result.stderr);
-    assert.ok(result.stdout.includes('STALE_ALLOWLIST scripts/__fixtures__/raw-html/unsafe/removido.tsx'));
-  });
+  withTempAllowlist(
+    [unsafeFile, 'scripts/__fixtures__/raw-html/unsafe/removido.tsx'],
+    (allowlist) => {
+      const result = run(['--root', unsafeRoot, '--allowlist', allowlist]);
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.ok(
+        result.stdout.includes('STALE_ALLOWLIST scripts/__fixtures__/raw-html/unsafe/removido.tsx'),
+      );
+    },
+  );
 });
 
 test('sem argumentos: varre o apps/web real com a allowlist vazia e sai 0', () => {

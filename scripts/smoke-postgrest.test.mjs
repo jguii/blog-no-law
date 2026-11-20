@@ -58,102 +58,129 @@ function runSmoke(extraEnv = {}) {
   });
 }
 
-test('LEAK: 200 com linhas sai 1 nos dois modos, e falha de rede nunca vira bloqueio', { timeout: 15000 }, async () => {
-  reset({ '/heartbeat': { status: 200, body: '[{"id":1}]' } });
-  for (const extra of [{ TABLES: 'heartbeat' }, { TABLES: 'heartbeat', POSTGREST_STRICT: '1' }]) {
-    const result = await runSmoke(extra);
-    assert.equal(result.code, 1, result.stdout + result.stderr);
-    assert.ok(result.stdout.includes('LEAK heartbeat 200'), result.stdout);
-    assert.ok(!result.stdout.includes('POSTGREST_ANON_BLOCKED'));
-  }
+test(
+  'LEAK: 200 com linhas sai 1 nos dois modos, e falha de rede nunca vira bloqueio',
+  { timeout: 15000 },
+  async () => {
+    reset({ '/heartbeat': { status: 200, body: '[{"id":1}]' } });
+    for (const extra of [{ TABLES: 'heartbeat' }, { TABLES: 'heartbeat', POSTGREST_STRICT: '1' }]) {
+      const result = await runSmoke(extra);
+      assert.equal(result.code, 1, result.stdout + result.stderr);
+      assert.ok(result.stdout.includes('LEAK heartbeat 200'), result.stdout);
+      assert.ok(!result.stdout.includes('POSTGREST_ANON_BLOCKED'));
+    }
 
-  // Servidor que aceita a conexão e não responde: o curl estoura o timeout e o script falha.
-  reset({ '/hang': { hang: true } });
-  for (const extra of [{}, { POSTGREST_STRICT: '1' }]) {
-    const result = await runSmoke({ TABLES: 'hang', SMOKE_CURL_MAX_TIME: '1', ...extra });
-    assert.notEqual(result.code, 0, result.stdout + result.stderr);
-    assert.ok(!result.stdout.includes('POSTGREST_ANON_BLOCKED'));
-  }
-});
+    // Servidor que aceita a conexão e não responde: o curl estoura o timeout e o script falha.
+    reset({ '/hang': { hang: true } });
+    for (const extra of [{}, { POSTGREST_STRICT: '1' }]) {
+      const result = await runSmoke({ TABLES: 'hang', SMOKE_CURL_MAX_TIME: '1', ...extra });
+      assert.notEqual(result.code, 0, result.stdout + result.stderr);
+      assert.ok(!result.stdout.includes('POSTGREST_ANON_BLOCKED'));
+    }
+  },
+);
 
-test('modo estrito: só passa com 42501 vindo do Postgres ou lista vazia; o resto é INCONCLUSIVE', { timeout: 15000 }, async () => {
-  reset({
-    '/heartbeat': { status: 401, body: PERMISSION_DENIED },
-    '/_prisma_migrations': { status: 200, body: '[]' },
-  });
-  const pass = await runSmoke({ POSTGREST_STRICT: '1' });
-  assert.equal(pass.code, 0, pass.stdout + pass.stderr);
-  assert.ok(pass.stdout.includes('POSTGREST_ANON_BLOCKED'));
+test(
+  'modo estrito: só passa com 42501 vindo do Postgres ou lista vazia; o resto é INCONCLUSIVE',
+  { timeout: 15000 },
+  async () => {
+    reset({
+      '/heartbeat': { status: 401, body: PERMISSION_DENIED },
+      '/_prisma_migrations': { status: 200, body: '[]' },
+    });
+    const pass = await runSmoke({ POSTGREST_STRICT: '1' });
+    assert.equal(pass.code, 0, pass.stdout + pass.stderr);
+    assert.ok(pass.stdout.includes('POSTGREST_ANON_BLOCKED'));
 
-  const inconclusive = [
-    [503, '{"message":"no database"}'],
-    [404, '{"code":"PGRST205","message":"Could not find the table"}'],
-    [401, '{"message":"JWT expired"}'],
-  ];
-  for (const [status, body] of inconclusive) {
-    reset({ '/heartbeat': { status, body } });
-    const result = await runSmoke({ POSTGREST_STRICT: '1', TABLES: 'heartbeat' });
-    assert.equal(result.code, 1, `status ${status}: ${result.stdout}${result.stderr}`);
-    assert.ok(result.stdout.includes(`INCONCLUSIVE heartbeat ${status}`), result.stdout);
-    assert.ok(!result.stdout.includes('POSTGREST_ANON_BLOCKED'));
-  }
-});
+    const inconclusive = [
+      [503, '{"message":"no database"}'],
+      [404, '{"code":"PGRST205","message":"Could not find the table"}'],
+      [401, '{"message":"JWT expired"}'],
+    ];
+    for (const [status, body] of inconclusive) {
+      reset({ '/heartbeat': { status, body } });
+      const result = await runSmoke({ POSTGREST_STRICT: '1', TABLES: 'heartbeat' });
+      assert.equal(result.code, 1, `status ${status}: ${result.stdout}${result.stderr}`);
+      assert.ok(result.stdout.includes(`INCONCLUSIVE heartbeat ${status}`), result.stdout);
+      assert.ok(!result.stdout.includes('POSTGREST_ANON_BLOCKED'));
+    }
+  },
+);
 
-test('modo de produção (sem STRICT): 401, 403, 404 e 200 com [] passam como no 01-06', { timeout: 15000 }, async () => {
-  const passing = [
-    [401, '{"message":"x"}'],
-    [403, '{"message":"x"}'],
-    [404, '{"code":"PGRST205"}'],
-    [200, '[]'],
-  ];
-  for (const [status, body] of passing) {
-    reset({ '/heartbeat': { status, body } });
-    const result = await runSmoke({ TABLES: 'heartbeat' });
-    assert.equal(result.code, 0, `status ${status}: ${result.stdout}${result.stderr}`);
-    assert.ok(result.stdout.includes('POSTGREST_ANON_BLOCKED'), result.stdout);
-  }
-});
+test(
+  'modo de produção (sem STRICT): 401, 403, 404 e 200 com [] passam como no 01-06',
+  { timeout: 15000 },
+  async () => {
+    const passing = [
+      [401, '{"message":"x"}'],
+      [403, '{"message":"x"}'],
+      [404, '{"code":"PGRST205"}'],
+      [200, '[]'],
+    ];
+    for (const [status, body] of passing) {
+      reset({ '/heartbeat': { status, body } });
+      const result = await runSmoke({ TABLES: 'heartbeat' });
+      assert.equal(result.code, 0, `status ${status}: ${result.stdout}${result.stderr}`);
+      assert.ok(result.stdout.includes('POSTGREST_ANON_BLOCKED'), result.stdout);
+    }
+  },
+);
 
-test('headers: sem chave a requisição é anônima; com chave vão apikey e Authorization e a chave nunca é impressa', { timeout: 15000 }, async () => {
-  reset({ '/heartbeat': { status: 401, body: PERMISSION_DENIED } });
-  const anonymous = await runSmoke({ TABLES: 'heartbeat' });
-  assert.equal(anonymous.code, 0, anonymous.stdout + anonymous.stderr);
-  assert.equal(requests.length, 1);
-  assert.equal(requests[0].headers.apikey, undefined);
-  assert.equal(requests[0].headers.authorization, undefined);
+test(
+  'headers: sem chave a requisição é anônima; com chave vão apikey e Authorization e a chave nunca é impressa',
+  { timeout: 15000 },
+  async () => {
+    reset({ '/heartbeat': { status: 401, body: PERMISSION_DENIED } });
+    const anonymous = await runSmoke({ TABLES: 'heartbeat' });
+    assert.equal(anonymous.code, 0, anonymous.stdout + anonymous.stderr);
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].headers.apikey, undefined);
+    assert.equal(requests[0].headers.authorization, undefined);
 
-  reset({ '/heartbeat': { status: 401, body: PERMISSION_DENIED } });
-  const withKey = await runSmoke({ TABLES: 'heartbeat', SUPABASE_PUBLISHABLE_KEY: TEST_KEY });
-  assert.equal(withKey.code, 0, withKey.stdout + withKey.stderr);
-  assert.equal(requests.length, 1);
-  assert.equal(requests[0].headers.apikey, TEST_KEY);
-  assert.equal(requests[0].headers.authorization, `Bearer ${TEST_KEY}`);
-  assert.ok(!withKey.stdout.includes(TEST_KEY), 'a chave apareceu em stdout');
-  assert.ok(!withKey.stderr.includes(TEST_KEY), 'a chave apareceu em stderr');
-});
+    reset({ '/heartbeat': { status: 401, body: PERMISSION_DENIED } });
+    const withKey = await runSmoke({ TABLES: 'heartbeat', SUPABASE_PUBLISHABLE_KEY: TEST_KEY });
+    assert.equal(withKey.code, 0, withKey.stdout + withKey.stderr);
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].headers.apikey, TEST_KEY);
+    assert.equal(requests[0].headers.authorization, `Bearer ${TEST_KEY}`);
+    assert.ok(!withKey.stdout.includes(TEST_KEY), 'a chave apareceu em stdout');
+    assert.ok(!withKey.stderr.includes(TEST_KEY), 'a chave apareceu em stderr');
+  },
+);
 
-test('TABLES consulta exatamente as tabelas dadas; o padrão é heartbeat e _prisma_migrations', { timeout: 15000 }, async () => {
-  reset({ '/a': { status: 200, body: '[]' }, '/b': { status: 200, body: '[]' } });
-  const custom = await runSmoke({ TABLES: 'a b' });
-  assert.equal(custom.code, 0, custom.stdout + custom.stderr);
-  assert.deepEqual(
-    requests.map((r) => r.path),
-    ['/a', '/b'],
-  );
+test(
+  'TABLES consulta exatamente as tabelas dadas; o padrão é heartbeat e _prisma_migrations',
+  { timeout: 15000 },
+  async () => {
+    reset({ '/a': { status: 200, body: '[]' }, '/b': { status: 200, body: '[]' } });
+    const custom = await runSmoke({ TABLES: 'a b' });
+    assert.equal(custom.code, 0, custom.stdout + custom.stderr);
+    assert.deepEqual(
+      requests.map((r) => r.path),
+      ['/a', '/b'],
+    );
 
-  reset({ '/heartbeat': { status: 200, body: '[]' }, '/_prisma_migrations': { status: 200, body: '[]' } });
-  const defaults = await runSmoke();
-  assert.equal(defaults.code, 0, defaults.stdout + defaults.stderr);
-  assert.deepEqual(
-    requests.map((r) => r.path),
-    ['/heartbeat', '/_prisma_migrations'],
-  );
-});
+    reset({
+      '/heartbeat': { status: 200, body: '[]' },
+      '/_prisma_migrations': { status: 200, body: '[]' },
+    });
+    const defaults = await runSmoke();
+    assert.equal(defaults.code, 0, defaults.stdout + defaults.stderr);
+    assert.deepEqual(
+      requests.map((r) => r.path),
+      ['/heartbeat', '/_prisma_migrations'],
+    );
+  },
+);
 
-test('com POSTGREST_URL o script não exige SUPABASE_URL nem lê ENV_FILE', { timeout: 15000 }, async () => {
-  reset({ '/heartbeat': { status: 200, body: '[]' } });
-  const result = await runSmoke({ TABLES: 'heartbeat', ENV_FILE: '/nao/existe/production.env' });
-  assert.equal(result.code, 0, result.stdout + result.stderr);
-  assert.ok(result.stdout.includes('POSTGREST_ANON_BLOCKED'));
-  assert.ok(!result.stderr.includes('ENV_FILE'), result.stderr);
-});
+test(
+  'com POSTGREST_URL o script não exige SUPABASE_URL nem lê ENV_FILE',
+  { timeout: 15000 },
+  async () => {
+    reset({ '/heartbeat': { status: 200, body: '[]' } });
+    const result = await runSmoke({ TABLES: 'heartbeat', ENV_FILE: '/nao/existe/production.env' });
+    assert.equal(result.code, 0, result.stdout + result.stderr);
+    assert.ok(result.stdout.includes('POSTGREST_ANON_BLOCKED'));
+    assert.ok(!result.stderr.includes('ENV_FILE'), result.stderr);
+  },
+);

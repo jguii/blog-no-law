@@ -16,6 +16,8 @@ export class DatabaseHealthIndicator {
     if (probe.state === 'down') {
       return indicator.down();
     }
-    return probe.latencyMs === undefined ? indicator.up() : indicator.up({ latencyMs: probe.latencyMs });
+    return probe.latencyMs === undefined
+      ? indicator.up()
+      : indicator.up({ latencyMs: probe.latencyMs });
   }
 }

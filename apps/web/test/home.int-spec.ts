@@ -25,16 +25,27 @@ const originalApiUrl = process.env.API_URL;
 
 function handle(req: IncomingMessage, res: import('node:http').ServerResponse): void {
   const url = new URL(req.url ?? '/', 'http://contract.test');
-  seen.push({ method: req.method ?? '', url: `${url.pathname}${url.search}`, accept: String(req.headers.accept ?? '') });
+  seen.push({
+    method: req.method ?? '',
+    url: `${url.pathname}${url.search}`,
+    accept: String(req.headers.accept ?? ''),
+  });
 
   if (mode === 'unavailable') {
-    res.writeHead(503, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'down' }));
+    res
+      .writeHead(503, { 'content-type': 'application/json' })
+      .end(JSON.stringify({ error: 'down' }));
     return;
   }
   if (mode === 'out-of-contract') {
-    res
-      .writeHead(200, { 'content-type': 'application/json' })
-      .end(JSON.stringify({ service: 'api', version: '0.1.0', db: 'up', time: '2026-11-20T12:00:00.000Z' }));
+    res.writeHead(200, { 'content-type': 'application/json' }).end(
+      JSON.stringify({
+        service: 'api',
+        version: '0.1.0',
+        db: 'up',
+        time: '2026-11-20T12:00:00.000Z',
+      }),
+    );
     return;
   }
 

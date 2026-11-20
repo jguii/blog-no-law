@@ -16,7 +16,11 @@ const API_ROOT = fileURLToPath(new URL('..', import.meta.url));
 async function createApp(overrides: Record<string, string> = {}): Promise<NestExpressApplication> {
   const env = loadEnv({ GIT_SHA: 'testsha0107', NODE_ENV: 'test', ...overrides });
   const moduleRef = await Test.createTestingModule({
-    imports: [AppModule.forRoot(env, { logDestination: new Writable({ write: (_chunk, _encoding, done) => done() }) })],
+    imports: [
+      AppModule.forRoot(env, {
+        logDestination: new Writable({ write: (_chunk, _encoding, done) => done() }),
+      }),
+    ],
   }).compile();
   const app = moduleRef.createNestApplication<NestExpressApplication>();
   configureApp(app, env);
@@ -132,7 +136,10 @@ function startApi(port: number, extraEnv: Record<string, string>): RunningApi {
   return { port, child, exited: () => exited };
 }
 
-async function waitUntil(check: () => Promise<boolean> | boolean, timeoutMs: number): Promise<boolean> {
+async function waitUntil(
+  check: () => Promise<boolean> | boolean,
+  timeoutMs: number,
+): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (await check()) return true;
@@ -166,45 +173,57 @@ describe('Sentry em ESM por --import sobre o build real (OPS-01)', () => {
     ingest = undefined;
   });
 
-  it('envia ao ingest o erro de GET /_debug/error (envelope com sentry-smoke)', { timeout: 40000 }, async () => {
-    ingest = await startFakeIngest();
-    const port = await freePort();
-    api = startApi(port, {
-      DEBUG_ROUTES_ENABLED: 'true',
-      SENTRY_DSN: `http://public@127.0.0.1:${ingest.port}/1`,
-    });
+  it(
+    'envia ao ingest o erro de GET /_debug/error (envelope com sentry-smoke)',
+    { timeout: 40000 },
+    async () => {
+      ingest = await startFakeIngest();
+      const port = await freePort();
+      api = startApi(port, {
+        DEBUG_ROUTES_ENABLED: 'true',
+        SENTRY_DSN: `http://public@127.0.0.1:${ingest.port}/1`,
+      });
 
-    const ready = await waitUntil(() => isLive(api as RunningApi), 20000);
-    expect(ready, 'child did not become ready').toBe(true);
+      const ready = await waitUntil(() => isLive(api as RunningApi), 20000);
+      expect(ready, 'child did not become ready').toBe(true);
 
-    const res = await fetch(`http://127.0.0.1:${port}/_debug/error`);
-    expect(res.status).toBe(500);
+      const res = await fetch(`http://127.0.0.1:${port}/_debug/error`);
+      expect(res.status).toBe(500);
 
-    const received = await waitUntil(
-      () => (ingest as FakeIngest).envelopes.some((body) => body.includes('sentry-smoke')),
-      10000,
-    );
-    expect(received, 'envelope not received').toBe(true);
-  });
+      const received = await waitUntil(
+        () => (ingest as FakeIngest).envelopes.some((body) => body.includes('sentry-smoke')),
+        10000,
+      );
+      expect(received, 'envelope not received').toBe(true);
+    },
+  );
 
-  it('sobe normalmente sem SENTRY_DSN e responde 200 em /health/live', { timeout: 40000 }, async () => {
-    const port = await freePort();
-    api = startApi(port, {});
+  it(
+    'sobe normalmente sem SENTRY_DSN e responde 200 em /health/live',
+    { timeout: 40000 },
+    async () => {
+      const port = await freePort();
+      api = startApi(port, {});
 
-    const ready = await waitUntil(() => isLive(api as RunningApi), 20000);
+      const ready = await waitUntil(() => isLive(api as RunningApi), 20000);
 
-    expect(ready, 'child did not become ready').toBe(true);
-  });
+      expect(ready, 'child did not become ready').toBe(true);
+    },
+  );
 
-  it('responde 404 em /_debug/error no processo real com a flag desligada', { timeout: 40000 }, async () => {
-    ingest = await startFakeIngest();
-    const port = await freePort();
-    api = startApi(port, { SENTRY_DSN: `http://public@127.0.0.1:${ingest.port}/1` });
+  it(
+    'responde 404 em /_debug/error no processo real com a flag desligada',
+    { timeout: 40000 },
+    async () => {
+      ingest = await startFakeIngest();
+      const port = await freePort();
+      api = startApi(port, { SENTRY_DSN: `http://public@127.0.0.1:${ingest.port}/1` });
 
-    const ready = await waitUntil(() => isLive(api as RunningApi), 20000);
-    expect(ready, 'child did not become ready').toBe(true);
+      const ready = await waitUntil(() => isLive(api as RunningApi), 20000);
+      expect(ready, 'child did not become ready').toBe(true);
 
-    const res = await fetch(`http://127.0.0.1:${port}/_debug/error`);
-    expect(res.status).toBe(404);
-  });
+      const res = await fetch(`http://127.0.0.1:${port}/_debug/error`);
+      expect(res.status).toBe(404);
+    },
+  );
 });

@@ -122,7 +122,9 @@ describe('Logs estruturados da API (OPS-01)', () => {
     });
 
     it('aceita um x-request-id válido, registra no log e devolve no header', async () => {
-      const res = await request(app.getHttpServer()).get('/status').set('X-Request-Id', 'probe-123');
+      const res = await request(app.getHttpServer())
+        .get('/status')
+        .set('X-Request-Id', 'probe-123');
       const [entry] = await entriesFor('/status');
 
       expect(entry?.req?.id).toBe('probe-123');
@@ -139,7 +141,9 @@ describe('Logs estruturados da API (OPS-01)', () => {
     });
 
     it('ignora x-request-id com espaço e troca por um UUID', async () => {
-      const res = await request(app.getHttpServer()).get('/status').set('X-Request-Id', 'tem espaco');
+      const res = await request(app.getHttpServer())
+        .get('/status')
+        .set('X-Request-Id', 'tem espaco');
       const [entry] = await entriesFor('/status');
 
       expect(UUID.test(String(entry?.req?.id))).toBe(true);

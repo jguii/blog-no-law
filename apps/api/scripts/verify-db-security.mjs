@@ -105,14 +105,18 @@ async function verifyAdmin(admin) {
     const row = result.rows[0];
     if (!row) return 'papel app_api não existe';
     const flags = `login=${row.rolcanlogin} super=${row.rolsuper} bypassrls=${row.rolbypassrls} createdb=${row.rolcreatedb} createrole=${row.rolcreaterole}`;
-    return flags === 'login=true super=false bypassrls=false createdb=false createrole=false' ? true : flags;
+    return flags === 'login=true super=false bypassrls=false createdb=false createrole=false'
+      ? true
+      : flags;
   });
 
   await check('app_api_nao_e_dono_de_tabela', async () => {
     const result = await admin.query(
       `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tableowner = 'app_api'`,
     );
-    return result.rows.length === 0 ? true : `dono de: ${result.rows.map((row) => row.tablename).join(',')}`;
+    return result.rows.length === 0
+      ? true
+      : `dono de: ${result.rows.map((row) => row.tablename).join(',')}`;
   });
 
   await check('anon_authenticated_service_role_sem_privilegio', async () => {
