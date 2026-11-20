@@ -7,3 +7,11 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// Linha única (CHECK id = 1 na migration baseline) lida pelo health check de readiness.
+model Heartbeat {
+  id     Int      @id @default(1) @db.SmallInt
+  beatAt DateTime @default(now()) @map("beat_at") @db.Timestamptz(6)
+
+  @@map("heartbeat")
+}

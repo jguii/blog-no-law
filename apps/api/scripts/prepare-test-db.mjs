@@ -66,6 +66,17 @@ export async function prepareTestDb({
   const adminDbUrl = urlWith(adminUrl, { database: dbName });
   runMigrateDeploy(adminDbUrl, [new URL(adminUrl).password, appApiPassword].filter(Boolean));
 
+  // A migration cria `app_api` sem senha (nada de segredo no git); aqui entra a senha de teste.
+  const setPassword = new pg.Client({ connectionString: adminDbUrl });
+  await setPassword.connect();
+  try {
+    await setPassword.query(
+      `ALTER ROLE app_api WITH PASSWORD ${setPassword.escapeLiteral(appApiPassword)}`,
+    );
+  } finally {
+    await setPassword.end();
+  }
+
   const appApiUrl = urlWith(adminUrl, {
     database: dbName,
     username: 'app_api',
