@@ -7,11 +7,18 @@
     "node": ">=26"
   },
   "scripts": {
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck"
+    "prepare": "husky",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:http": "turbo run test:http",
+    "test:integration": "turbo run test:integration",
+    "verify": "turbo run lint typecheck test test:http test:integration"
   },
   "devDependencies": {
+    "husky": "9.1.7",
+    "turbo": "2.11.11",
     "typescript": "6.0.3"
   }
 }

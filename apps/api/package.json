@@ -6,10 +6,10 @@
   "scripts": {
     "build": "prisma generate && tsc -p tsconfig.build.json",
     "start": "node --enable-source-maps --import ./dist/instrument.js dist/main.js",
-    "typecheck": "prisma generate && tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project unit",
     "test:http": "vitest run --project http",
-    "test:integration": "vitest run --project int",
+    "test:integration": "vitest run --project int && node --test scripts/*.test.mjs",
     "db:migrate": "prisma migrate deploy",
     "prisma:generate": "prisma generate"
   },
