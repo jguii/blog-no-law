@@ -3,3 +3,40 @@
 
 # GSD research cache
 .planning/research/.cache/
+
+# Tooling GSD local (D-12): só .claude/CLAUDE.md é rastreado dentro de .claude/
+.claude/gsd-core/
+.claude/agents/
+.claude/commands/
+.claude/hooks/
+.claude/scripts/
+.claude/.gsd-profile
+.claude/gsd-file-manifest.json
+.claude/gsd-install-state.json
+.claude/settings.local.json
+
+# Dependências e artefatos de build
+node_modules/
+dist/
+.turbo/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Variáveis de ambiente e segredos (versionar só o exemplo)
+.env*
+!.env.example
+*.local
+
+# Cliente Prisma gerado
+apps/api/src/generated/
+
+# Relatórios de teste (Playwright)
+playwright-report/
+test-results/
+
+# Dumps de banco e backups cifrados
+*.dump
+*.dump.age

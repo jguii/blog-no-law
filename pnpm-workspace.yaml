@@ -1,0 +1,7 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# pnpm 11+ bloqueia scripts de build por padrão (substitui onlyBuiltDependencies).
+# Só entram aqui pacotes da lista aprovada no checkpoint de legitimidade (T-01-SC).
+allowBuilds: {}
