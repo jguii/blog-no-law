@@ -41,7 +41,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 |---|---|---|---|---|
 | Node.js | 26.x LTS (dev machine runs 26.13.1) | Runtime for API, CI, local dev | Active LTS since Oct 2026, EOL Apr 2029. All chosen libraries support it (Vitest 5 and Nest CLI generators explicitly list >=26). Fallback: Node 24 (Maintenance LTS, EOL Apr 2028). Both `node:26-bookworm-slim` and `node:24-bookworm-slim` have arm64 images. | HIGH |
 | TypeScript | `~6.0.3` | Language, end to end | Pinned below 6.1 because typescript-eslint requires `<6.1.0`, Nest CLI uses `~6.0.2`. TS 7 upgrade is a later chore once the programmatic API (promised in 7.1) and typescript-eslint catch up. | HIGH |
-| pnpm | 12.18.0 | Package manager, workspaces | Strict node_modules, workspace protocol, catalogs. Not bundled with Node 26, so install explicitly. | HIGH |
+| pnpm | 12.21.0 | Package manager, workspaces | Strict node_modules, workspace protocol, catalogs. Not bundled with Node 26, so install explicitly. | HIGH |
 | Turborepo | 2.11.11 | Task graph and cache (`build`, `typecheck`, `test`, `lint`) | Three workspaces, but cached `shared -> api/web` builds speed up CI. Free local and CI caching. Remote cache optional. | HIGH |
 | Monorepo layout | n/a | `apps/web`, `apps/api`, `packages/shared` | `packages/shared` holds Zod schemas, inferred DTO types, role and status enums, error codes. It is the single wire contract between Next and Nest. Build it with `tsc` to ESM `dist` and consume via `workspace:*`. | HIGH |
 
@@ -100,7 +100,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 - supabase-js (PostgREST) from the backend gives up transactions, joins, and typed relations, and RLS then depends on forwarding user JWTs. Use supabase-js in the API **only** for Storage and Auth admin calls.
 - Prisma 8 (RC) renames query methods (`take/skip` to `limit/offset`) and moves to new packages. Stay on 7.x. A 7-to-8 side-by-side upgrade path is documented by Prisma, so this is a planned later chore, not a blocker.
 - Pin exact versions for all three Prisma packages and renovate them together.
-- Runtime and migrations both use the **Supavisor shared pooler in session mode** (port 5432, user `postgres.<ref>`) because the Oracle VM is IPv4-only by default. Copy the exact pooler host from the Supabase "Connect" dialog (it contains a cluster index). Session mode supports prepared statements, so no `pgbouncer=true`. If you ever use transaction mode (port 6543), prepared statements must be disabled.
+- Runtime and migrations both use the **Supavisor shared pooler in session mode** (port 5432, user `postgres.<ref>`) porque a Render e os runners do GitHub saem em IPv4 e a conexão direta do Free é IPv6. Copy the exact pooler host from the Supabase "Connect" dialog (it contains a cluster index). Session mode supports prepared statements, so no `pgbouncer=true`. If you ever use transaction mode (port 6543), prepared statements must be disabled.
 - Set an explicit `pg` pool size small (for example max 5-10) and a connect timeout, since the adapter inherits `pg` defaults (no connect timeout by default).
 - `pg` rejects invalid TLS certs (Prisma 7 behaviour change). Configure the Supabase CA via `NODE_EXTRA_CA_CERTS` rather than `rejectUnauthorized: false`.
 - **RLS defence in depth, done honestly:** the `postgres` role (what Prisma would use by default) has `BYPASSRLS`, so RLS would never apply to the API's own queries. Create a dedicated login role for the API (`app_api`, not owner, not `BYPASSRLS`) with explicit grants, keep the `postgres` credentials for migrations only, and write RLS policies that grant `app_api` what it needs. Separately, enable RLS on every `public` table and revoke default grants from `anon`/`authenticated`, so the publishable key cannot read or write anything through PostgREST. Supabase warns that on existing projects `anon`/`authenticated` start with default grants, so the revoke is required, not optional. Write all of this as raw SQL inside Prisma migrations. Prisma has no RLS DSL.
@@ -129,7 +129,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 | `helmet` | 8.3.0 | Security headers on the API | One-liner. The API serves JSON only, so its CSP can be `default-src 'none'`. The browser-facing CSP belongs in Next (nonce via `proxy.ts`). | HIGH |
 | CORS (`app.enableCors`) | built in | Restrict origins | Allow only the exact web origin(s) (prod + preview if needed). Never `*` with credentials. | HIGH |
 | `@nestjs/throttler` | 6.7.1 | Rate limiting | Peers Nest 12. Named throttlers (`short`/`medium`/`long`) plus `@Throttle` on login-sync, comments, upload, post creation. **In-memory storage is correct for one API container.** Add Redis only if you scale to multiple instances. | HIGH |
-- Behind Caddy, set Express `trust proxy` to the hop count or CIDR you actually have, otherwise every client appears as Caddy's IP (or you trust spoofed `X-Forwarded-For`).
+- Atrás do proxy da Render, `trust proxy` = `TRUST_PROXY_HOPS` (default 1, validado por Zod), confirmado por sonda no primeiro deploy (D-02); nunca `true`. Sem isso todo cliente aparece com o IP do proxy, ou o `X-Forwarded-For` forjado é aceito.
 - If Next.js server-side code calls the API on users' behalf, all those calls originate from Vercel egress IPs, so an IP-keyed throttle penalises everyone at once. Override `getTracker()` to key authenticated routes by `sub` (user id), and for anonymous routes forward the real client IP from Next in a header the API only trusts from a request carrying a shared server secret.
 - `@nest-lab/throttler-storage-redis@1.2.0` peers Nest up to 11 and needs Redis you do not have. Skip it.
 
@@ -157,7 +157,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 | `pino` + `pino-http` + `nestjs-pino` | 10.4.0 + 11.0.0 + 5.3.1 | Structured JSON logs with request IDs | `nestjs-pino@5.3.1` peers exactly `pino ^10`, `pino-http ^11`, Nest `^11.0.8 \|\| ^12.0.2`. Configure `redact` for `req.headers.authorization`, `req.headers.cookie`, and any tokens. | HIGH |
 | `pino-pretty` | 13.2.0 | Dev-only pretty printing | Dev dependency only. | HIGH |
 | `@sentry/nestjs` + `@sentry/nextjs` | 11.12.0 | Error monitoring | Both peer Nest 12 / Next 16. Free Developer plan: 5k errors, 1 user, 30-day retention, 5M spans. Set a low `tracesSampleRate`. Needs Node >=20.19 (22.x >=22.12). Import `instrument` first. In ESM mode the SDK must be loaded before app code (use `node --import ./dist/instrument.js`), which the NestJS doc page did not confirm, so verify in the setup phase. | MEDIUM-HIGH |
-| Docker `json-file` log driver with rotation | n/a | Log retention on the VM | `max-size: 10m`, `max-file: 3`. No log shipper in v1. Optionally add a free hosted log tier later. | HIGH |
+| Logs na stdout do container, lidos no painel da plataforma (Render/Railway) | n/a | Retenção de logs | Sem log shipper na v1. Opcionalmente, adicionar um plano gratuito de logs hospedado depois. | HIGH |
 | External uptime ping on `/health` | n/a | Uptime and anti-pause | Any free uptime monitor. The health route must touch the DB (`SELECT 1`) because Supabase **pauses free projects after 7 days of inactivity**. | HIGH |
 
 ### Testing, linting and CI
@@ -175,21 +175,22 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 | Prettier | 3.10.1 | Formatting | Both apps. | HIGH |
 | GitHub Actions | `actions/checkout@v7`, `actions/setup-node@v7`, `pnpm/action-setup@v6`, `docker/setup-buildx-action@v4`, `docker/login-action@v4`, `docker/metadata-action@v6`, `docker/build-push-action@v7`, `actions/upload-artifact@v7`, `actions/cache@v6` | CI and image build | Majors read from the GitHub releases API on 2026-11-14. Pin third-party actions by commit SHA and enable Dependabot for Actions. | HIGH |
 
-### Infrastructure (Oracle Always Free VM + Docker)
+### Infrastructure (Render + Railway + Docker)
 
-> **SUPERADO (2026-11-15):** a Oracle foi descartada (exige CNPJ). A API roda na Render (plano B: Railway, boot único) com HTTPS nativo da plataforma; sem VM, sem Caddy, sem DuckDNS. Ver `.planning/phases/01-esqueleto-no-ar-com-testes-e-ci/01-CONTEXT.md` (D-01 a D-04). O texto abaixo fica só como histórico.
+> Decisions D-01, D-02, D-04 and D-11 of phase 1 (`.planning/phases/01-esqueleto-no-ar-com-testes-e-ci/01-CONTEXT.md`). Oracle Always Free was discarded on 2026-11-15 (signup requires a CNPJ).
 
 | Technology | Version | Purpose | Why | Confidence |
 |---|---|---|---|---|
-| OCI `VM.Standard.A1.Flex` | 2 OCPU / 12 GB (the current Always Free cap) | Host | Allowance is 1,500 OCPU-h + 9,000 GB-h per month = 2 OCPU/12 GB always-on. The 4/24 figure in older guides is outdated. 200 GB combined block storage, 10 TB/month egress. | HIGH |
-| Docker Engine + Compose v2 | current | Run `api` + `caddy` | Same image runs on Render/Koyeb if Oracle disappears. | HIGH |
-| `node:26-bookworm-slim` base image | 26 | API image | arm64 + amd64 verified on Docker Hub (updated 2026-11-11). Debian slim (glibc) avoids musl surprises with sharp/libvips. Multi-stage build, `pnpm deploy --prod` to ship only API deps, non-root user, `HEALTHCHECK`. | HIGH |
-| Caddy | 2.11.9 (`caddy:2-alpine`, arm64 image verified) | Reverse proxy with automatic Let's Encrypt TLS | Zero-config HTTPS and renewal in a 4-line Caddyfile. Nginx + certbot adds moving parts for no benefit here. | HIGH |
-| GHCR | n/a | Image registry | Free. Deploy by SSH: `docker compose pull && docker compose up -d`. | MEDIUM |
-- **Only Caddy publishes ports 80/443.** The `api` container joins an internal Docker network (no published port). Open 80/443 in **both** the OCI VCN security list and the OS firewall (Oracle's Ubuntu images ship restrictive iptables rules). This is experience-based and not verified in this research.
-- **Reclamation mitigation (decision for the author):** Oracle says idle Always Free instances may be reclaimed. Converting the tenancy to Pay-As-You-Go while staying inside the Always Free shape reportedly exempts it from the idle rule, but it requires a credit card and at least one source reports the halved limits applying to PAYG accounts too. Treat this as LOW confidence and verify with Oracle before relying on it. Whatever the choice, keep the container portable (env-only config, no state on the VM, images in GHCR) and write a runbook for re-provisioning in under an hour.
-- **Plan B is weaker than PROJECT.md assumes.** Research on Render and Koyeb free tiers returned conflicting third-party reports: Render free web services spin down after inactivity (cold starts), and Koyeb's free web-service tier was not clearly confirmed for 2026. Treat both as LOW confidence and re-check their official pricing pages before the roadmap relies on them.
-- **TLS requires a hostname.** Let's Encrypt cannot issue for a bare IP. Options: a purchased domain (about US$10/year, which breaks the strict US$0 rule), or a free dynamic-DNS subdomain. Whether a given free-DNS parent domain is subject to Let's Encrypt's shared 50-certs-per-registered-domain-per-week limit was not verified (LOW). Put this decision in front of the author early, because it gates deploy.
+| Render Free web service | Virginia region, 512 MB / 0.1 CPU, 750 h per workspace | Primary API host (D-11) | Spins down after 15 min idle (cold start). Only one free web service per workspace. Deploys from a public GHCR image plus a deploy hook with `imgURL`. Health check path `/health/live`. HTTPS is native on `*.onrender.com` (D-02). | MEDIUM |
+| Railway | US$5 trial, no card | Plan B, single boot (D-11) | The same GHCR image boots once to prove portability, then is shut down. An emergency runbook brings it back up if Render fails. It is not a permanent free standby. | MEDIUM |
+| Koyeb | n/a | Eliminated (D-01, D-11) | No free plan any more: needs Pro (US$29) and a card. | MEDIUM |
+| `node:26-bookworm-slim` base image | 26 | API image | `linux/amd64` (Render and the GitHub runners are amd64). Debian slim (glibc) avoids musl surprises with sharp/libvips. Multi-stage build, `pnpm deploy --prod` to ship only API deps, non-root user, `HEALTHCHECK`. | HIGH |
+| GHCR | n/a | Image registry | Free. The image is public so Render and Railway pull it without credentials. | HIGH |
+
+- **No proxy, VM or dynamic DNS of our own.** TLS terminates at the platform edge and the API is reached at the platform hostname (`*.onrender.com`). Next is the BFF, so no cookie lives on the API domain and the platform hostname is enough (D-02).
+- **Colocation (D-04):** API and database in the same region, because each request runs several queries. Supabase `us-east-1`, Render Virginia, Vercel functions in `iad1`. Neither platform has a Brazil region.
+- **Portability (D-11):** the container is configured only by environment variables and keeps no state, so changing host means changing `API_URL` and the deploy hook. Supabase is external, so no data migration is needed.
+- **Free-tier limits to remember:** the Render free service sleeps after 15 min without traffic, so the external uptime ping on `/health` stays (it also keeps the Supabase project from pausing).
 
 ### Development workflow
 
@@ -220,9 +221,8 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 | Jobs | `@nestjs/schedule` + `@nestjs/event-emitter` | `pg-boss` 12.38.2 / BullMQ 6.7.6 | `pg-boss` (Postgres-backed, no Redis) is the right upgrade if durable retries for webhooks and notifications become necessary. BullMQ needs Redis. |
 | Tests | Vitest | Jest 30.5.2 | Nest 12 ESM packages load in Jest only on Node >=24.9. Jest is the default for CommonJS projects only. |
 | Lint (api) | oxlint | ESLint + typescript-eslint | Valid. oxlint is simply the Nest 12 template default and much faster. |
-| Reverse proxy | Caddy | Nginx + certbot | More config, manual renewal plumbing. |
 | Monorepo | pnpm + Turborepo | Nx | Heavier than needed for three workspaces. |
-| Error tracking | Sentry free | GlitchTip (self-host) | Extra service on a 12 GB VM. Only if Sentry quotas become a problem. |
+| Error tracking | Sentry free | GlitchTip (self-host) | Serviço extra para hospedar. Only if Sentry quotas become a problem. |
 
 ## What NOT to Use
 
@@ -232,7 +232,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 | `pnpm add prisma` (unpinned) | `latest` CLI is an 8.0 RC while the client `latest` is 7.10.1 | Exact `7.10.1` for `prisma`, `@prisma/client`, `@prisma/adapter-pg` |
 | Legacy Supabase HS256 JWT secret, `anon`/`service_role` JWT keys | Shared-secret verification is discouraged by Supabase and legacy keys are being deprecated by end of 2026 | Asymmetric signing keys + JWKS, `sb_publishable_` / `sb_secret_` keys |
 | `jsonwebtoken`, `@nestjs/jwt`, Passport | Unneeded and weaker defaults than jose for remote JWKS | `jose` |
-| Direct Supabase connection string from the VM | IPv6-only on Free, fails from an IPv4-only network | Supavisor session-mode pooler host |
+| Direct Supabase connection string from Render/CI | IPv6-only on Free, fails from an IPv4-only network | Supavisor session-mode pooler host |
 | Connecting Prisma as `postgres` and calling that "RLS defence in depth" | `postgres` bypasses RLS | Dedicated non-bypass `app_api` role |
 | supabase-js/PostgREST as the main data layer | No real transactions or joins, RLS pushes you into forwarding user JWTs | Prisma. supabase-js for Storage and Auth admin only |
 | `discord.js` gateway client | Heavy and always-on for a REST-only need | `@discordjs/rest` |
@@ -248,8 +248,7 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 | ESLint 10 in `apps/web` | `eslint-config-next` plugins cap at ESLint 9 | ESLint 9.39.x |
 | Jest for the ESM Nest 12 API | Needs Node >=24.9 to load ESM-only core packages | Vitest |
 | Relying on Corepack | Not shipped with Node 26 | `pnpm/action-setup`, `npm i -g pnpm@12` |
-| Treating Render/Koyeb free tiers as a drop-in plan B | Spin-down or unclear free tier in 2026 | Verify first. Reduce reclamation risk on Oracle |
-| Publishing the API container port directly | Bypasses TLS and the proxy | Caddy is the only public listener |
+| Tratar a Railway como standby gratuito permanente | O trial de US$5 acaba e o serviço desliga | Boot único + runbook (D-11) |
 
 ## Stack Patterns by Variant
 
@@ -311,10 +310,10 @@ Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA
 - Tiptap Next.js install (https://tiptap.dev/docs/editor/getting-started/install/nextjs): MEDIUM.
 - Sentry NestJS (https://docs.sentry.io/platforms/javascript/guides/nestjs/) and pricing (https://sentry.io/pricing/): MEDIUM.
 - Node release lines (https://nodejs.org/en/about/previous-releases): MEDIUM (LTS and EOL dates partly recalled by the fetch tool).
-- Oracle Always Free resources (https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm), Linuxiac report on the halved A1 allowance (https://linuxiac.com/?p=214114): HIGH for the current limits, LOW for PAYG behaviour.
+- Histórico (Oracle descartada em 2026-11-15): Oracle Always Free resources (https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm), Linuxiac report on the halved A1 allowance (https://linuxiac.com/?p=214114): HIGH for the current limits, LOW for PAYG behaviour.
 - Vercel function limits (https://vercel.com/docs/platform/limits): HIGH on the 4.5 MB body limit.
 - GitHub Arm64 runners changelog (https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-now-generally-available/): HIGH for public repos.
-- Docker Hub API (`node` 26/24 bookworm-slim, `caddy:2-alpine`, `postgres:17`, all with arm64), Caddy and sharp GitHub releases: HIGH.
+- Docker Hub API (`node` 26/24 bookworm-slim, `postgres:17`, all with arm64), sharp GitHub releases: HIGH.
 - TypeScript 7 coverage (https://devblogs.microsoft.com/typescript/announcing-typescript-7.0/ and press): MEDIUM, used only for the "do not adopt yet" call, which rests on registry peer ranges (HIGH).
 - Render/Koyeb free-tier status and free-DNS Let's Encrypt limits: LOW (third-party blogs, contradictory).
 
