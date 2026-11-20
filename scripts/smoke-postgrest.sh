@@ -52,7 +52,9 @@ CURL_CONFIG
     echo "LEAK ${table} ${code}"
     exit 1
   fi
-  echo "OK ${table} ${code}"
+  # Código de erro do PostgREST (ex.: 42501 = permission denied), útil no diagnóstico; não é segredo.
+  pgrst_code=$(sed -nE 's/.*"code":"([A-Za-z0-9_]+)".*/\1/p' "$BODY" | head -n 1)
+  echo "OK ${table} ${code}${pgrst_code:+ code=${pgrst_code}}"
 done
 
 echo "POSTGREST_ANON_BLOCKED"
