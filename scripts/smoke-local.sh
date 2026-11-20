@@ -1,13 +1,28 @@
 #!/usr/bin/env bash
 # Smoke full-stack local: sobe a API e o web já compilados e confere a home por HTTP.
 # Cenários BDD: docs/bdd/home.feature.md (tag @smoke-local).
+#
+# Uso:
+#   scripts/smoke-local.sh              # API + web: home com o commit da API e /?detail=full
+#   scripts/smoke-local.sh --degraded   # só o web, com a API fora do ar: home degradada com 200
 set -euo pipefail
+
+MODE=normal
+case "${1:-}" in
+  '') ;;
+  --degraded) MODE=degraded ;;
+  *)
+    echo "uso: $0 [--degraded]" >&2
+    exit 2
+    ;;
+esac
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$ROOT"
 
 API_PORT=3101
 WEB_PORT=3100
+CLOSED_PORT=9
 HOST=127.0.0.1
 LOG_DIR=$(mktemp -d)
 PIDS=()
@@ -38,10 +53,43 @@ wait_for() {
   return 1
 }
 
-echo "==> build de @blog/shared, @blog/api e @blog/web"
+fetch_home() {
+  # fetch_home <caminho> <arquivo-de-saida>: exige HTTP 200
+  local path=$1 out=$2 status
+  status=$(curl -sS -o "$out" -w '%{http_code}' --max-time 15 "http://$HOST:$WEB_PORT$path")
+  if [ "$status" != "200" ]; then
+    echo "FALHA: GET $path devolveu HTTP $status" >&2
+    exit 1
+  fi
+}
+
+start_web() {
+  # start_web <API_URL>
+  (cd apps/web && API_URL="$1" exec node node_modules/next/dist/bin/next start -p "$WEB_PORT" -H "$HOST") >"$LOG_DIR/web.log" 2>&1 &
+  PIDS+=("$!")
+  wait_for "http://$HOST:$WEB_PORT/" 30 "web"
+}
+
+echo "==> build de @blog/shared e @blog/web"
 pnpm --filter @blog/shared build
-pnpm --filter @blog/api build
 pnpm --filter @blog/web build
+
+if [ "$MODE" = degraded ]; then
+  echo "==> subindo só o web em $HOST:$WEB_PORT, com a API apontada para a porta fechada $CLOSED_PORT"
+  start_web "http://$HOST:$CLOSED_PORT"
+
+  echo "==> conferindo a home degradada"
+  fetch_home / "$LOG_DIR/home.html"
+  if ! grep -q 'data-testid="api-unavailable"' "$LOG_DIR/home.html"; then
+    echo 'FALHA: HTML sem data-testid="api-unavailable"' >&2
+    exit 1
+  fi
+  echo "SMOKE_LOCAL_DEGRADED_OK"
+  exit 0
+fi
+
+echo "==> build de @blog/api"
+pnpm --filter @blog/api build
 
 GIT_SHA=$(git rev-parse --short HEAD)
 
@@ -51,19 +99,19 @@ PIDS+=("$!")
 wait_for "http://$HOST:$API_PORT/health/live" 30 "API"
 
 echo "==> subindo o web em $HOST:$WEB_PORT"
-(cd apps/web && API_URL="http://$HOST:$API_PORT" exec node node_modules/next/dist/bin/next start -p "$WEB_PORT" -H "$HOST") >"$LOG_DIR/web.log" 2>&1 &
-PIDS+=("$!")
-wait_for "http://$HOST:$WEB_PORT/" 30 "web"
+start_web "http://$HOST:$API_PORT"
 
 echo "==> conferindo a home"
-BODY="$LOG_DIR/home.html"
-STATUS=$(curl -sS -o "$BODY" -w '%{http_code}' --max-time 10 "http://$HOST:$WEB_PORT/")
-if [ "$STATUS" != "200" ]; then
-  echo "FALHA: GET / devolveu HTTP $STATUS" >&2
+fetch_home / "$LOG_DIR/home.html"
+if ! grep -q "data-testid=\"api-commit\">$GIT_SHA<" "$LOG_DIR/home.html"; then
+  echo "FALHA: HTML sem data-testid=\"api-commit\" com o SHA $GIT_SHA" >&2
   exit 1
 fi
-if ! grep -q "data-testid=\"api-commit\">$GIT_SHA<" "$BODY"; then
-  echo "FALHA: HTML sem data-testid=\"api-commit\" com o SHA $GIT_SHA" >&2
+
+echo "==> conferindo /?detail=full"
+fetch_home "/?detail=full" "$LOG_DIR/home-full.html"
+if ! grep -q 'href="/"' "$LOG_DIR/home-full.html"; then
+  echo 'FALHA: /?detail=full sem o link "Ocultar detalhes" (href="/")' >&2
   exit 1
 fi
 

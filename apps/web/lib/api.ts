@@ -1,13 +1,19 @@
 import { statusResponseSchema, type StatusResponse } from '@blog/shared/status';
 
+export type StatusFailureReason = 'config' | 'timeout' | 'network' | 'http' | 'invalid';
+
 export type StatusResult =
   | { ok: true; data: StatusResponse }
-  | { ok: false; reason: 'config' | 'timeout' | 'network' | 'http' | 'invalid' };
+  | { ok: false; reason: StatusFailureReason };
 
 export interface GetStatusDeps {
   fetchImpl?: typeof fetch;
   baseUrl?: string;
   timeoutMs?: number;
+}
+
+function isTimeout(error: unknown): boolean {
+  return error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError');
 }
 
 // Busca o /status da API no servidor do Next (BFF). Nunca lança: qualquer falha vira
@@ -25,21 +31,42 @@ export async function getStatus(
     return { ok: false, reason: 'config' };
   }
 
+  // O sinal é repassado ao fetch, mas a corrida abaixo garante o prazo mesmo se a
+  // implementação de fetch ignorar o sinal (D-03: a página nunca espera a Render acordar).
+  const signal = AbortSignal.timeout(timeoutMs);
+  const deadline = new Promise<never>((_, reject) => {
+    signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+  });
+  deadline.catch(() => undefined); // evita rejeição não tratada quando o prazo vence depois da resposta
+
+  let response: Response;
   try {
-    const response = await fetchImpl(`${baseUrl}/status?detail=${detail}`, {
-      signal: AbortSignal.timeout(timeoutMs),
-      cache: 'no-store',
-      headers: { accept: 'application/json' },
-    });
-    if (!response.ok) {
-      return { ok: false, reason: 'http' };
-    }
-    const parsed = statusResponseSchema.safeParse(await response.json());
-    if (!parsed.success) {
-      return { ok: false, reason: 'invalid' };
-    }
-    return { ok: true, data: parsed.data };
-  } catch {
-    return { ok: false, reason: 'network' };
+    response = await Promise.race([
+      fetchImpl(`${baseUrl}/status?detail=${detail}`, {
+        signal,
+        cache: 'no-store',
+        headers: { accept: 'application/json' },
+      }),
+      deadline,
+    ]);
+  } catch (error) {
+    return { ok: false, reason: isTimeout(error) ? 'timeout' : 'network' };
   }
+
+  if (!response.ok) {
+    return { ok: false, reason: 'http' };
+  }
+
+  let body: unknown;
+  try {
+    body = await Promise.race([response.json(), deadline]);
+  } catch (error) {
+    return { ok: false, reason: isTimeout(error) ? 'timeout' : 'invalid' };
+  }
+
+  const parsed = statusResponseSchema.safeParse(body);
+  if (!parsed.success) {
+    return { ok: false, reason: 'invalid' };
+  }
+  return { ok: true, data: parsed.data };
 }

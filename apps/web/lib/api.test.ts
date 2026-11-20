@@ -78,7 +78,7 @@ describe('getStatus', () => {
   });
 
   it('trata JSON sem commit como invalid', async () => {
-    const { commit: _commit, ...semCommit } = validPayload;
+    const semCommit = Object.fromEntries(Object.entries(validPayload).filter(([chave]) => chave !== 'commit'));
     const fetchImpl = (async () => jsonResponse(semCommit)) as typeof fetch;
     const result = await getStatus('basic', { baseUrl: 'http://api.test', fetchImpl });
     expect(reasonOf(result)).toBe('invalid');
