@@ -1,0 +1,4 @@
+{
+  "_comment": "Allowlist explicita do gate de HTML bruto (SEC-03). Vazia na Fase 1. A Fase 6 acrescenta somente o componente auditado de JSON-LD; todo item novo exige revisao de seguranca. Item que nao existe mais no disco faz o gate falhar.",
+  "allow": []
+}
