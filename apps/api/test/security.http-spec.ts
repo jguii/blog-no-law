@@ -1,7 +1,6 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
-import type { Request } from 'express';
 import request from 'supertest';
 import { AppModule } from '../src/app.module.js';
 import { configureApp } from '../src/app.setup.js';
@@ -14,7 +13,7 @@ const FOREIGN_ORIGIN = 'https://evil.example.com';
 @Controller('__probe')
 class IpProbeController {
   @Get('ip')
-  ip(@Req() req: Request): { ip: string | undefined } {
+  ip(@Req() req: { ip?: string }): { ip: string | undefined } {
     return { ip: req.ip };
   }
 }
