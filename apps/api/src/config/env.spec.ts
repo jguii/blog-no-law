@@ -44,7 +44,7 @@ describe('loadEnv', () => {
   it('separa CORS_ORIGINS por vírgula em uma lista de origins', () => {
     const env = loadEnv({ CORS_ORIGINS: 'https://a.vercel.app,https://b.vercel.app' });
 
-    expect(env.CORS_ORIGINS?.join(' ')).toBe('https://a.vercel.app https://b.vercel.app');
+    expect(env.CORS_ORIGINS.join(' ')).toBe('https://a.vercel.app https://b.vercel.app');
   });
 
   it('rejeita item de CORS_ORIGINS que não seja origin (caminho ou barra final)', () => {
