@@ -4,9 +4,9 @@ import request from 'supertest';
 import { statusResponseSchema } from '@blog/shared/status';
 import { AppModule } from '../src/app.module.js';
 import { configureApp } from '../src/app.setup.js';
-import type { AppEnv } from '../src/config/env.js';
+import { loadEnv } from '../src/config/env.js';
 
-const env: AppEnv = { PORT: 0, GIT_SHA: 'testsha0102', version: '0.1.0' };
+const env = loadEnv({ GIT_SHA: 'testsha0102', NODE_ENV: 'test' });
 
 describe('API HTTP', () => {
   let app: NestExpressApplication;
@@ -33,6 +33,34 @@ describe('API HTTP', () => {
       expect(parsed.success).toBe(true);
       expect(res.body.commit).toBe('testsha0102');
       expect(res.body.db).toBe('down');
+    });
+
+    it('aceita detail=full e continua dentro do contrato', async () => {
+      const res = await request(app.getHttpServer()).get('/status?detail=full');
+
+      expect(res.status).toBe(200);
+      expect(statusResponseSchema.safeParse(res.body).success).toBe(true);
+    });
+
+    it('responde 400 para detail fora de basic|full (T-01-04)', async () => {
+      const res = await request(app.getHttpServer()).get('/status?detail=bogus');
+
+      expect(res.status).toBe(400);
+    });
+
+    it('responde 400 para chave desconhecida na query (strictObject)', async () => {
+      const res = await request(app.getHttpServer()).get('/status?foo=1');
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('GET /health/live', () => {
+    it('responde 200 com status ok, sem depender de banco', async () => {
+      const res = await request(app.getHttpServer()).get('/health/live');
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ status: 'ok' });
     });
   });
 });
