@@ -43,7 +43,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `/health` informa se a API está viva e se o banco responde. Um erro provocado aparece no Sentry. Os logs da API saem em JSON estruturado, sem tokens nem segredos.
   4. A API rejeita entrada inválida com erro de validação, responde com os headers do Helmet e recusa origens fora da lista de CORS. A CI falha se o código web renderizar HTML bruto.
   5. Uma chamada anônima direta à API de dados do Supabase não lê nenhuma tabela: o RLS está ativo em todas e a CI confere isso. A API conecta com um papel de banco sem bypass de RLS. O backup noturno do banco é gravado fora do Supabase, em destino privado, e já foi restaurado com sucesso uma vez, e o keep-alive diário impede a pausa do Supabase.
-**Plans**: 3/14 plans executed
+**Plans**: 4/14 plans executed
 
 Plans:
 **Wave 1**
@@ -56,7 +56,7 @@ Plans:
 - [x] 01-03-PLAN.md — Home Next 16 (RSC/BFF) mostrando o status da API, degradação e lint contra HTML bruto
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 01-04-PLAN.md — Postgres local e migration baseline (`app_api` sem bypass, RLS) provada por teste
+- [x] 01-04-PLAN.md — Postgres local e migration baseline (`app_api` sem bypass, RLS) provada por teste
 
 **Wave 5** *(blocked on Wave 4 completion)*
 - [ ] 01-05-PLAN.md — API lê `heartbeat` como `app_api`: `/health/ready` e status real do banco
@@ -214,7 +214,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Esqueleto no ar com testes e CI | 3/14 | In Progress | - |
+| 1. Esqueleto no ar com testes e CI | 4/14 | In Progress | - |
 | 2. Identidade visual No Law | 0/TBD | Not started | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |
