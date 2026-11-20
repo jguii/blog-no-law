@@ -5,5 +5,5 @@
     "emitDecoratorMetadata": true,
     "types": ["vitest/globals", "node"]
   },
-  "include": ["src", "test", "vitest.config.ts"]
+  "include": ["src", "test", "vitest.config.ts", "prisma.config.ts"]
 }
