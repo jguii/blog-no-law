@@ -43,7 +43,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `/health` informa se a API está viva e se o banco responde. Um erro provocado aparece no Sentry. Os logs da API saem em JSON estruturado, sem tokens nem segredos.
   4. A API rejeita entrada inválida com erro de validação, responde com os headers do Helmet e recusa origens fora da lista de CORS. A CI falha se o código web renderizar HTML bruto.
   5. Uma chamada anônima direta à API de dados do Supabase não lê nenhuma tabela: o RLS está ativo em todas e a CI confere isso. A API conecta com um papel de banco sem bypass de RLS. O backup noturno do banco é gravado fora do Supabase, em destino privado, e já foi restaurado com sucesso uma vez, e o keep-alive diário impede a pausa do Supabase.
-**Plans**: 6/14 plans executed
+**Plans**: 8/14 plans executed
 
 Plans:
 **Wave 1**
@@ -63,8 +63,8 @@ Plans:
 - [x] 01-06-PLAN.md — Supabase de produção (us-east-1), [BLOCKING] `prisma migrate deploy` e prova anônima do PostgREST
 
 **Wave 6** *(blocked on Wave 5 completion)*
-- [ ] 01-07-PLAN.md — Endurecimento da API: Helmet, CORS, trust proxy, logs Pino redigidos, Sentry por `--import`
-- [ ] 01-14-PLAN.md — Gates testados como scripts (wave 6): HTML bruto com allowlist vazia (SEC-03) e modo estrito anônimo do smoke PostgREST (D-14)
+- [x] 01-07-PLAN.md — Endurecimento da API: Helmet, CORS, trust proxy, logs Pino redigidos, Sentry por `--import`
+- [x] 01-14-PLAN.md — Gates testados como scripts (wave 6): HTML bruto com allowlist vazia (SEC-03) e modo estrito anônimo do smoke PostgREST (D-14)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 - [ ] 01-08-PLAN.md — Pre-push com Turborepo e Husky (lint, typecheck, testes com Postgres real; cliente Prisma gerado antes de qualquer tarefa que o usa)
@@ -214,7 +214,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Esqueleto no ar com testes e CI | 6/14 | In Progress | - |
+| 1. Esqueleto no ar com testes e CI | 8/14 | In Progress | - |
 | 2. Identidade visual No Law | 0/TBD | Not started | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |
