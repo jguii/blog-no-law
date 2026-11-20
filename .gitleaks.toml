@@ -1,0 +1,23 @@
+# Config do gitleaks (SEC-03/D-07): o repositório é público, então todo o histórico e todo PR
+# passam por aqui. Estende as regras padrão do gitleaks sem desligar nenhuma.
+#
+# A allowlist abaixo libera SÓ literais exatos de credencial de TESTE LOCAL que já estão no
+# histórico versionado. Credencial real (produção, Supabase, Discord, tokens) NUNCA entra aqui:
+# se o gitleaks acusar um segredo de verdade, rotacione o segredo em vez de liberar o achado.
+# Nada de regex genérica, de caminho inteiro, de commit inteiro ou de regra desligada.
+title = "Blog No Law"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Literais exatos de credencial de teste local (Postgres descartável em 127.0.0.1 e fixture de chave fictícia)"
+condition = "OR"
+regexes = [
+  # Senha de teste do papel app_api, definida por ALTER ROLE no banco descartável de teste.
+  '''^app_api_local_test$''',
+  # Usuário e senha do supabase/postgres descartável do compose.test.yaml (só em 127.0.0.1).
+  '''^postgres:postgres$''',
+  # Chave fictícia usada como fixture do servidor falso em scripts/smoke-postgrest.test.mjs.
+  '''^sb_publishable_TESTKEY_abc123XYZ$''',
+]
