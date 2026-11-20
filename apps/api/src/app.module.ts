@@ -2,9 +2,12 @@ import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Writable } from 'node:stream';
 import { Module, type DynamicModule, type Provider } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { TerminusModule } from '@nestjs/terminus';
 import { LoggerModule } from 'nestjs-pino';
 import { APP_ENV, type AppEnv } from './config/env.js';
+import { DebugController } from './debug/debug.controller.js';
 import { DatabaseHealthIndicator } from './health/database.indicator.js';
 import { HealthController } from './health/health.controller.js';
 import { PrismaDatabaseProbe } from './prisma/prisma-database.probe.js';
@@ -68,6 +71,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [
+        SentryModule.forRoot(),
         TerminusModule,
         LoggerModule.forRoot({
           pinoHttp:
@@ -76,9 +80,10 @@ export class AppModule {
               : [pinoOptions, options.logDestination],
         }),
       ],
-      controllers: [StatusController, HealthController],
+      controllers: [StatusController, HealthController, DebugController],
       providers: [
         { provide: APP_ENV, useValue: env },
+        { provide: APP_FILTER, useClass: SentryGlobalFilter },
         StatusService,
         DatabaseHealthIndicator,
         ...databaseProviders,
