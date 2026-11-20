@@ -1,0 +1,17 @@
+# Postgres descartável para testes de integração (D-09).
+# `supabase/postgres` traz os papéis anon, authenticated e service_role do Supabase.
+# A credencial abaixo é só de teste local e não tem relação com produção.
+services:
+  db-test:
+    image: supabase/postgres:17.12.0.000
+    ports:
+      - '127.0.0.1:54329:5432'
+    environment:
+      POSTGRES_PASSWORD: postgres
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres', '-h', '127.0.0.1']
+      interval: 2s
+      timeout: 3s
+      retries: 30

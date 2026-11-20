@@ -3,5 +3,8 @@ packages:
   - 'packages/*'
 
 # pnpm 11+ bloqueia scripts de build por padrão (substitui onlyBuiltDependencies).
-# Só entram aqui pacotes da lista aprovada no checkpoint de legitimidade (T-01-SC).
-allowBuilds: {}
+# Só entram aqui pacotes da lista aprovada no checkpoint de legitimidade (T-01-SC):
+# os dois do Prisma 7.10.1 baixam o binário do schema engine no postinstall.
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
