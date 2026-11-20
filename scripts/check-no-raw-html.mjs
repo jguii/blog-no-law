@@ -12,7 +12,13 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FORBIDDEN = 'dangerouslySetInnerHTML';
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.mdx']);
-const IGNORED_DIRS = new Set(['node_modules', '.next', 'coverage', 'playwright-report', 'test-results']);
+const IGNORED_DIRS = new Set([
+  'node_modules',
+  '.next',
+  'coverage',
+  'playwright-report',
+  'test-results',
+]);
 
 function parseArgs(argv) {
   const options = { root: 'apps/web', allowlist: 'scripts/raw-html-allowlist.json' };
@@ -59,7 +65,11 @@ function loadAllowlist(file) {
     console.error(`allowlist ilegível ou inválida: ${toRepoPath(file)}`);
     process.exit(2);
   }
-  if (!parsed || !Array.isArray(parsed.allow) || !parsed.allow.every((item) => typeof item === 'string')) {
+  if (
+    !parsed ||
+    !Array.isArray(parsed.allow) ||
+    !parsed.allow.every((item) => typeof item === 'string')
+  ) {
     console.error('a allowlist precisa ter o formato { "allow": ["caminho/relativo.tsx"] }');
     process.exit(2);
   }

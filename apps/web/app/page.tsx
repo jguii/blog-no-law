@@ -49,7 +49,11 @@ export default async function Home({ searchParams }: HomeProps) {
           </>
         )}
       </dl>
-      {detail === 'full' ? <Link href="/">Ocultar detalhes</Link> : <Link href="/?detail=full">Ver detalhes</Link>}
+      {detail === 'full' ? (
+        <Link href="/">Ocultar detalhes</Link>
+      ) : (
+        <Link href="/?detail=full">Ver detalhes</Link>
+      )}
     </main>
   );
 }

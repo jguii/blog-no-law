@@ -15,8 +15,10 @@ import pg from 'pg';
 
 const SCRIPT = fileURLToPath(new URL('./set-app-api-password.mjs', import.meta.url));
 const ROLE = 'app_api_pwtest';
-const ADMIN_URL = process.env.DATABASE_URL_TEST_ADMIN ?? 'postgresql://postgres:postgres@127.0.0.1:54329/postgres';
-const CANONICAL_URL = /^postgresql:\/\/app_api_pwtest\.testref:[^:@/?#\s]+@pooler\.example\.test:5432\/postgres\?sslmode=require$/;
+const ADMIN_URL =
+  process.env.DATABASE_URL_TEST_ADMIN ?? 'postgresql://postgres:postgres@127.0.0.1:54329/postgres';
+const CANONICAL_URL =
+  /^postgresql:\/\/app_api_pwtest\.testref:[^:@/?#\s]+@pooler\.example\.test:5432\/postgres\?sslmode=require$/;
 
 let workDir;
 let envCounter = 0;

@@ -4,16 +4,16 @@ Este repositório é público. Este documento cita credenciais só pelo **nome**
 
 ## Resumo
 
-| Item | Valor |
-|---|---|
-| Projeto | `blog-no-law` no Supabase (plano Free) |
-| Região | `us-east-1` (East US, North Virginia). **Escolha sem volta** (D-05, D-11): a região de um projeto Supabase é imutável; mudar exige projeto novo e migração de dados |
-| Por que essa região | Fica ao lado da Render (Virginia) e da Vercel (`iad1`), porque cada requisição roda várias consultas (D-04) |
-| Servidor | PostgreSQL 17 (`verify-db-security.mjs` confere o major >= 17) |
-| Conexão | Session pooler (Supavisor), host `aws-0-us-east-1.pooler.supabase.com`, porta `5432` |
-| Por que o pooler | A conexão direta do plano Free é só IPv6; a Render e os runners do GitHub saem em IPv4. O modo session aceita prepared statements, então não há `pgbouncer=true` |
-| Usuário de migração | `postgres.{ref}` (papel `postgres`, que cria tabelas e papéis) |
-| Usuário de runtime | `app_api.{ref}` (papel `app_api`: sem superuser, sem `BYPASSRLS`, só `SELECT` em `heartbeat`) |
+| Item                | Valor                                                                                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Projeto             | `blog-no-law` no Supabase (plano Free)                                                                                                                              |
+| Região              | `us-east-1` (East US, North Virginia). **Escolha sem volta** (D-05, D-11): a região de um projeto Supabase é imutável; mudar exige projeto novo e migração de dados |
+| Por que essa região | Fica ao lado da Render (Virginia) e da Vercel (`iad1`), porque cada requisição roda várias consultas (D-04)                                                         |
+| Servidor            | PostgreSQL 17 (`verify-db-security.mjs` confere o major >= 17)                                                                                                      |
+| Conexão             | Session pooler (Supavisor), host `aws-0-us-east-1.pooler.supabase.com`, porta `5432`                                                                                |
+| Por que o pooler    | A conexão direta do plano Free é só IPv6; a Render e os runners do GitHub saem em IPv4. O modo session aceita prepared statements, então não há `pgbouncer=true`    |
+| Usuário de migração | `postgres.{ref}` (papel `postgres`, que cria tabelas e papéis)                                                                                                      |
+| Usuário de runtime  | `app_api.{ref}` (papel `app_api`: sem superuser, sem `BYPASSRLS`, só `SELECT` em `heartbeat`)                                                                       |
 
 O `{ref}` é o identificador do projeto (`SUPABASE_PROJECT_REF`). No pooler, o usuário sempre leva o sufixo `.{ref}`.
 
@@ -21,12 +21,12 @@ O `{ref}` é o identificador do projeto (`SUPABASE_PROJECT_REF`). No pooler, o u
 
 Só os nomes; os valores nunca passam pelo git.
 
-| Credencial | Uso | Onde vive |
-|---|---|---|
-| `MIGRATE_DATABASE_URL` | `prisma migrate deploy`, scripts de verificação, backup | `~/.config/blog-no-law/production.env` (local) e, a partir do 01-12, no GitHub Environment `production` |
-| `DATABASE_URL` | Runtime da API como `app_api` | `~/.config/blog-no-law/production.env` (local) e variável de ambiente da Render |
-| `SUPABASE_PROJECT_REF`, `SUPABASE_POOLER_HOST` | Montar a URL do `app_api` | `~/.config/blog-no-law/production.env` |
-| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | Smoke anônimo do PostgREST (valores públicos por desenho) | `~/.config/blog-no-law/production.env` |
+| Credencial                                     | Uso                                                       | Onde vive                                                                                               |
+| ---------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `MIGRATE_DATABASE_URL`                         | `prisma migrate deploy`, scripts de verificação, backup   | `~/.config/blog-no-law/production.env` (local) e, a partir do 01-12, no GitHub Environment `production` |
+| `DATABASE_URL`                                 | Runtime da API como `app_api`                             | `~/.config/blog-no-law/production.env` (local) e variável de ambiente da Render                         |
+| `SUPABASE_PROJECT_REF`, `SUPABASE_POOLER_HOST` | Montar a URL do `app_api`                                 | `~/.config/blog-no-law/production.env`                                                                  |
+| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`     | Smoke anônimo do PostgREST (valores públicos por desenho) | `~/.config/blog-no-law/production.env`                                                                  |
 
 O env file local fica **fora do repositório**, em diretório `700` e arquivo `600`. Cuidados:
 

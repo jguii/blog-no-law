@@ -46,10 +46,14 @@ describe('statusResponseSchema', () => {
   });
 
   it('aceita dbLatencyMs opcional não negativo', () => {
-    expect(statusResponseSchema.safeParse({ ...validResponse, dbLatencyMs: 12 }).success).toBe(true);
+    expect(statusResponseSchema.safeParse({ ...validResponse, dbLatencyMs: 12 }).success).toBe(
+      true,
+    );
   });
 
   it('rejeita dbLatencyMs negativo', () => {
-    expect(statusResponseSchema.safeParse({ ...validResponse, dbLatencyMs: -1 }).success).toBe(false);
+    expect(statusResponseSchema.safeParse({ ...validResponse, dbLatencyMs: -1 }).success).toBe(
+      false,
+    );
   });
 });

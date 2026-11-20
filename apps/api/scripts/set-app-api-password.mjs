@@ -51,7 +51,8 @@ function withDatabaseUrl(content, line) {
 }
 
 const role = process.env.APP_API_ROLE ?? 'app_api';
-if (!ROLE_PATTERN.test(role)) fail('APP_API_ROLE inválido: use só minúsculas, dígitos e underscore');
+if (!ROLE_PATTERN.test(role))
+  fail('APP_API_ROLE inválido: use só minúsculas, dígitos e underscore');
 
 const envFile = process.env.ENV_FILE ?? join(homedir(), '.config', 'blog-no-law', 'production.env');
 config({ path: envFile, quiet: true });
@@ -60,7 +61,9 @@ const migrateUrl = process.env.MIGRATE_DATABASE_URL;
 const projectRef = process.env.SUPABASE_PROJECT_REF;
 const poolerHost = process.env.SUPABASE_POOLER_HOST;
 if (!migrateUrl || !projectRef || !poolerHost) {
-  fail('env file incompleto: faltam MIGRATE_DATABASE_URL, SUPABASE_PROJECT_REF ou SUPABASE_POOLER_HOST');
+  fail(
+    'env file incompleto: faltam MIGRATE_DATABASE_URL, SUPABASE_PROJECT_REF ou SUPABASE_POOLER_HOST',
+  );
 }
 if (!REF_PATTERN.test(projectRef)) fail('SUPABASE_PROJECT_REF inválido');
 if (!HOST_PATTERN.test(poolerHost)) fail('SUPABASE_POOLER_HOST inválido');
@@ -71,7 +74,9 @@ const client = new pg.Client({ connectionString: migrateUrl, connectionTimeoutMi
 client.on('error', () => {});
 try {
   await client.connect();
-  await client.query(`ALTER ROLE ${client.escapeIdentifier(role)} WITH PASSWORD ${client.escapeLiteral(password)}`);
+  await client.query(
+    `ALTER ROLE ${client.escapeIdentifier(role)} WITH PASSWORD ${client.escapeLiteral(password)}`,
+  );
 } catch (error) {
   fail(`falha ao aplicar a senha no banco (erro=${errorCode(error)}); o env file não foi alterado`);
 } finally {
@@ -89,7 +94,9 @@ try {
   renameSync(temp, envFile);
   chmodSync(envFile, 0o600);
 } catch (error) {
-  fail(`a senha foi aplicada no banco, mas o env file não pôde ser gravado (erro=${errorCode(error)}); rode o script de novo`);
+  fail(
+    `a senha foi aplicada no banco, mas o env file não pôde ser gravado (erro=${errorCode(error)}); rode o script de novo`,
+  );
 }
 
 console.log(`DATABASE_URL atualizado em ${envFile}`);

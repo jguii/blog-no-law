@@ -1,0 +1,12 @@
+pnpm-lock.yaml
+**/dist
+**/.next
+**/.turbo
+apps/api/src/generated
+apps/api/certs
+.planning
+.claude
+assets
+coverage
+playwright-report
+test-results

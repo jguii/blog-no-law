@@ -78,20 +78,26 @@ describe('Segurança HTTP da API (SEC-03)', () => {
 
       expect(res.status).toBe(404);
       expect(res.headers['x-content-type-options']).toBe('nosniff');
-      expect(String(res.headers['content-security-policy']).includes("default-src 'none'")).toBe(true);
+      expect(String(res.headers['content-security-policy']).includes("default-src 'none'")).toBe(
+        true,
+      );
     });
   });
 
   describe('CORS por allowlist', () => {
     it('devolve access-control-allow-origin com o próprio valor para uma origem da lista', async () => {
-      const res = await request(app.getHttpServer()).get('/health/live').set('Origin', ALLOWED_ORIGIN);
+      const res = await request(app.getHttpServer())
+        .get('/health/live')
+        .set('Origin', ALLOWED_ORIGIN);
 
       expect(res.status).toBe(200);
       expect(res.headers['access-control-allow-origin']).toBe(ALLOWED_ORIGIN);
     });
 
     it('não devolve access-control-allow-origin para uma origem fora da lista', async () => {
-      const res = await request(app.getHttpServer()).get('/health/live').set('Origin', FOREIGN_ORIGIN);
+      const res = await request(app.getHttpServer())
+        .get('/health/live')
+        .set('Origin', FOREIGN_ORIGIN);
 
       expect(res.headers['access-control-allow-origin']).toBeUndefined();
     });
@@ -122,7 +128,9 @@ describe('Segurança HTTP da API (SEC-03)', () => {
     });
 
     it('não habilita credenciais (sem access-control-allow-credentials)', async () => {
-      const res = await request(app.getHttpServer()).get('/health/live').set('Origin', ALLOWED_ORIGIN);
+      const res = await request(app.getHttpServer())
+        .get('/health/live')
+        .set('Origin', ALLOWED_ORIGIN);
 
       expect(res.headers['access-control-allow-credentials']).toBeUndefined();
     });

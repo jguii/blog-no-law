@@ -32,21 +32,24 @@ function maintenanceUrl(adminDbUrl: string): string {
 
 describe('RLS e papéis do banco (SEC-04)', () => {
   describe('acesso pela Data API (papéis anon e authenticated)', () => {
-    it.each(['anon', 'authenticated'])('como %s, SELECT em heartbeat falha com 42501', async (role) => {
-      const state = await withClient(inject('adminDbUrl'), async (client) => {
-        await client.query('BEGIN');
-        try {
-          await client.query(`SET LOCAL ROLE ${role}`);
-          // Sem isto, um SET ROLE negado (também 42501) faria o teste passar sem provar nada.
-          const who = await client.query('SELECT current_user AS name');
-          expect(who.rows[0].name).toBe(role);
-          return await sqlState(client.query('SELECT * FROM heartbeat'));
-        } finally {
-          await client.query('ROLLBACK');
-        }
-      });
-      expect(state).toBe('42501');
-    });
+    it.each(['anon', 'authenticated'])(
+      'como %s, SELECT em heartbeat falha com 42501',
+      async (role) => {
+        const state = await withClient(inject('adminDbUrl'), async (client) => {
+          await client.query('BEGIN');
+          try {
+            await client.query(`SET LOCAL ROLE ${role}`);
+            // Sem isto, um SET ROLE negado (também 42501) faria o teste passar sem provar nada.
+            const who = await client.query('SELECT current_user AS name');
+            expect(who.rows[0].name).toBe(role);
+            return await sqlState(client.query('SELECT * FROM heartbeat'));
+          } finally {
+            await client.query('ROLLBACK');
+          }
+        });
+        expect(state).toBe('42501');
+      },
+    );
 
     it('anon, authenticated e service_role não têm nenhum privilégio em heartbeat e _prisma_migrations', async () => {
       const result = await withClient(inject('adminDbUrl'), (client) =>
@@ -100,7 +103,9 @@ describe('RLS e papéis do banco (SEC-04)', () => {
 
     it('não é dono de nenhuma tabela de public', async () => {
       const result = await withClient(inject('adminDbUrl'), (client) =>
-        client.query(`SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tableowner = 'app_api'`),
+        client.query(
+          `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tableowner = 'app_api'`,
+        ),
       );
       expect(result.rows.map((row) => row.tablename).join(', ')).toBe('');
     });
@@ -145,7 +150,9 @@ describe('RLS e papéis do banco (SEC-04)', () => {
         });
         expect(ids.join(',')).toBe('1');
       } finally {
-        await withClient(adminUrl, (client) => client.query(`DROP DATABASE IF EXISTS ${dbName} WITH (FORCE)`));
+        await withClient(adminUrl, (client) =>
+          client.query(`DROP DATABASE IF EXISTS ${dbName} WITH (FORCE)`),
+        );
       }
     });
   });

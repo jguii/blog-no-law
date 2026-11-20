@@ -4,7 +4,8 @@ import { z } from 'zod';
 export const APP_ENV = Symbol('APP_ENV');
 
 // Origin = esquema https + host [+ porta], sem caminho nem barra final.
-const ORIGIN_PATTERN = /^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d{1,5})?$/i;
+const ORIGIN_PATTERN =
+  /^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d{1,5})?$/i;
 
 // Painéis de PaaS costumam deixar variáveis opcionais em branco: vazio vale como ausente.
 const emptyToUndefined = (value: unknown): unknown => (value === '' ? undefined : value);
@@ -18,7 +19,11 @@ const corsOrigins = z
       .map((item) => item.trim())
       .filter((item) => item.length > 0),
   )
-  .pipe(z.array(z.string().regex(ORIGIN_PATTERN, 'deve ser um origin https://host[:porta], sem caminho')));
+  .pipe(
+    z.array(
+      z.string().regex(ORIGIN_PATTERN, 'deve ser um origin https://host[:porta], sem caminho'),
+    ),
+  );
 
 export const envSchema = z
   .object({

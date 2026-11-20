@@ -3,8 +3,7 @@ import { statusResponseSchema, type StatusResponse } from '@blog/shared/status';
 export type StatusFailureReason = 'config' | 'timeout' | 'network' | 'http' | 'invalid';
 
 export type StatusResult =
-  | { ok: true; data: StatusResponse }
-  | { ok: false; reason: StatusFailureReason };
+  { ok: true; data: StatusResponse } | { ok: false; reason: StatusFailureReason };
 
 export interface GetStatusDeps {
   fetchImpl?: typeof fetch;

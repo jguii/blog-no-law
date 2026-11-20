@@ -78,14 +78,17 @@ describe('getStatus', () => {
   });
 
   it('trata JSON sem commit como invalid', async () => {
-    const semCommit = Object.fromEntries(Object.entries(validPayload).filter(([chave]) => chave !== 'commit'));
+    const semCommit = Object.fromEntries(
+      Object.entries(validPayload).filter(([chave]) => chave !== 'commit'),
+    );
     const fetchImpl = (async () => jsonResponse(semCommit)) as typeof fetch;
     const result = await getStatus('basic', { baseUrl: 'http://api.test', fetchImpl });
     expect(reasonOf(result)).toBe('invalid');
   });
 
   it('trata corpo que não é JSON como invalid', async () => {
-    const fetchImpl = (async () => new Response('<html>oops</html>', { status: 200 })) as typeof fetch;
+    const fetchImpl = (async () =>
+      new Response('<html>oops</html>', { status: 200 })) as typeof fetch;
     const result = await getStatus('basic', { baseUrl: 'http://api.test', fetchImpl });
     expect(reasonOf(result)).toBe('invalid');
   });
@@ -110,7 +113,11 @@ describe('getStatus', () => {
     const fetchImpl = (() => new Promise<Response>(() => {})) as typeof fetch;
     const started = Date.now();
 
-    const result = await getStatus('basic', { baseUrl: 'http://api.test', fetchImpl, timeoutMs: 50 });
+    const result = await getStatus('basic', {
+      baseUrl: 'http://api.test',
+      fetchImpl,
+      timeoutMs: 50,
+    });
 
     expect(reasonOf(result)).toBe('timeout');
     expect(Date.now() - started).toBeLessThan(1000);

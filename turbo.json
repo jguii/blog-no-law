@@ -1,0 +1,45 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalDependencies": ["tsconfig.base.json", ".oxlintrc.json"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "src/generated/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "test:http": {
+      "dependsOn": ["build", "^build"]
+    },
+    "test:integration": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "prisma/**"],
+      "env": ["DATABASE_URL_TEST_ADMIN"]
+    },
+    "test:e2e": {
+      "dependsOn": ["build", "^build"],
+      "cache": false
+    },
+    "@blog/api#typecheck": {
+      "dependsOn": ["^build", "build"]
+    },
+    "@blog/api#lint": {
+      "dependsOn": ["^build", "build"]
+    },
+    "@blog/api#test": {
+      "dependsOn": ["^build", "build"]
+    },
+    "@blog/api#test:integration": {
+      "dependsOn": ["^build", "build"],
+      "inputs": ["$TURBO_DEFAULT$", "prisma/**"],
+      "env": ["DATABASE_URL_TEST_ADMIN"]
+    }
+  }
+}
