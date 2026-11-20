@@ -3,7 +3,7 @@
 # Cenários BDD: docs/bdd/home.feature.md (tag @smoke-local).
 #
 # Uso:
-#   scripts/smoke-local.sh              # API + web: home com o commit da API e /?detail=full
+#   scripts/smoke-local.sh              # Postgres do compose + API + web: home com commit, db "up" e /?detail=full
 #   scripts/smoke-local.sh --degraded   # só o web, com a API fora do ar: home degradada com 200
 set -euo pipefail
 
@@ -24,6 +24,8 @@ API_PORT=3101
 WEB_PORT=3100
 CLOSED_PORT=9
 HOST=127.0.0.1
+SMOKE_DB=blog_smoke
+SMOKE_DATABASE_URL=postgresql://app_api:app_api_local_test@127.0.0.1:54329/blog_smoke
 LOG_DIR=$(mktemp -d)
 PIDS=()
 
@@ -93,8 +95,13 @@ pnpm --filter @blog/api build
 
 GIT_SHA=$(git rev-parse --short HEAD)
 
-echo "==> subindo a API em $HOST:$API_PORT (GIT_SHA=$GIT_SHA)"
-PORT=$API_PORT GIT_SHA=$GIT_SHA node apps/api/dist/main.js >"$LOG_DIR/api.log" 2>&1 &
+# Postgres descartável do compose, com a baseline aplicada e o papel app_api (credencial só de teste local).
+echo "==> subindo o Postgres de teste e preparando o banco $SMOKE_DB"
+docker compose -f compose.test.yaml up -d --wait
+TEST_DB_NAME=$SMOKE_DB node apps/api/scripts/prepare-test-db.mjs
+
+echo "==> subindo a API em $HOST:$API_PORT (GIT_SHA=$GIT_SHA, banco como app_api)"
+PORT=$API_PORT GIT_SHA=$GIT_SHA DATABASE_URL=$SMOKE_DATABASE_URL node apps/api/dist/main.js >"$LOG_DIR/api.log" 2>&1 &
 PIDS+=("$!")
 wait_for "http://$HOST:$API_PORT/health/live" 30 "API"
 
@@ -108,10 +115,19 @@ if ! grep -q "data-testid=\"api-commit\">$GIT_SHA<" "$LOG_DIR/home.html"; then
   exit 1
 fi
 
+if ! grep -q 'data-testid="api-db">up<' "$LOG_DIR/home.html"; then
+  echo 'FALHA: HTML sem data-testid="api-db" com "up" (a API não leu o banco)' >&2
+  exit 1
+fi
+
 echo "==> conferindo /?detail=full"
 fetch_home "/?detail=full" "$LOG_DIR/home-full.html"
 if ! grep -q 'href="/"' "$LOG_DIR/home-full.html"; then
   echo 'FALHA: /?detail=full sem o link "Ocultar detalhes" (href="/")' >&2
+  exit 1
+fi
+if ! grep -q 'data-testid="api-db-latency"' "$LOG_DIR/home-full.html"; then
+  echo 'FALHA: /?detail=full sem data-testid="api-db-latency"' >&2
   exit 1
 fi
 
