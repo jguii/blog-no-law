@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
 //   2. um Postgres de teste com o banco `blog_e2e` migrado (`TEST_DB_NAME=blog_e2e node apps/api/scripts/prepare-test-db.mjs`).
 const API_PORT = 3201;
 const WEB_PORT = 3200;
+const DEGRADED_WEB_PORT = 3202;
+const CLOSED_PORT = 9;
 const HOST = '127.0.0.1';
 
 // Credencial só de teste local: o papel `app_api` do banco descartável criado por prepare-test-db.mjs.
@@ -50,6 +52,18 @@ export default defineConfig({
       timeout: 60_000,
       env: {
         API_URL: `http://${HOST}:${API_PORT}`,
+        SENTRY_DSN: '',
+        NEXT_PUBLIC_SENTRY_DSN: '',
+      },
+    },
+    {
+      // Web degradado (D-03): a mesma build apontada para uma porta fechada, como se a API tivesse caído.
+      command: `pnpm exec next start -p ${DEGRADED_WEB_PORT} -H ${HOST}`,
+      url: `http://${HOST}:${DEGRADED_WEB_PORT}/`,
+      reuseExistingServer: !isCI,
+      timeout: 60_000,
+      env: {
+        API_URL: `http://${HOST}:${CLOSED_PORT}`,
         SENTRY_DSN: '',
         NEXT_PUBLIC_SENTRY_DSN: '',
       },
