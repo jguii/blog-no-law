@@ -153,6 +153,12 @@ test('caso 1: restore saudável imprime RESTORE_OK, restaura com privilégios, l
   const restore = docker.find((line) => line.includes('pg_restore')) ?? '';
   assert.ok(restore.includes('--exit-on-error'), `pg_restore sem --exit-on-error\n${restore}`);
   assert.ok(restore.includes('--no-owner'), `pg_restore sem --no-owner\n${restore}`);
+  // O dump de `--schema=public` traz `CREATE SCHEMA public`, que já existe num banco novo: o restore
+  // troca o `public` vazio do destino pelo do backup, com os privilégios do backup.
+  assert.ok(
+    restore.includes('--clean --if-exists'),
+    `pg_restore sem --clean --if-exists\n${restore}`,
+  );
   assert.ok(!/--no-privileges|--no-acl|\s-x(\s|$)/.test(restore), 'o restore mantém GRANT/REVOKE');
   const appRead = docker.find((line) => line.includes('-U app_api')) ?? '';
   assert.match(appRead, /heartbeat/, 'a leitura de runtime como app_api consulta heartbeat');
