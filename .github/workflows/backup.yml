@@ -1,0 +1,131 @@
+name: Backup
+
+# Backup noturno do banco de produção (OPS-03) e keep-alive do Supabase Free (D-03).
+#   1. escreve em public.heartbeat (escrita real: o projeto não pausa por inatividade);
+#   2. faz o dump do schema public com o papel postgres (o app_api leria tudo vazio por causa do RLS),
+#      com os GRANT/REVOKE da baseline dentro do dump, e cifra com age no próprio pipe;
+#   3. publica o arquivo cifrado como release do repositório privado de backups;
+#   4. só depois do upload novo, apaga as releases com mais de 30 dias.
+#
+# Este repositório é público (D-07): o log é público, então nenhum passo imprime a URL do banco nem o
+# conteúdo do dump, e o dump nunca existe em claro no disco do runner. A chave privada do age fica
+# offline com o autor. O schedule e o workflow_dispatch só rodam com este arquivo na branch padrão
+# (D-13). Procedimento e restore: docs/runbooks/backup-restore.md.
+on:
+  schedule:
+    # Fora de minuto cheio: os horários cheios atrasam no Actions.
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Dois backups nunca rodam juntos; um disparo novo espera o anterior terminar.
+concurrency:
+  group: backup-production
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  backup:
+    # Runner fixo: o age vem do arquivo oficial do Ubuntu 24.04 (T-01-SC).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # O apt só instala o pacote se o hash bater com o índice Packages, que vem do InRelease assinado
+      # pela chave do arquivo do Ubuntu já instalada no runner.
+      - name: Instalar o age do arquivo do Ubuntu
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends age
+          age --version
+
+      # TAG e NAME não são segredos; ficam no ambiente dos passos seguintes.
+      - name: Nomear o backup
+        run: |
+          set -euo pipefail
+          TAG="db-$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "NAME=$TAG.dump.age" >> "$GITHUB_ENV"
+
+      # Forma canônica de TLS (docs/runbooks/supabase-producao.md): a URL termina em ?sslmode=require e a
+      # CA entra só pelo ambiente. Fora dessa forma o job para sem imprimir a URL.
+      - name: Conferir a forma canônica da URL do banco
+        env:
+          DB_URL: ${{ secrets.MIGRATE_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          case "$DB_URL" in
+            *'?sslmode=require') ;;
+            *)
+              echo 'NON_CANONICAL_TLS_URL'
+              exit 1
+              ;;
+          esac
+
+      # A URL entra no container por nome (-e DB_URL) e é expandida lá dentro, nunca na linha de comando
+      # do host. Com o arquivo de CA presente, o libpq trata sslmode=require como verify-ca.
+      - name: Gravar o heartbeat
+        env:
+          DB_URL: ${{ secrets.MIGRATE_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -e DB_URL \
+            -e PGSSLROOTCERT=/certs/supabase-ca.crt \
+            -v "$PWD/apps/api/certs:/certs:ro" \
+            postgres:17 sh -c 'psql "$DB_URL" -v ON_ERROR_STOP=1 -qc "update public.heartbeat set beat_at = now() where id = 1"'
+
+      # O texto em claro só passa pelo pipe. pg_dump 17 é igual ao servidor (17).
+      - name: Fazer o dump cifrado
+        env:
+          DB_URL: ${{ secrets.MIGRATE_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -e DB_URL \
+            -e PGSSLROOTCERT=/certs/supabase-ca.crt \
+            -v "$PWD/apps/api/certs:/certs:ro" \
+            postgres:17 sh -c 'pg_dump "$DB_URL" -Fc --no-owner --schema=public' | age -R ops/backup/age-recipients.txt > "$NAME"
+          test -s "$NAME"
+          test "$(head -c 21 "$NAME")" = 'age-encryption.org/v1'
+          echo "Backup cifrado: $NAME ($(stat -c %s "$NAME") bytes)"
+
+      - name: Publicar no repositório privado de backups
+        env:
+          GH_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
+          BACKUP_REPO: ${{ vars.BACKUP_REPO }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" "$NAME" --repo "$BACKUP_REPO" --title "Backup $TAG" --notes "Backup automático cifrado com age"
+
+      # Depois do upload novo: um backup interrompido no meio deixa os anteriores intactos.
+      - name: Apagar backups com mais de 30 dias
+        env:
+          GH_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
+          BACKUP_REPO: ${{ vars.BACKUP_REPO }}
+        run: |
+          set -euo pipefail
+          CUTOFF=$(date -u -d '30 days ago' +%s)
+          gh release list --repo "$BACKUP_REPO" --limit 200 --json tagName,createdAt \
+            | jq -r --argjson cutoff "$CUTOFF" '.[] | select(.tagName | startswith("db-")) | select((.createdAt | fromdateiso8601) < $cutoff) | .tagName' \
+            | while read -r OLD_TAG; do
+                gh release delete "$OLD_TAG" --repo "$BACKUP_REPO" --cleanup-tag -y
+              done
+
+      - name: Apagar o arquivo cifrado do runner
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -n "${NAME:-}" ]; then
+            rm -f "$NAME"
+          fi

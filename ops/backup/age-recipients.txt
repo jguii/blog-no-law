@@ -1,0 +1,4 @@
+# Destinatário age do backup noturno (.github/workflows/backup.yml). Só a chave pública fica aqui;
+# a chave privada fica offline com o autor (e uma cópia no gerenciador de senhas). Sem ela nenhum
+# backup pode ser lido. Rotação: docs/runbooks/rotacao-segredos.md.
+age1v6tkfntd0qaur5vr5u2gc7335ksyc4t46gpaqj6j9jpm602wgcdqlm8jw8

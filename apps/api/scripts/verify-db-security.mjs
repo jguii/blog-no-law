@@ -2,7 +2,11 @@
 // e privilégios de anon, authenticated e service_role. Saída: só linhas `PASS`/`FAIL`/`SKIP`.
 //
 // Uso (da raiz do repositório, com a CA do Supabase pelo ambiente):
-//   NODE_EXTRA_CA_CERTS="$PWD/apps/api/certs/supabase-ca.crt" node apps/api/scripts/verify-db-security.mjs [--as-app]
+//   NODE_EXTRA_CA_CERTS="$PWD/apps/api/certs/supabase-ca.crt" node apps/api/scripts/verify-db-security.mjs [--as-app [--heartbeat-fresh]]
+//
+// --heartbeat-fresh (só com --as-app): exige que o `beat_at` de `heartbeat`, lido como `app_api`, tenha
+// menos de 2 horas (a escrita diária do backup.yml, keep-alive do Supabase, D-03) e imprime
+// `HEARTBEAT_FRESH` no fim.
 //
 // Variáveis: ENV_FILE (default ~/.config/blog-no-law/production.env) com MIGRATE_DATABASE_URL e,
 // para --as-app, DATABASE_URL. O repositório é público: este script nunca imprime URL, usuário com
@@ -15,7 +19,9 @@ import pg from 'pg';
 const MIN_MAJOR = 17;
 const SUPABASE_ROLES = ['anon', 'authenticated', 'service_role'];
 const PROTECTED_TABLES = ['heartbeat', '_prisma_migrations'];
+const HEARTBEAT_MAX_AGE_SECONDS = 2 * 60 * 60;
 const asApp = process.argv.includes('--as-app');
+const heartbeatFresh = process.argv.includes('--heartbeat-fresh');
 
 const envFile = process.env.ENV_FILE ?? join(homedir(), '.config', 'blog-no-law', 'production.env');
 config({ path: envFile, quiet: true });
@@ -176,11 +182,28 @@ async function verifyAsApp(app) {
     const state = await sqlState(app.query('UPDATE heartbeat SET beat_at = now()'));
     return state === '42501' ? true : `sqlstate=${state} (esperado 42501)`;
   });
+
+  if (heartbeatFresh) {
+    await check('heartbeat_fresh', async () => {
+      const result = await app.query(
+        'SELECT floor(extract(epoch FROM now() - beat_at))::int AS age FROM heartbeat WHERE id = 1',
+      );
+      const age = result.rows[0]?.age;
+      if (typeof age !== 'number') return 'linha id=1 ausente';
+      return age < HEARTBEAT_MAX_AGE_SECONDS
+        ? true
+        : `idade_s=${age} (máximo ${HEARTBEAT_MAX_AGE_SECONDS})`;
+    });
+  }
 }
 
 async function main() {
   if (!process.env.MIGRATE_DATABASE_URL) {
     report('FAIL', 'config', 'MIGRATE_DATABASE_URL ausente');
+    return;
+  }
+  if (heartbeatFresh && !asApp) {
+    report('FAIL', 'config', '--heartbeat-fresh exige --as-app');
     return;
   }
   if (asApp && !process.env.DATABASE_URL) {
@@ -213,3 +236,4 @@ await main();
 
 if (failed) process.exit(1);
 console.log(asApp ? 'APP_API_OK' : 'DB_SECURITY_OK');
+if (heartbeatFresh) console.log('HEARTBEAT_FRESH');
