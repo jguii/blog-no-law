@@ -92,7 +92,7 @@ Requisitos do lançamento. Cada um mapeia para exatamente uma fase do roadmap.
 
 - [ ] **OPS-01**: Logs estruturados, monitoramento de erros (Sentry) e health check da API
 - [x] **OPS-02**: Deploy do Next na Vercel e da API em Docker num PaaS gratuito (Render) com HTTPS; plano B de hospedagem (Railway) testado ao menos uma vez
-- [ ] **OPS-03**: Backup noturno do banco fora do Supabase, em destino privado, e keep-alive que impede a pausa do Supabase
+- [x] **OPS-03**: Backup noturno do banco fora do Supabase, em destino privado, e keep-alive que impede a pausa do Supabase
 
 ## Ideias futuras (sem versão definida)
 
@@ -180,7 +180,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QA-04 | Phase 1 | Complete |
 | OPS-01 | Phase 1 | Pending |
 | OPS-02 | Phase 1 | Complete |
-| OPS-03 | Phase 1 | Pending |
+| OPS-03 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 55 total
