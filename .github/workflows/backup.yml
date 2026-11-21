@@ -108,7 +108,8 @@ jobs:
           set -euo pipefail
           gh release create "$TAG" "$NAME" --repo "$BACKUP_REPO" --title "Backup $TAG" --notes "Backup automático cifrado com age"
 
-      # Depois do upload novo: um backup interrompido no meio deixa os anteriores intactos.
+      # Depois do upload novo: um backup interrompido no meio deixa os anteriores intactos. A idade vem
+      # da data de publicação: a outra data da release é a do commit alvo da tag, igual para todas.
       - name: Apagar backups com mais de 30 dias
         env:
           GH_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
@@ -116,8 +117,8 @@ jobs:
         run: |
           set -euo pipefail
           CUTOFF=$(date -u -d '30 days ago' +%s)
-          gh release list --repo "$BACKUP_REPO" --limit 200 --json tagName,createdAt \
-            | jq -r --argjson cutoff "$CUTOFF" '.[] | select(.tagName | startswith("db-")) | select((.createdAt | fromdateiso8601) < $cutoff) | .tagName' \
+          gh release list --repo "$BACKUP_REPO" --limit 200 --json tagName,publishedAt \
+            | jq -r --argjson cutoff "$CUTOFF" '.[] | select(.tagName | startswith("db-")) | select((.publishedAt | fromdateiso8601) < $cutoff) | .tagName' \
             | while read -r OLD_TAG; do
                 gh release delete "$OLD_TAG" --repo "$BACKUP_REPO" --cleanup-tag -y
               done
