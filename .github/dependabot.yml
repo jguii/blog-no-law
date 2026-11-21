@@ -1,0 +1,42 @@
+version: 2
+updates:
+  # Ações do GitHub fixadas por SHA (T-01-21): o Dependabot propõe o SHA novo com o comentário da tag.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  # Imagem base do Dockerfile da API (node:26-bookworm-slim).
+  - package-ecosystem: docker
+    directory: /apps/api
+    schedule:
+      interval: weekly
+
+  # Dependências npm do monorepo. Famílias que precisam andar juntas vão no mesmo PR.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      prisma:
+        patterns:
+          - prisma
+          - '@prisma/*'
+      nestjs:
+        patterns:
+          - '@nestjs/*'
+      sentry:
+        patterns:
+          - '@sentry/*'
+      next-react:
+        patterns:
+          - next
+          - react
+          - react-dom
+          - eslint-config-next
+      pino:
+        patterns:
+          - pino
+          - pino-http
+          - nestjs-pino

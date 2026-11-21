@@ -1,0 +1,302 @@
+name: CI
+
+# Gatilhos (D-10, D-13): PR para a main, push na main (gera o run de CI do qual o deploy depende) e
+# disparo manual. Sem filtro de caminhos: um PR só de documentação também precisa produzir o check
+# obrigatório `ci-ok`, senão o merge travaria. Este repositório é público (D-07): só o gatilho
+# `pull_request` roda código de PR, sempre com permissões mínimas e sem segredos.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# O check obrigatório vale para o commit mais recente do PR; um run antigo cancelado não libera merge
+# porque o `ci-ok` trata `cancelled` como falha.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run format:check
+      - run: pnpm turbo run lint
+      # Gate de HTML bruto no web (SEC-03) e testes dos scripts da raiz (gates, smoke, ligações).
+      - run: pnpm run check:raw-html
+      - run: pnpm run test:scripts
+
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run typecheck
+
+  test-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      db:
+        # Mesma imagem do compose.test.yaml; credencial só de teste, banco descartável do runner.
+        image: supabase/postgres:17.12.0.000
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -h 127.0.0.1"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      DATABASE_URL_TEST_ADMIN: postgresql://postgres:postgres@127.0.0.1:54329/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # O cliente Prisma é gerado pelo `build` do @blog/api, do qual estas tarefas dependem (turbo.json).
+      - run: pnpm turbo run test test:http test:integration --filter=@blog/api --filter=@blog/shared
+
+  test-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run test test:integration build --filter=@blog/web
+
+  # E2E (QA-02): Playwright + axe no Chromium contra a API compilada, o web (`next start`) e um Postgres
+  # real com a migration aplicada. Só roda aqui (D-09): o pre-push não tem Playwright. Os servidores
+  # sobem pelo `webServer` de apps/web/playwright.config.ts.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      db:
+        # Mesma imagem do compose.test.yaml; credencial só de teste, banco descartável do runner.
+        image: supabase/postgres:17.12.0.000
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -h 127.0.0.1"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      DATABASE_URL_TEST_ADMIN: postgresql://postgres:postgres@127.0.0.1:54329/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build --filter=@blog/web --filter=@blog/api
+      - name: Banco com as migrations aplicadas
+        run: TEST_DB_NAME=blog_e2e node apps/api/scripts/prepare-test-db.mjs
+      - name: Instalar o Chromium do Playwright
+        run: pnpm --filter @blog/web exec playwright install --with-deps chromium
+      - name: Rodar o E2E
+        run: pnpm --filter @blog/web test:e2e
+      # O relatório só tem páginas do ambiente de teste, com credenciais de teste local (T-01-23).
+      - name: Publicar o relatório do Playwright (só em falha)
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
+
+  # Portão pré-merge da Data API (SEC-04, D-14): sobe um PostgREST real sobre o Postgres com as
+  # migrations aplicadas e exige que GET anônimo em toda relação de `public` não leia nenhuma linha.
+  postgrest-anon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      db:
+        # Mesma imagem do compose.test.yaml; credencial só de teste, banco descartável do runner.
+        image: supabase/postgres:17.12.0.000
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -h 127.0.0.1"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      DATABASE_URL_TEST_ADMIN: postgresql://postgres:postgres@127.0.0.1:54329/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Banco com as migrations aplicadas
+        run: TEST_DB_NAME=blog_postgrest node apps/api/scripts/prepare-test-db.mjs
+      # Imagem fixada por digest (tag v16.5 lida no Docker Hub em 2026-11-17). O PostgREST conecta como
+      # `postgres` (no Supabase o papel de conexão é o `authenticator`); cada requisição anônima troca
+      # para `anon` do mesmo jeito. Sem segredo de JWT: só requisições anônimas.
+      - name: Subir o PostgREST
+        run: |
+          docker run -d --name postgrest --network host \
+            -e PGRST_DB_URI='postgresql://postgres:postgres@127.0.0.1:54329/blog_postgrest' \
+            -e PGRST_DB_SCHEMAS=public \
+            -e PGRST_DB_ANON_ROLE=anon \
+            -e PGRST_ADMIN_SERVER_PORT=3001 \
+            postgrest/postgrest:v16.5@sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc
+      - name: Esperar o PostgREST ficar pronto
+        run: |
+          for _ in $(seq 1 60); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/ready)" = "200" ]; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "O PostgREST não ficou pronto em 60 s" >&2
+          exit 1
+      # Toda tabela e view de `public` entra no portão sem editar este workflow.
+      - name: Listar as relações de public
+        env:
+          DB_CONTAINER: ${{ job.services.db.id }}
+        run: |
+          TABLES=$(docker exec -e PGPASSWORD=postgres "$DB_CONTAINER" psql -h 127.0.0.1 -U postgres -d blog_postgrest -At \
+            -c "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind IN ('r','p','v','m','f') ORDER BY c.relname" \
+            | tr '\n' ' ')
+          echo "Relações em public: $TABLES"
+          for required in heartbeat _prisma_migrations; do
+            case " $TABLES " in
+              *" $required "*) ;;
+              *) echo "A lista de relações não contém $required" >&2; exit 1 ;;
+            esac
+          done
+          echo "TABLES=$TABLES" >> "$GITHUB_ENV"
+      - name: GET anônimo em toda relação de public (modo estrito)
+        run: |
+          if ! OUT=$(POSTGREST_URL=http://127.0.0.1:3000 POSTGREST_STRICT=1 TABLES="$TABLES" bash scripts/smoke-postgrest.sh); then
+            echo "$OUT"
+            exit 1
+          fi
+          echo "$OUT"
+          printf '%s\n' "$OUT" | grep -qx POSTGREST_ANON_BLOCKED
+      # Autoteste do portão: dá SELECT a `anon` de propósito (banco descartável) e exige que o smoke
+      # acuse LEAK. Prova que o PostgREST troca mesmo para `anon` e que o portão detecta vazamento.
+      - name: Autoteste do portão (precisa acusar LEAK)
+        env:
+          DB_CONTAINER: ${{ job.services.db.id }}
+        run: |
+          docker exec -e PGPASSWORD=postgres "$DB_CONTAINER" psql -h 127.0.0.1 -U postgres -d blog_postgrest -v ON_ERROR_STOP=1 \
+            -c "GRANT USAGE ON SCHEMA public TO anon" \
+            -c "GRANT SELECT ON public.heartbeat TO anon" \
+            -c "CREATE POLICY selftest_anon_select ON public.heartbeat FOR SELECT TO anon USING (true)"
+          set +e
+          OUT=$(POSTGREST_URL=http://127.0.0.1:3000 POSTGREST_STRICT=1 TABLES=heartbeat bash scripts/smoke-postgrest.sh)
+          RC=$?
+          set -e
+          echo "$OUT"
+          if [ "$RC" -ne 1 ] || ! printf '%s\n' "$OUT" | grep -qx 'LEAK heartbeat 200'; then
+            echo "O portão não detectou o vazamento provocado" >&2
+            exit 1
+          fi
+          echo POSTGREST_GATE_SELFTEST_OK
+      - name: Logs do PostgREST (só dados do ambiente de teste)
+        if: failure()
+        run: docker logs postgrest
+
+  # Build da imagem da API sem publicar (D-10): um Dockerfile quebrado bloqueia o merge, em vez de
+  # só falhar depois, no `Deploy API`. A publicação no GHCR é do deploy-api.yml, só a partir da main.
+  docker-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Lê o .gitleaks.toml da raiz (regras padrão mais a allowlist de literais de teste local).
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  ci-ok:
+    if: always()
+    needs: [lint, typecheck, test-api, test-web, e2e, secrets, postgrest-anon, docker-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Só `success` em todos os jobs libera o merge: falha, cancelamento e job pulado reprovam.
+      - name: Reprovar se algum job obrigatório não terminou com sucesso
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
+        run: |
+          echo "Algum job obrigatório não terminou com sucesso."
+          exit 1
+      - run: echo "Todos os jobs obrigatórios passaram."

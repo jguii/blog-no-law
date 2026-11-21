@@ -1,0 +1,29 @@
+{
+  "name": "blog-no-law",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.21.0",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:http": "turbo run test:http",
+    "test:integration": "turbo run test:integration",
+    "check:raw-html": "node scripts/check-no-raw-html.mjs",
+    "test:scripts": "node --test scripts/",
+    "verify": "pnpm run format:check && pnpm run check:raw-html && pnpm run test:scripts && turbo run lint typecheck test test:http test:integration",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "husky": "9.1.7",
+    "prettier": "3.10.1",
+    "turbo": "2.11.11",
+    "typescript": "6.0.3"
+  }
+}
