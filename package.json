@@ -14,7 +14,9 @@
     "test": "turbo run test",
     "test:http": "turbo run test:http",
     "test:integration": "turbo run test:integration",
-    "verify": "pnpm run format:check && turbo run lint typecheck test test:http test:integration",
+    "check:raw-html": "node scripts/check-no-raw-html.mjs",
+    "test:scripts": "node --test scripts/",
+    "verify": "pnpm run format:check && pnpm run check:raw-html && pnpm run test:scripts && turbo run lint typecheck test test:http test:integration",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
