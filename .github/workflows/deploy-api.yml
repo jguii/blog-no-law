@@ -1,0 +1,141 @@
+name: Deploy API
+
+# Entrega contínua da API (D-10, D-13). Ordem fixa: imagem -> migration -> deploy hook -> verificação.
+#   1. build-push: constrói a imagem linux/amd64 e publica no GHCR (barato e reversível);
+#   2. migrate: `prisma migrate deploy` com a credencial `postgres`, com a versão antiga da API ainda
+#      servindo; toda migration precisa ser compatível com ela (expand/contract);
+#   3. deploy: aciona o deploy hook da Render apontando para a imagem nova;
+#   4. verify: espera o /status mostrar o commit novo e roda o smoke anônimo do PostgREST de produção.
+#
+# O gatilho `workflow_run` só dispara a partir de um workflow que já está na branch padrão (D-13), por
+# isso a primeira entrega passa por um merge no meio da fase. Este repositório é público (D-07): o job só
+# age em run do CI disparado por `push` na `main` do próprio repositório, nunca por PR nem por fork.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Um deploy nunca interrompe outro no meio da migration: os deploys entram na fila em ordem.
+concurrency:
+  group: deploy-api-production
+  cancel-in-progress: false
+
+env:
+  HUSKY: '0'
+
+jobs:
+  build-push:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      sha: ${{ steps.meta.outputs.sha }}
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      # O dono do repositório precisa estar em minúsculas na referência da imagem.
+      - name: Calcular o SHA e a referência da imagem
+        id: meta
+        env:
+          OWNER: ${{ github.repository_owner }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          OWNER_LC=$(printf '%s' "$OWNER" | tr '[:upper:]' '[:lower:]')
+          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${OWNER_LC}/blog-no-law-api:${SHA}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.image }}
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.sha }}
+            SOURCE_URL=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  migrate:
+    needs: build-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.build-push.outputs.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter @blog/api...
+      # A credencial `postgres` (dona do schema) vive só no Environment `production`, restrito à `main`.
+      # O schema engine do Prisma não imprime a URL; o TLS dos clientes Node usa a CA do Supabase por
+      # caminho absoluto (forma canônica, docs/runbooks/supabase-producao.md).
+      - name: Aplicar as migrations em produção
+        env:
+          MIGRATE_DATABASE_URL: ${{ secrets.MIGRATE_DATABASE_URL }}
+          NODE_EXTRA_CA_CERTS: ${{ github.workspace }}/apps/api/certs/supabase-ca.crt
+        run: pnpm --filter @blog/api exec prisma migrate deploy
+
+  deploy:
+    needs: [migrate, build-push]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      # A URL do hook é segredo: entra só por `env:` (mascarada no log), sem modo verboso do curl.
+      - name: Acionar o deploy hook da Render com a imagem nova
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          IMAGE: ${{ needs.build-push.outputs.image }}
+        run: |
+          IMG_ENC=$(jq -rn --arg v "$IMAGE" '$v|@uri')
+          curl -fsS -o /dev/null -X POST "$RENDER_DEPLOY_HOOK_URL&imgURL=$IMG_ENC"
+
+  verify:
+    needs: [deploy, build-push]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.build-push.outputs.sha }}
+          persist-credentials: false
+      # A Render Free pode demorar cerca de 1 minuto para acordar e trocar de imagem.
+      - name: Esperar a Render servir o commit novo
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          SHA: ${{ needs.build-push.outputs.sha }}
+        run: bash scripts/wait-for-commit.sh "$API_BASE_URL" "$SHA" 600
+      # Smoke pós-deploy (D-14): nenhuma tabela legível com a chave publishable (pública por desenho).
+      - name: Smoke anônimo do PostgREST de produção
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+        run: bash scripts/smoke-postgrest.sh
