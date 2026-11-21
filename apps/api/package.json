@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "prisma generate && tsc -p tsconfig.build.json",
     "start": "node --enable-source-maps --import ./dist/instrument.js dist/main.js",
