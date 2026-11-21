@@ -23,7 +23,7 @@ APP_REPO='jguii/blog-no-law'
 # Papéis da plataforma Supabase citados em privilégios do dump (por exemplo nos privilégios padrão do
 # schema) que não viajam num dump de schema. Nascem NOLOGIN antes do restore. Lista registrada em
 # docs/runbooks/backup-restore.md.
-DRILL_PLATFORM_ROLES=()
+DRILL_PLATFORM_ROLES=(supabase_admin)
 
 fail() {
   echo "RESTORE_FAIL $1"
@@ -99,9 +99,11 @@ docker exec "$CONTAINER" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -qc "$R
   || fail create_roles
 
 # O texto em claro só passa pelo pipe. Os GRANT/REVOKE do dump são restaurados (o runtime depende deles).
+# O dump de --schema=public traz CREATE SCHEMA public, que um banco novo já tem: --clean --if-exists
+# troca o public vazio do destino pelo do backup, com os privilégios do backup.
 set +e
 age -d -i "$AGE_KEY" "$FILE" \
-  | docker exec -i "$CONTAINER" pg_restore -U postgres -d postgres --no-owner --exit-on-error
+  | docker exec -i "$CONTAINER" pg_restore -U postgres -d postgres --no-owner --clean --if-exists --exit-on-error
 STATUS=("${PIPESTATUS[@]}")
 set -e
 [ "${STATUS[1]}" -eq 0 ] || fail pg_restore
