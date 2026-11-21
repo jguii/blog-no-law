@@ -27,13 +27,14 @@ function joinContinuations(text) {
 }
 
 // Os blocos `run:` do workflow (escalar na mesma linha ou bloco literal `|`), já com as continuações
-// juntadas. Cada bloco é o texto do comando, sem o recuo.
+// juntadas. Cada bloco é o texto do comando, sem o recuo. Um `run:` sem valor é o mapa de
+// `defaults.run` (shell padrão), não um comando, e fica de fora.
 function runBlocks(workflow) {
   const lines = workflow.split('\n');
   const blocks = [];
   for (let index = 0; index < lines.length; index += 1) {
     const match = /^(\s*)(?:- )?run:\s*(.*)$/.exec(lines[index]);
-    if (!match) continue;
+    if (!match || match[2] === '') continue;
     const indent = match[1].length;
     if (match[2] !== '|' && match[2] !== '|-') {
       blocks.push(match[2]);
