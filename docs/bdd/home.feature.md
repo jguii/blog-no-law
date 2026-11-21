@@ -2,7 +2,7 @@
 
 Escrita antes dos testes (BDD). Cada cenário traz a tag do teste que o implementa:
 `@smoke-local` roda em `scripts/smoke-local.sh`; `@integration` roda em `apps/web/test/home.int-spec.ts`;
-`@e2e` será implementado no Playwright do plano 01-10.
+`@e2e` roda em `apps/web/e2e/home.spec.ts` (Playwright com axe, WCAG 2.1 A/AA), só na CI.
 
 Como visitante do Blog No Law
 Quero ver se a API e o banco estão no ar
