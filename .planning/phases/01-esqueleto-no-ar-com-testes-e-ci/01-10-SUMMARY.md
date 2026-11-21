@@ -17,6 +17,8 @@ actuals:
   tokens: 4450
   tasks: 3
   commits: 6
+plan_head_before: 1df67a3a66e695b80db3145c62eb83d74eebae5b
+plan_head_after: a02a227f69c95f1ce824093e64ad3c2c080e93b4
 
 tech-stack:
   added: ["@playwright/test@1.65.1", "@axe-core/playwright@4.14.0", "@sentry/nextjs@11.12.0"]
