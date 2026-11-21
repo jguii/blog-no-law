@@ -86,12 +86,12 @@ Requisitos do lançamento. Cada um mapeia para exatamente uma fase do roadmap.
 - [ ] **QA-01**: Testes unitários e de integração com Vitest na API e no web, incluindo integração com Postgres real
 - [ ] **QA-02**: Testes E2E com Playwright cobrindo os fluxos principais, com verificação de acessibilidade (axe)
 - [ ] **QA-03**: Hook de pre-push roda lint, typecheck e testes e bloqueia o push se algo falhar
-- [ ] **QA-04**: CI no GitHub Actions roda toda a suíte; branch `main` protegida exige checks verdes para merge
+- [x] **QA-04**: CI no GitHub Actions roda toda a suíte; branch `main` protegida exige checks verdes para merge
 
 ### Operação (OPS)
 
 - [ ] **OPS-01**: Logs estruturados, monitoramento de erros (Sentry) e health check da API
-- [ ] **OPS-02**: Deploy do Next na Vercel e da API em Docker num PaaS gratuito (Render) com HTTPS; plano B de hospedagem (Railway) testado ao menos uma vez
+- [x] **OPS-02**: Deploy do Next na Vercel e da API em Docker num PaaS gratuito (Render) com HTTPS; plano B de hospedagem (Railway) testado ao menos uma vez
 - [ ] **OPS-03**: Backup noturno do banco fora do Supabase, em destino privado, e keep-alive que impede a pausa do Supabase
 
 ## Ideias futuras (sem versão definida)
@@ -177,9 +177,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QA-01 | Phase 1 | Pending |
 | QA-02 | Phase 1 | Pending |
 | QA-03 | Phase 1 | Pending |
-| QA-04 | Phase 1 | Pending |
+| QA-04 | Phase 1 | Complete |
 | OPS-01 | Phase 1 | Pending |
-| OPS-02 | Phase 1 | Pending |
+| OPS-02 | Phase 1 | Complete |
 | OPS-03 | Phase 1 | Pending |
 
 **Coverage:**
