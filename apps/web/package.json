@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run --project unit",
-    "test:integration": "vitest run --project int"
+    "test:integration": "vitest run --project int",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@blog/shared": "workspace:*",

@@ -7,7 +7,13 @@ import nextTs from 'eslint-config-next/typescript';
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores(['.next/**', 'next-env.d.ts', 'node_modules/**']),
+  globalIgnores([
+    '.next/**',
+    'next-env.d.ts',
+    'node_modules/**',
+    'playwright-report/**',
+    'test-results/**',
+  ]),
   {
     rules: {
       'react/no-danger': 'error',
