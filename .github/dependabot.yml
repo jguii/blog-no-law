@@ -6,6 +6,12 @@ updates:
     schedule:
       interval: weekly
 
+  # Imagem base do Dockerfile da API (node:26-bookworm-slim).
+  - package-ecosystem: docker
+    directory: /apps/api
+    schedule:
+      interval: weekly
+
   # Dependências npm do monorepo. Famílias que precisam andar juntas vão no mesmo PR.
   - package-ecosystem: npm
     directory: /
