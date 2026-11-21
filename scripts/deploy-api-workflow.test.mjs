@@ -37,9 +37,11 @@ function jobBlock(workflow, job) {
   return lines.slice(start, end).join('\n');
 }
 
-// Verdadeiro quando o bloco declara `needs` com exatamente aquele job (forma escalar ou lista).
+// Verdadeiro quando o `needs` do bloco cita aquele job (forma escalar ou lista). Os jobs `deploy` e
+// `verify` também listam `build-push`, de onde vêm os outputs `sha` e `image`.
 function needsJob(block, job) {
-  return new RegExp(`^\\s+needs:\\s*(\\[\\s*${job}\\s*\\]|${job})\\s*$`, 'm').test(block);
+  const line = block.split('\n').find((candidate) => /^\s+needs:/.test(candidate)) ?? '';
+  return new RegExp(`[\\s\\[,]${job}\\s*(,|\\]|$)`).test(line);
 }
 
 test('guarda 1: dispara por workflow_run do CI na main e por workflow_dispatch', () => {
