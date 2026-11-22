@@ -66,6 +66,38 @@ describe('RLS e papéis do banco (SEC-04)', () => {
     });
   });
 
+  describe('EXECUTE em funções de public (WR-02)', () => {
+    it('função nova criada pelo papel das migrations nasce sem EXECUTE para PUBLIC, anon, authenticated e service_role', async () => {
+      const found = await withClient(inject('adminDbUrl'), async (client) => {
+        // Transação com ROLLBACK: a função de prova nunca fica no banco compartilhado.
+        await client.query('BEGIN');
+        try {
+          await client.query(
+            `CREATE FUNCTION public.wr02_probe() RETURNS integer LANGUAGE sql AS 'SELECT 1'`,
+          );
+          const roles = await client.query(
+            `SELECT r.role
+               FROM unnest(ARRAY['anon', 'authenticated', 'service_role']) AS r(role)
+              WHERE has_function_privilege(r.role, 'public.wr02_probe()', 'EXECUTE')`,
+          );
+          // `proacl` nulo vale o default do Postgres, que dá EXECUTE a PUBLIC (grantee 0).
+          const publicAcl = await client.query(
+            `SELECT count(*)::int AS total
+               FROM pg_proc p, aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) AS a
+              WHERE p.oid = 'public.wr02_probe()'::regprocedure
+                AND a.grantee = 0 AND a.privilege_type = 'EXECUTE'`,
+          );
+          const granted = roles.rows.map((row) => String(row.role));
+          if (publicAcl.rows[0].total > 0) granted.unshift('PUBLIC');
+          return granted;
+        } finally {
+          await client.query('ROLLBACK');
+        }
+      });
+      expect(found.join(', ')).toBe('');
+    });
+  });
+
   describe('RLS em todas as tabelas de public', () => {
     it('toda tabela de public tem RLS ativo (inclusive _prisma_migrations)', async () => {
       const result = await withClient(inject('adminDbUrl'), (client) =>
