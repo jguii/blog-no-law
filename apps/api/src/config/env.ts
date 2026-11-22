@@ -27,15 +27,26 @@ const corsOrigins = z
 
 export const envSchema = z
   .object({
-    PORT: z.coerce.number().int().min(1).max(65535).default(3001),
-    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    GIT_SHA: z.string().min(1).default('dev'),
+    // Toda chave passa por emptyToUndefined (WR-01): vazio cai no default ou em "ausente",
+    // nunca em 0 (`z.coerce.number()` faria '' virar 0) nem em erro de boot.
+    PORT: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).max(65535).default(3001)),
+    NODE_ENV: z.preprocess(
+      emptyToUndefined,
+      z.enum(['development', 'test', 'production']).default('development'),
+    ),
+    GIT_SHA: z.preprocess(emptyToUndefined, z.string().min(1).default('dev')),
     // Saltos de proxy confiáveis (D-02): 1 atrás da Render; nunca `true`.
-    TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(3).default(1),
-    CORS_ORIGINS: corsOrigins,
-    LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+    TRUST_PROXY_HOPS: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number().int().min(0).max(3).default(1),
+    ),
+    CORS_ORIGINS: z.preprocess(emptyToUndefined, corsOrigins),
+    LOG_LEVEL: z.preprocess(
+      emptyToUndefined,
+      z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+    ),
     // z.stringbool entende 'true'/'false' de verdade; Boolean('false') seria true.
-    DEBUG_ROUTES_ENABLED: z.stringbool().default(false),
+    DEBUG_ROUTES_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(false)),
     DATABASE_URL: z.preprocess(
       emptyToUndefined,
       z

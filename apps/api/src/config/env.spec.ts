@@ -32,6 +32,37 @@ describe('loadEnv', () => {
     expect(env.version).toBe(packageVersion);
   });
 
+  it('trata string vazia como ausente em todas as chaves com default (WR-01)', () => {
+    const env = loadEnv({
+      PORT: '',
+      NODE_ENV: '',
+      GIT_SHA: '',
+      TRUST_PROXY_HOPS: '',
+      CORS_ORIGINS: '',
+      LOG_LEVEL: '',
+      DEBUG_ROUTES_ENABLED: '',
+      DATABASE_URL: '',
+      SENTRY_DSN: '',
+      SENTRY_ENVIRONMENT: '',
+    });
+
+    expect(env.PORT).toBe(3001);
+    expect(env.NODE_ENV).toBe('development');
+    expect(env.GIT_SHA).toBe('dev');
+    expect(env.TRUST_PROXY_HOPS).toBe(1);
+    expect(env.CORS_ORIGINS).toEqual([]);
+    expect(env.LOG_LEVEL).toBe('info');
+    expect(env.DEBUG_ROUTES_ENABLED).toBe(false);
+    expect(env.DATABASE_URL).toBeUndefined();
+    expect(env.SENTRY_DSN).toBeUndefined();
+    expect(env.SENTRY_ENVIRONMENT).toBeUndefined();
+  });
+
+  it('não transforma TRUST_PROXY_HOPS vazio em 0 (desligaria o trust proxy em silêncio)', () => {
+    expect(loadEnv({ TRUST_PROXY_HOPS: '' }).TRUST_PROXY_HOPS).toBe(1);
+    expect(loadEnv({ TRUST_PROXY_HOPS: '0' }).TRUST_PROXY_HOPS).toBe(0);
+  });
+
   it('converte PORT para número', () => {
     expect(loadEnv({ PORT: '10000' }).PORT).toBe(10000);
   });

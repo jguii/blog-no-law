@@ -191,6 +191,27 @@ test('guarda 5: retenção de 30 dias depois do release e limpeza do runner com 
   assert.match(last, /rm -f "\$NAME"/, 'o último passo apaga o arquivo cifrado do runner');
 });
 
+// O `createdAt` de uma release no GitHub é a data do commit alvo da tag, não a da publicação: no
+// repositório de backups (um único commit) todas as releases herdam a mesma data, e ~30 dias depois
+// do commit a retenção apagaria todas, inclusive a recém-publicada. A idade vem de `publishedAt`.
+test('guarda 7: a retenção mede a idade da release por publishedAt, nunca por createdAt', () => {
+  const workflow = readText(BACKUP);
+  assert.notEqual(workflow, '', `${BACKUP} precisa existir`);
+  const retention = runBlocks(workflow).find((block) => block.includes('gh release delete')) ?? '';
+  assert.notEqual(retention, '', 'precisa do passo de retenção com gh release delete');
+  assert.match(
+    retention,
+    /gh release list --repo "\$BACKUP_REPO" --limit 200 --json tagName,publishedAt(\s|$)/,
+    'a lista de releases pede tagName e publishedAt',
+  );
+  assert.match(
+    retention,
+    /\(\.publishedAt \| fromdateiso8601\) < \$cutoff/,
+    'o filtro jq compara publishedAt com o corte de 30 dias',
+  );
+  assert.ok(!/createdAt/.test(workflow), 'createdAt é a data do commit alvo, não da publicação');
+});
+
 test('guarda 6: ações fixadas por SHA de 40 hex, set -euo pipefail e nenhum tracing do shell', () => {
   const workflow = readText(BACKUP);
   assert.notEqual(workflow, '', `${BACKUP} precisa existir`);

@@ -140,3 +140,22 @@ test('ligação 8: verify roda format:check antes do turbo run e o .prettierigno
     assert.ok(ignored.includes(entry), `.prettierignore sem ${entry}`);
   }
 });
+
+test('ligação 9 (WR-05): o build repassa as variáveis do Sentry ao next build sem pôr o token no hash', () => {
+  const turbo = readJson('turbo.json');
+  const tasks = turbo.tasks ?? {};
+  // O modo estrito do Turborepo 2 só entrega à tarefa o que está declarado; sem isto o
+  // next.config.ts enxerga SENTRY_AUTH_TOKEN undefined e desliga o upload de source maps.
+  // O plugin do Sentry lê SENTRY_ORG e SENTRY_PROJECT do ambiente.
+  const keys = ['build', '@blog/web#build'].filter((key) => key === 'build' || key in tasks);
+  for (const key of keys) {
+    const task = tasks[key];
+    const pass = task?.passThroughEnv ?? [];
+    for (const name of ['SENTRY_AUTH_TOKEN', 'SENTRY_ORG', 'SENTRY_PROJECT']) {
+      assert.ok(pass.includes(name), `${key}: passThroughEnv sem ${name}`);
+    }
+    // `env` entra no hash do cache: o token não pode estar lá.
+    assert.ok(!(task?.env ?? []).includes('SENTRY_AUTH_TOKEN'), `${key}: token em env`);
+  }
+  assert.ok(!(turbo.globalEnv ?? []).includes('SENTRY_AUTH_TOKEN'), 'token em globalEnv');
+});
