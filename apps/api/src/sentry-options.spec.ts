@@ -22,4 +22,16 @@ describe('sentryEnvOptions', () => {
   it('cai no NODE_ENV quando SENTRY_ENVIRONMENT está ausente', () => {
     expect(sentryEnvOptions({ SENTRY_DSN: DSN, NODE_ENV: 'test' })?.environment).toBe('test');
   });
+
+  it('trata SENTRY_ENVIRONMENT e GIT_SHA vazios como ausentes, como o env.ts (WR-01)', () => {
+    const options = sentryEnvOptions({
+      SENTRY_DSN: DSN,
+      SENTRY_ENVIRONMENT: '',
+      NODE_ENV: 'production',
+      GIT_SHA: '',
+    });
+
+    expect(options?.environment).toBe('production');
+    expect(options?.release).toBeUndefined();
+  });
 });
