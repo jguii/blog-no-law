@@ -77,6 +77,75 @@ test('allowlist podre (item que não existe mais): sai 1 com STALE_ALLOWLIST', (
   );
 });
 
+// Árvore temporária (fora do git: `coverage/`, `.next/` etc. são ignorados pelo .gitignore).
+// `files` mapeia caminho relativo -> conteúdo.
+const UNSAFE_LINE = 'export const x = <div dangerouslySetInnerHTML={{ __html: html }} />;';
+
+function withTempTree(files, fn) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'raw-html-tree-'));
+  try {
+    for (const [relative, content] of Object.entries(files)) {
+      const full = path.join(dir, relative);
+      fs.mkdirSync(path.dirname(full), { recursive: true });
+      fs.writeFileSync(full, content);
+    }
+    return fn(dir);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('WR-04: pasta com nome de artefato aninhada (app/coverage/page.tsx) é varrida', () => {
+  withTempTree(
+    {
+      'app/coverage/page.tsx': `${UNSAFE_LINE}\n`,
+      'components/test-results/list.tsx': `\n${UNSAFE_LINE}\n`,
+    },
+    (root) => {
+      const result = run(['--root', root]);
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.ok(result.stdout.includes('app/coverage/page.tsx:1'), result.stdout);
+      assert.ok(result.stdout.includes('components/test-results/list.tsx:2'), result.stdout);
+    },
+  );
+});
+
+test('WR-04: arquivos .mts, .cts e .cjs também são varridos', () => {
+  withTempTree(
+    {
+      'lib/a.mts': `${UNSAFE_LINE}\n`,
+      'lib/b.cts': `${UNSAFE_LINE}\n`,
+      'lib/c.cjs': `${UNSAFE_LINE}\n`,
+    },
+    (root) => {
+      const result = run(['--root', root]);
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      for (const file of ['lib/a.mts:1', 'lib/b.cts:1', 'lib/c.cjs:1']) {
+        assert.ok(result.stdout.includes(file), `esperava ${file} na saída: ${result.stdout}`);
+      }
+    },
+  );
+});
+
+test('WR-04: artefatos na raiz e node_modules em qualquer nível continuam ignorados', () => {
+  withTempTree(
+    {
+      '.next/server/page.js': `${UNSAFE_LINE}\n`,
+      'coverage/lcov-report/x.js': `${UNSAFE_LINE}\n`,
+      'playwright-report/trace.js': `${UNSAFE_LINE}\n`,
+      'test-results/run.js': `${UNSAFE_LINE}\n`,
+      'node_modules/pkg/index.js': `${UNSAFE_LINE}\n`,
+      'app/node_modules/pkg/index.js': `${UNSAFE_LINE}\n`,
+      'app/page.tsx': 'export default function Page() { return null; }\n',
+    },
+    (root) => {
+      const result = run(['--root', root]);
+      assert.equal(result.status, 0, result.stdout + result.stderr);
+      assert.ok(result.stdout.includes('RAW_HTML_OK'));
+    },
+  );
+});
+
 test('sem argumentos: varre o apps/web real com a allowlist vazia e sai 0', () => {
   const result = run([]);
   assert.equal(result.status, 0, result.stdout + result.stderr);
