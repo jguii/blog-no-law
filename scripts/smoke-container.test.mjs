@@ -109,6 +109,8 @@ test('Dockerfile e .dockerignore: usuário não-root, CA absoluta, SHA, --import
   assert.match(dockerfile, /^USER node$/m);
   assert.ok(dockerfile.includes('NODE_EXTRA_CA_CERTS=/app/certs/supabase-ca.crt'));
   assert.match(dockerfile, /^ARG GIT_SHA/m);
+  // WR-01: sem --build-arg (job docker-build da CI) o ARG não pode gravar GIT_SHA="" na imagem.
+  assert.match(dockerfile, /^ARG GIT_SHA=\S+$/m, 'ARG GIT_SHA precisa de um default não vazio');
   assert.match(dockerfile, /^CMD .*"--import".*"\.\/dist\/instrument\.js"/m);
 
   const ignored = readText('.dockerignore').split('\n');
