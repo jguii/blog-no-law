@@ -11,14 +11,12 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FORBIDDEN = 'dangerouslySetInnerHTML';
-const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.mdx']);
-const IGNORED_DIRS = new Set([
-  'node_modules',
-  '.next',
-  'coverage',
-  'playwright-report',
-  'test-results',
-]);
+const EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs', '.mdx']);
+// WR-04: artefatos de build e teste só são ignorados na RAIZ varrida (`apps/web/.next` etc.).
+// Uma rota ou pasta de componentes com o mesmo nome (`app/coverage/page.tsx`) continua varrida.
+const ROOT_ONLY_IGNORED_DIRS = new Set(['.next', 'coverage', 'playwright-report', 'test-results']);
+// Dependências instaladas ficam fora em qualquer nível.
+const ANY_DEPTH_IGNORED_DIRS = new Set(['node_modules']);
 
 function parseArgs(argv) {
   const options = { root: 'apps/web', allowlist: 'scripts/raw-html-allowlist.json' };
@@ -45,12 +43,16 @@ function toRepoPath(absolute) {
   return path.relative(repoRoot, absolute).split(path.sep).join('/');
 }
 
-function* walk(dir) {
+function isIgnoredDir(name, atRoot) {
+  return ANY_DEPTH_IGNORED_DIRS.has(name) || (atRoot && ROOT_ONLY_IGNORED_DIRS.has(name));
+}
+
+function* walk(dir, atRoot = true) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isSymbolicLink()) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (!IGNORED_DIRS.has(entry.name)) yield* walk(full);
+      if (!isIgnoredDir(entry.name, atRoot)) yield* walk(full, false);
     } else if (entry.isFile() && EXTENSIONS.has(path.extname(entry.name))) {
       yield full;
     }
