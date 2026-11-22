@@ -28,7 +28,9 @@ RUN pnpm --filter @blog/shared build \
 # ---- runtime ----
 FROM node:26-bookworm-slim
 ENV NODE_ENV=production
-ARG GIT_SHA
+# Sem --build-arg (job docker-build da CI) o default evita gravar GIT_SHA="" na imagem (WR-01).
+# O deploy-api.yml e o smoke-container.sh sempre passam o SHA real.
+ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
 ARG SOURCE_URL
 LABEL org.opencontainers.image.source=$SOURCE_URL
