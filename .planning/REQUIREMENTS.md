@@ -78,19 +78,19 @@ Requisitos do lançamento. Cada um mapeia para exatamente uma fase do roadmap.
 
 - [ ] **SEC-01**: API valida o JWT do Supabase via JWKS (ES256, issuer e audience) e lê papéis do próprio banco, nunca do token
 - [ ] **SEC-02**: Rate limiting por rota (login, comentários, upload, criação de post)
-- [ ] **SEC-03**: Validação de entrada em toda a API, Helmet, CORS restrito e conteúdo renderizado sem HTML bruto (proteção contra XSS)
-- [ ] **SEC-04**: RLS habilitado em todas as tabelas do Supabase, com a API usando um papel de banco sem bypass de RLS
+- [x] **SEC-03**: Validação de entrada em toda a API, Helmet, CORS restrito e conteúdo renderizado sem HTML bruto (proteção contra XSS)
+- [x] **SEC-04**: RLS habilitado em todas as tabelas do Supabase, com a API usando um papel de banco sem bypass de RLS
 
 ### Qualidade (QA)
 
-- [ ] **QA-01**: Testes unitários e de integração com Vitest na API e no web, incluindo integração com Postgres real
-- [ ] **QA-02**: Testes E2E com Playwright cobrindo os fluxos principais, com verificação de acessibilidade (axe)
-- [ ] **QA-03**: Hook de pre-push roda lint, typecheck e testes e bloqueia o push se algo falhar
+- [x] **QA-01**: Testes unitários e de integração com Vitest na API e no web, incluindo integração com Postgres real
+- [x] **QA-02**: Testes E2E com Playwright cobrindo os fluxos principais, com verificação de acessibilidade (axe)
+- [x] **QA-03**: Hook de pre-push roda lint, typecheck e testes e bloqueia o push se algo falhar
 - [x] **QA-04**: CI no GitHub Actions roda toda a suíte; branch `main` protegida exige checks verdes para merge
 
 ### Operação (OPS)
 
-- [ ] **OPS-01**: Logs estruturados, monitoramento de erros (Sentry) e health check da API
+- [x] **OPS-01**: Logs estruturados, monitoramento de erros (Sentry) e health check da API
 - [x] **OPS-02**: Deploy do Next na Vercel e da API em Docker num PaaS gratuito (Render) com HTTPS; plano B de hospedagem (Railway) testado ao menos uma vez
 - [x] **OPS-03**: Backup noturno do banco fora do Supabase, em destino privado, e keep-alive que impede a pausa do Supabase
 
@@ -172,13 +172,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIS-04 | Phase 2 | Pending |
 | SEC-01 | Phase 3 | Pending |
 | SEC-02 | Phase 7 | Pending |
-| SEC-03 | Phase 1 | Pending |
-| SEC-04 | Phase 1 | Pending |
-| QA-01 | Phase 1 | Pending |
-| QA-02 | Phase 1 | Pending |
-| QA-03 | Phase 1 | Pending |
+| SEC-03 | Phase 1 | Complete |
+| SEC-04 | Phase 1 | Complete |
+| QA-01 | Phase 1 | Complete |
+| QA-02 | Phase 1 | Complete |
+| QA-03 | Phase 1 | Complete |
 | QA-04 | Phase 1 | Complete |
-| OPS-01 | Phase 1 | Pending |
+| OPS-01 | Phase 1 | Complete |
 | OPS-02 | Phase 1 | Complete |
 | OPS-03 | Phase 1 | Complete |
 
