@@ -1,7 +1,8 @@
 ---
 phase: "2"
 slug: "identidade-visual-no-law"
-status: draft
+status: approved
+reviewed_at: "2026-11-27"
 shadcn_initialized: false
 preset: nova
 created: "2026-11-27"
@@ -116,6 +117,7 @@ Exceções (não são escala de espaçamento):
 - **44px**: alvo de toque mínimo (botão de tema, ☰, pílulas, ícone da marca, links do rodapé). **52px**: altura de botão `default` e dos itens do painel móvel. Ambos múltiplos de 4.
 - **760px**: largura máxima do card de leitura. **1152px**: largura máxima do container.
 - Dimensões de ornamento e borda: traço de pincel de 3px (sob `h1`), 4px de traço no header e 5px no rodapé (altura de viewBox 12), faixa de gradiente do card de 6px, bordas de 1px e 2px, selo hanko 44px com raio 4px. São traço gráfico, não espaçamento.
+- Dimensões gráficas de ornamento e forma: pétalas de 11x15px (9x13px no celular), contorno de 1,5px das nuvens, anel de foco de 2px com offset de 2px e `--radius` de 6px. São desenho, não escala de espaçamento.
 - Proibido valor arbitrário (`p-[13px]` etc.) fora desta tabela.
 
 Raio: `--radius: 6px` (cards e botões), `rounded-sm` 4px (selo), `rounded-full` (pílulas do menu e botão de tema).
@@ -234,6 +236,8 @@ Landmarks em toda página: link "Pular para o conteúdo" (visível só no foco, 
 - **Botão de tema** (D-21): círculo de 44px, borda de 2px `--border` (na faixa: `#a8845f`), `DragonMark` de 28px, sem texto. No hover gira 180° em 300ms. A arte gira 180° quando `data-theme="light"` (estado por CSS, sem JS; ver P6). `aria-label`: "Mudar para tema claro" (no escuro) / "Mudar para tema escuro" (no claro); `type="button"`.
 
 ### Capa (`/`, estática, sem chamar a API; D-06)
+
+**Âncora visual:** o emblema com o brilho vermelho é o primeiro ponto de atenção da capa; o `h1` com o slogan é o segundo nível; os CTAs, o terceiro. No celular, a ordem de leitura acompanha (emblema em cima). Nas páginas de leitura, a âncora é o `h1` com o traço de pincel.
 
 Ordem, de cima para baixo:
 
@@ -379,29 +383,48 @@ Tom: próximo, de amigos ("a gente"), um toque de humor (D-11) no Sobre e nas Re
 
 ## UI Considerations
 
-> Cobertura de estados por forma. O copy dos estados de vazio e de erro está em **Copywriting Contract**; aqui só se referencia.
+> Cobertura de estados por forma, gerada pela sonda `ui-consideration-probe` (43 considerações aplicáveis em 11 elementos, tipos confirmados pelo orquestrador) e resolvida em 2026-11-27. O copy dos estados de vazio e de erro está em **Copywriting Contract**; aqui só se referencia. Linhas com várias categorias têm a mesma resolução.
 
-Applicable state considerations resolved: 14 covered, 3 backstop, 1 dismissed, 0 unresolved
+Elementos: E1 header · E2 botão de tema · E3 menu ☰ · E4 capa · E5 banner · E6 páginas de leitura · E7 rodapé · E8 `/status` · E9 `/kit` · E10 404 e erro global · E11 favicon, ícone do app e Open Graph.
+
+Applicable state considerations resolved: 43 of 43 (0 unresolved; 4 linhas backstop, verificadas por teste visual ou depois do deploy)
 
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
-| overflow | nav (pílulas do header) | ✅ covered | Os 3 itens cabem em ≥ 768px com `whitespace-nowrap`; abaixo disso a navegação vira o menu ☰. O painel rola se a viewport for baixa |
-| overflow | nav (rodapé) | ✅ covered | Os 3 links quebram em linhas com gap 8px e mantêm alvo de 44px em 320px |
-| long-text | nav (rótulos) | ✅ covered | Rótulos são fixos e curtos ("Sobre o clã" é o maior); sem truncamento |
-| loading | interactive-control (botão de tema, antes de hidratar) | ✅ covered | O tema vem do HTML e do script inline; o ícone troca por CSS; só o `aria-label` corrige após hidratar, sem piscar |
-| error | interactive-control (storage de tema bloqueado) | ✅ covered | O tema vale na sessão e a próxima visita abre no escuro padrão; nenhuma mensagem de erro |
-| loading | nav (menu ☰ sem JS ainda) | ✅ covered | O painel nasce fechado no SSR; os links também estão no rodapé, então nenhuma página fica inalcançável |
-| overflow | static-content (capa: pétalas, brilho, nuvens) | ✅ covered | Contêineres `overflow: clip`, sem `100vw`; teste `scrollWidth <= innerWidth` em 320, 375 e 412px nos dois temas |
-| long-text | static-content (`h1` da capa e das páginas) | ✅ covered | `text-wrap: balance`; em 36px (celular, capa e páginas) o título quebra em até 4 linhas sem sair do container |
-| long-text | static-content (parágrafos, listas, commit no `/status`) | ✅ covered | `overflow-wrap: anywhere` e coluna máxima de 664px; `code` do commit quebra em vez de rolar |
-| loading | media (banner e emblema) | ✅ covered | `aspect-ratio: 3/1` (banner) e largura fixa (emblema) reservam o espaço; sem salto de layout |
-| error | media (imagem que não carrega) | ✅ covered | Fundo sólido `--card`/`--background` por baixo e `alt` descritivo no banner; o emblema é decorativo (`alt=""`) |
-| error | static-content (`/status` com API fora) | ✅ covered | Ver Copywriting "Error state (API, `/status`)": mensagem, explicação e link para tentar de novo; a página responde 200 |
-| error | static-content (404 e erro global) | ✅ covered | Ver Copywriting: texto, e o CTA volta ao início; o erro global importa os estilos e o tema por conta própria |
-| long-text | static-content (Regras definitivas do Discord) | 🧪 backstop | Texto do autor ainda não chegou; teste visual em 320px com lista longa quando as regras entrarem |
-| overflow | static-content (nuvem do header) | ✅ covered | Reserva de 144px de `padding-right` na linha do header (≥ 1024px), `pointer-events: none`, corte pela borda da faixa; oculta abaixo de 1024px, então nunca colide com nav, tema ou ☰ |
-| overflow | static-content (legibilidade sobre textura e pétalas) | 🧪 backstop | O axe devolve `incomplete` em gradiente/imagem; a prova é o teste de contrato de tokens + conferência visual no celular real |
-| error | media (preview real no Discord/WhatsApp) | 🧪 backstop | Só conferível depois do deploy; os previews antigos ficam em cache do lado deles |
+| overflow | E1 nav (pílulas do header) | ✅ covered | Os 3 itens cabem em ≥ 768px com `whitespace-nowrap`; abaixo disso a navegação vira o menu ☰ |
+| long-text | E1, E3, E7 rótulos de navegação | ✅ covered | Rótulos fixos e curtos ("Sobre o clã" é o maior); sem truncamento |
+| loading, error | E1 header | ➖ dismissed | O header é estático (SSR), sem dados; o único estado dinâmico é o do botão de tema (E2) |
+| loading | E2 botão de tema (antes de hidratar) | ✅ covered | O tema vem do HTML e do script inline; o ícone troca por CSS; só o `aria-label` corrige após hidratar, sem piscar |
+| error | E2 botão de tema (storage bloqueado) | ✅ covered | O tema vale na sessão e a próxima visita abre no escuro padrão; nenhuma mensagem de erro |
+| long-text | E2 botão de tema | ➖ dismissed | Só ícone; o rótulo acessível é fixo ("Mudar para tema claro/escuro") |
+| loading | E3 menu ☰ (sem JS ainda) | ✅ covered | O painel nasce fechado no SSR; os mesmos links estão no rodapé, então nenhuma página fica inalcançável |
+| error | E3 menu ☰ | ➖ dismissed | Sem dados; se o JS falhar, a navegação continua pelos links do rodapé |
+| overflow | E3 menu ☰ (viewport baixa) | ✅ covered | O painel rola: `max-height: calc(100dvh - altura da faixa)`, `overflow-y: auto` |
+| overflow | E7 nav do rodapé | ✅ covered | Os 3 links quebram em linhas com gap 8px e mantêm alvo de 44px em 320px |
+| loading, error | E7 rodapé | ➖ dismissed | Conteúdo estático, sem dados |
+| overflow | E4 capa (pétalas, brilho, nuvens) | ✅ covered | Contêineres `overflow: clip`, sem `100vw`; teste `scrollWidth <= innerWidth` em 320, 375 e 412px nos dois temas |
+| overflow | E1 nuvem do header | ✅ covered | Reserva de 144px de `padding-right` (≥ 1024px), `pointer-events: none`, cortada pela borda da faixa; oculta abaixo de 1024px |
+| long-text | E4 `h1` da capa e E6/E8/E9/E10 `h1` das páginas | ✅ covered | `text-wrap: balance`; em 36px (celular) o título quebra em até 4 linhas sem sair do container |
+| populated | E4 capa (emblema) | ✅ covered | Um único emblema decorativo de 340px (220px no celular) ao lado do texto; layout definido em "Capa" |
+| empty, loading | E4 emblema, E5 banner | ✅ covered | Largura fixa (emblema) e `aspect-ratio: 3/1` (banner) reservam o espaço sobre fundo sólido; sem salto de layout |
+| error | E4 emblema, E5 banner (imagem que não carrega) | ✅ covered | Fundo sólido `--background` por baixo e `alt` descritivo no banner; o emblema é decorativo (`alt=""`) |
+| populated | E5 banner | ✅ covered | Largura total do container (máx. 1152px), bastões e legenda "Do acervo do clã · o banner" |
+| overflow | E4, E6 legibilidade sobre textura e pétalas | 🧪 backstop | O axe devolve `incomplete` em gradiente/imagem; a prova é o teste de contrato de tokens + conferência visual no celular real |
+| overflow, long-text | E6 páginas de leitura (parágrafos e listas) | ✅ covered | `overflow-wrap: anywhere` e coluna máxima de 664px dentro do card de 760px |
+| long-text | E6 Regras definitivas (texto do Discord) | 🧪 backstop | O texto do autor ainda não chegou (D-13); teste visual em 320px com lista longa quando as regras entrarem |
+| loading | E8 `/status` | ✅ covered | Renderizada no servidor (`force-dynamic`), sem estado de carregamento no cliente; o fetch tem tempo-limite de 5s (`AbortSignal.timeout`, Fase 1) e, ao expirar, cai no estado de erro |
+| error | E8 `/status` com API fora | ✅ covered | Ver Copywriting "Error state (API, `/status`)": mensagem, explicação e "Recarregar status"; a página responde 200 |
+| overflow, long-text | E8 `/status` (commit, valores) | ✅ covered | `code` do commit quebra (`overflow-wrap: anywhere`) em vez de rolar |
+| loading, error | E9 `/kit` | ➖ dismissed | Página estática de referência, sem dados |
+| overflow | E9 `/kit` (amostras de cor e componentes) | ✅ covered | Grade de amostras com `flex-wrap`/`grid auto-fill`, sem largura fixa maior que 320px |
+| long-text | E9 `/kit` (nomes de tokens) | ✅ covered | Nomes e hex em `code` com `overflow-wrap: anywhere` |
+| error | E10 404 e erro global | ✅ covered | Ver Copywriting: mensagem e CTA de volta ao início; o erro global importa os estilos e o tema por conta própria |
+| loading | E10 404 e erro global | ➖ dismissed | Telas estáticas, sem dados |
+| overflow, long-text | E10 404 e erro global | ✅ covered | Mesmo `h1` Display com `text-wrap: balance` e coluna centralizada |
+| empty, populated | E11 favicon, ícone do app e Open Graph | ✅ covered | Todos os tamanhos (16/32 ICO, 180, 512, OG 1200x630) são gerados e conferidos pelo teste de dimensões dos ativos |
+| loading | E11 favicon, ícone do app e Open Graph | ➖ dismissed | Carregamento controlado pelo navegador e pelos apps de chat; nada a desenhar |
+| error | E11 preview real no Discord/WhatsApp | 🧪 backstop | Só conferível depois do deploy; os previews antigos ficam em cache do lado deles |
+| error | E11 ícone SVG não suportado | 🧪 backstop | Navegadores sem favicon SVG usam o `favicon.ico`; conferir num navegador real após o deploy |
 | empty | list-collection (feed na capa) | ➖ dismissed | A capa não tem lista nesta fase; o feed e seu estado vazio entram na Fase 4. A capa não reserva espaço nem placeholder para posts |
 
 ---
@@ -453,12 +476,12 @@ Corrigir o "10+ anos" do `PROJECT.md` para "desde 2017, de uma amizade de mais d
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
-- [ ] Dimension 7 Inventory Provenance: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
+- [x] Dimension 7 Inventory Provenance: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-11-27 (gsd-ui-checker, revisão 1: 7/7 PASS; FLAGs de âncora visual e exceções gráficas aplicados depois)
