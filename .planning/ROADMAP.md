@@ -222,3 +222,13 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 | 6. Explorar, perfis e acervo | 0/TBD | Not started | - |
 | 7. Comunidade e engajamento | 0/TBD | Not started | - |
 | 8. Eras e conquistas | 0/TBD | Not started | - |
+
+## Backlog
+
+### Phase 999.1: Follow-up — Phase 01 deferred UAT follow-up: Test 5 (BACKLOG)
+
+**Goal:** Resolve the UAT checkpoint deferred during Phase 01 verification
+**Source phase:** 01
+**Deferred at:** 2026-11-26 during /gsd-verify-work 1 session completion
+**Follow-ups:**
+- [ ] Test 5: Backup: tentar de novo o gh release create (e o upload) com backoff quando a API do GitHub devolver 5xx; em 2026-11-25 um HTTP 500 transitório fez o dia ficar sem backup. (deferred 2026-11-26)
