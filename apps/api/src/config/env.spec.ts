@@ -63,6 +63,25 @@ describe('loadEnv', () => {
     expect(loadEnv({ TRUST_PROXY_HOPS: '0' }).TRUST_PROXY_HOPS).toBe(0);
   });
 
+  it('trata TRUST_PROXY_HOPS só com espaço ou quebra de linha como vazio (WR-01 da re-revisão)', () => {
+    expect(loadEnv({ TRUST_PROXY_HOPS: ' ' }).TRUST_PROXY_HOPS).toBe(1);
+    expect(loadEnv({ TRUST_PROXY_HOPS: '\n' }).TRUST_PROXY_HOPS).toBe(1);
+    expect(loadEnv({ TRUST_PROXY_HOPS: ' 2\n' }).TRUST_PROXY_HOPS).toBe(2);
+  });
+
+  it('rejeita TRUST_PROXY_HOPS que não seja inteiro decimal puro (0x2, 1.5, 1e0)', () => {
+    expect(() => loadEnv({ TRUST_PROXY_HOPS: '0x2' })).toThrow(/TRUST_PROXY_HOPS/);
+    expect(() => loadEnv({ TRUST_PROXY_HOPS: '1.5' })).toThrow(/TRUST_PROXY_HOPS/);
+    expect(() => loadEnv({ TRUST_PROXY_HOPS: '1e0' })).toThrow(/TRUST_PROXY_HOPS/);
+  });
+
+  it('aceita TRUST_PROXY_HOPS de 0 a 3 e rejeita 9', () => {
+    for (const hops of [0, 1, 2, 3]) {
+      expect(loadEnv({ TRUST_PROXY_HOPS: String(hops) }).TRUST_PROXY_HOPS).toBe(hops);
+    }
+    expect(() => loadEnv({ TRUST_PROXY_HOPS: '9' })).toThrow(/TRUST_PROXY_HOPS/);
+  });
+
   it('converte PORT para número', () => {
     expect(loadEnv({ PORT: '10000' }).PORT).toBe(10000);
   });

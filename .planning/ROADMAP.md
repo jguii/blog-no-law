@@ -21,7 +21,7 @@ O Blog No Law sai do zero e vira um acervo público e moderado da história do c
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Esqueleto no ar com testes e CI** - Next + NestJS + Supabase em produção, com pre-push, CI, `main` protegida, RLS, observabilidade e backups
+- [x] **Phase 1: Esqueleto no ar com testes e CI** - Next + NestJS + Supabase em produção, com pre-push, CI, `main` protegida, RLS, observabilidade e backups (completed 2026-11-26)
 - [ ] **Phase 2: Identidade visual No Law** - Tokens da paleta do clã, logo, kit Tailwind + shadcn/ui, temas claro/escuro, layout responsivo e páginas institucionais
 - [ ] **Phase 3: Login com Discord e controle de acesso** - Login Discord com cookies httpOnly, gate de membro via bot, insígnias de cargos e painel de papéis
 - [ ] **Phase 4: Publicar e moderar posts** - Editor Tiptap, categorias, ano, rascunho, fila de aprovação, revisões, link permanente e log de auditoria
@@ -43,7 +43,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `/health` informa se a API está viva e se o banco responde. Um erro provocado aparece no Sentry. Os logs da API saem em JSON estruturado, sem tokens nem segredos.
   4. A API rejeita entrada inválida com erro de validação, responde com os headers do Helmet e recusa origens fora da lista de CORS. A CI falha se o código web renderizar HTML bruto.
   5. Uma chamada anônima direta à API de dados do Supabase não lê nenhuma tabela: o RLS está ativo em todas e a CI confere isso. A API conecta com um papel de banco sem bypass de RLS. O backup noturno do banco é gravado fora do Supabase, em destino privado, e já foi restaurado com sucesso uma vez, e o keep-alive diário impede a pausa do Supabase.
-**Plans**: 14/14 plans executed
+**Plans**: 14/14 plans complete
 
 Plans:
 **Wave 1**
@@ -214,7 +214,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Esqueleto no ar com testes e CI | 14/14 | In Progress | - |
+| 1. Esqueleto no ar com testes e CI | 14/14 | Complete    | 2026-11-26 |
 | 2. Identidade visual No Law | 0/TBD | Not started | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |
@@ -222,3 +222,13 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 | 6. Explorar, perfis e acervo | 0/TBD | Not started | - |
 | 7. Comunidade e engajamento | 0/TBD | Not started | - |
 | 8. Eras e conquistas | 0/TBD | Not started | - |
+
+## Backlog
+
+### Phase 999.1: Follow-up — Phase 01 deferred UAT follow-up: Test 5 (BACKLOG)
+
+**Goal:** Resolve the UAT checkpoint deferred during Phase 01 verification
+**Source phase:** 01
+**Deferred at:** 2026-11-26 during /gsd-verify-work 1 session completion
+**Follow-ups:**
+- [ ] Test 5: Backup: tentar de novo o gh release create (e o upload) com backoff quando a API do GitHub devolver 5xx; em 2026-11-25 um HTTP 500 transitório fez o dia ficar sem backup. (deferred 2026-11-26)

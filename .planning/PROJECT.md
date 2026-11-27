@@ -12,7 +12,10 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ RLS habilitado no Supabase como defesa em profundidade (papel `app_api` sem bypass, `anon`/`authenticated` sem grants, EXECUTE de funções revogado) — Phase 1
+- ✓ Logs estruturados (pino com redação), monitoramento de erros (Sentry na API e no web) e health check (`/health/live`, `/health/ready`) — Phase 1
+- ✓ Testes automatizados: Vitest (unit, HTTP e integração com Postgres real) e Playwright com axe; pre-push bloqueia push sem testes verdes; CI com `ci-ok` obrigatório na `main` protegida — Phase 1
+- ✓ Backups diários cifrados (age) em releases de repositório privado, com retenção de 30 dias e restauração ensaiada — Phase 1
 
 ### Active
 
@@ -48,10 +51,7 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 - [ ] Rate limiting por rota (login, comentários, upload, criação de post)
 - [ ] Validação de entrada em toda a API, sanitização de HTML contra XSS, Helmet, CORS restrito
 - [ ] Upload seguro de imagens: limites de tamanho/tipo, conversão (ex.: WebP), remoção de EXIF
-- [ ] RLS habilitado no Supabase como defesa em profundidade
 - [ ] Log de auditoria de ações de moderação/admin
-- [ ] Logs estruturados, monitoramento de erros, health check
-- [ ] Testes automatizados: Vitest (unit/integração) e Playwright (E2E); pre-push bloqueia push sem testes verdes; CI com branch `main` protegida
 - [ ] SEO/Open Graph nos posts públicos (preview bonito ao compartilhar no Discord/WhatsApp)
 
 ### Out of Scope
@@ -91,20 +91,22 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 | Posts com aprovação de moderador | Controle de qualidade/conteúdo num blog público | — Pending |
 | Vídeos só por embed | Custo zero de armazenamento | — Pending |
 | Frontend fala só com NestJS (Supabase como banco/storage), RLS como 2ª camada | Regras de negócio centralizadas; defesa em profundidade | — Pending |
-| ~~NestJS em VPS Oracle com Docker~~ → NestJS em Docker num PaaS gratuito (Render; plano B Railway) | Oracle exige CNPJ (2026-11-15); container portátil mantém o custo zero | — Pending |
+| ~~NestJS em VPS Oracle com Docker~~ → NestJS em Docker num PaaS gratuito (Render; plano B Railway) | Oracle exige CNPJ (2026-11-15); container portátil mantém o custo zero | ✓ Good — Render em produção; a mesma imagem subiu na Railway (plano B provado e apagado em 2026-11-27) |
 | Papéis gerenciados no blog (não pelos cargos do Discord) | Independência da moderação do blog em relação ao servidor | — Pending |
 | Achievements manuais na v1 | São homenagens da história do clã, criadas por admins | — Pending |
 | Cargos do Discord via bot somente-leitura | Supabase não guarda/renova o token do Discord; bot consulta membresia e cargos a qualquer momento | — Pending |
 | Next.js como BFF: navegador fala só com o Next, que chama o NestJS server-to-server com Bearer | Cookies httpOnly ficam num só domínio; sem CORS/cookies cross-site | — Pending |
-| API no domínio HTTPS nativo da plataforma (`*.onrender.com`) | Mantém custo zero; cookies nunca chegam ao domínio da API (BFF) | — Pending |
+| API no domínio HTTPS nativo da plataforma (`*.onrender.com`) | Mantém custo zero; cookies nunca chegam ao domínio da API (BFF) | ✓ Good — `TRUST_PROXY_HOPS=3` medido por sonda (Cloudflare + borda Render + proxy local) |
 | Corpo do post em Tiptap JSON (sem HTML armazenado) | Superfície de XSS mínima, renderização por componentes React | — Pending |
 | "Ano do acontecimento" (só ano) escolhido pelo autor | Filtro por ano e eras refletem quando aconteceu, não quando foi postado | — Pending |
 | Edição de post aprovado via revisão pendente | Não permite burlar a moderação; versão pública nunca some | — Pending |
 | Vídeos só do YouTube; vários vídeos/imagens por post | Simplicidade e segurança de embed | — Pending |
-| Repo público, branch por fase + PR na `main` protegida, deploy automático no merge | Proteção de branch grátis só em repo público; portões reais | — Pending |
+| Repo público, branch por fase + PR na `main` protegida, deploy automático no merge | Proteção de branch grátis só em repo público; portões reais | ✓ Good — ruleset `main-protegida` exige `ci-ok`; merge dispara Deploy API e Vercel |
 | Tailwind + shadcn/ui, com fase dedicada de identidade visual | Visual não é o forte do autor; componentes acessíveis e customizáveis | — Pending |
-| TDD/SDD/BDD/DDD pragmático; Vitest + Playwright; pre-push e CI bloqueiam sem testes | Qualidade e aprendizado são objetivos explícitos | — Pending |
+| TDD/SDD/BDD/DDD pragmático; Vitest + Playwright; pre-push e CI bloqueiam sem testes | Qualidade e aprendizado são objetivos explícitos | ✓ Good — portões funcionando na Fase 1 (hook de pre-push + CI) |
 | Itens sem versão definida ficam em "Ideias futuras" | Autor decide conforme a necessidade | — Pending |
+| Backup: `pg_dump` cifrado com age em releases de repo privado, retenção por `publishedAt` | Custo zero, chave privada só com o autor; `createdAt` da release é a data do commit e apagaria tudo | ✓ Good — runs diários desde 2026-11-22 |
+| Monitoramento via UptimeRobot a cada 5 min (keep-alive aceito como risco) | Render dorme após 15 min; Supabase pausa após 7 dias | ✓ Good — 100% em 7 dias; risco RISCO_ACEITO registrado |
 
 ## Evolution
 
@@ -124,4 +126,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-11-15 after Phase 1 discussion (Oracle → PaaS gratuito)*
+*Last updated: 2026-11-26 after Phase 1 (esqueleto no ar com testes e CI)*

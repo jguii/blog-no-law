@@ -23,9 +23,9 @@ Só os nomes. Os valores vivem no painel da Render (e, para `DATABASE_URL`, no e
 | -------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `NODE_ENV`           | `production`                                                                                                          |
 | `DATABASE_URL`       | Conexão do runtime como `app_api` pelo pooler, forma canônica de TLS (`?sslmode=require`, ver `supabase-producao.md`) |
-| `TRUST_PROXY_HOPS`   | Número de proxies confiáveis à frente da API (default 1; ver "Sonda do trust proxy")                                  |
+| `TRUST_PROXY_HOPS`   | Número de proxies confiáveis à frente da API: `3` na Render, medido pela sonda (ver "Sonda do trust proxy")           |
 | `LOG_LEVEL`          | `info`                                                                                                                |
-| `SENTRY_DSN`         | DSN do projeto `blog-no-law-api`                                                                                      |
+| `SENTRY_DSN`         | DSN do projeto `blog-no-law-api`, copiado de Sentry -> Settings -> Projects -> `blog-no-law-api` -> Client Keys (DSN) |
 | `SENTRY_ENVIRONMENT` | `production`                                                                                                          |
 | `CORS_ORIGINS`       | Vazio na Fase 1; o domínio da Vercel entra no 01-12                                                                   |
 | `PORT`               | Injetada pela Render (a imagem assume `10000` por padrão)                                                             |
@@ -76,24 +76,41 @@ Comando usado (a URL base é a pública do serviço):
 curl -s -o /dev/null -H 'X-Forwarded-For: 203.0.113.7' -H 'x-request-id: probe-{timestamp}' https://blog-no-law-api.onrender.com/status
 ```
 
-| Campo                           | Valor                                                                              |
-| ------------------------------- | ---------------------------------------------------------------------------------- |
-| Data e hora da sonda (UTC)      | 2026-11-21T01:56:07Z                                                               |
-| IP público da máquina           | (registrado fora do repositório, em `~/.config/blog-no-law/trust-proxy-probe.txt`) |
-| `x-request-id` usado            | `probe-1795226167`                                                                 |
-| IP forjado em `X-Forwarded-For` | `203.0.113.7` (faixa de documentação, não é IP real)                               |
-| `clientIp` lido no log          | pendente: o autor lê no painel da Render no fim da fase e anota aqui               |
-| `TRUST_PROXY_HOPS` final        | pendente (1 até a leitura)                                                         |
+| Campo                           | Valor                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Data e hora da sonda (UTC)      | 2026-11-21T01:56:07Z                                                                              |
+| IP público da máquina           | (registrado fora do repositório, em `~/.config/blog-no-law/trust-proxy-probe.txt`)                |
+| `x-request-id` usado            | `probe-1795226167`                                                                                |
+| IP forjado em `X-Forwarded-For` | `203.0.113.7` (faixa de documentação, não é IP real)                                              |
+| `clientIp` lido no log          | IP interno `10.x` (com `TRUST_PROXY_HOPS=1`), lido em 2026-11-27 (UTC) pela API de logs da Render |
+| `TRUST_PROXY_HOPS` final        | `3`, aplicado em 2026-11-27 (UTC)                                                                 |
 
 O IP público do autor é dado pessoal e este repositório é público, por isso ele fica só no arquivo local (modo 600) junto com o `x-request-id` e o horário.
 
-Regra de decisão (T-01-53):
+### Resultado da sonda
 
-- `clientIp` igual ao IP público da máquina: manter `TRUST_PROXY_HOPS=1`.
-- `clientIp` igual a um IP interno da Render ou da Cloudflare: usar `TRUST_PROXY_HOPS=2`.
-- `clientIp` igual a `203.0.113.7` (o valor forjado): usar `TRUST_PROXY_HOPS=0`, porque a API está aceitando o cabeçalho do cliente sem proxy confiável à frente.
+A linha de log de `probe-1795226167` mostrou esta cadeia (IPs mascarados; da esquerda para a direita, como chega no `X-Forwarded-For`, mais o socket no fim):
 
-Depois de decidir, ajustar a variável na Render, reiniciar o serviço e anotar o valor final na tabela acima.
+```text
+203.0.113.7 (forjado) , IP real do cliente , 162.x (Cloudflare) , 10.x (interno da Render)   socket: 127.x (proxy local)
+```
+
+Há três proxies à frente da aplicação: a Cloudflare, a borda interna da Render e um proxy local no container. Com `TRUST_PROXY_HOPS=1` o Express confiava só no socket e devolvia o `10.x`, então todo visitante aparecia com o mesmo IP e o rate limit agruparia todo mundo. Com `3` ele confia no socket, no `10.x` e no `162.x` e para no IP real, ignorando o valor forjado à esquerda.
+
+Confirmação depois da troca (deploy de `e92302e` pelo Deploy API em 2026-11-27 UTC): a sonda `probe-1795744851` (2026-11-27T02:00:51Z), de novo com `X-Forwarded-For: 203.0.113.7`, registrou `clientIp` igual ao `cf-connecting-ip` da mesma linha, que é o IP real do cliente.
+
+Regra de decisão (T-01-53), revista depois da medição:
+
+- Contar, a partir da **direita**, quantos endereços (socket incluído) vêm depois do IP real do cliente no `X-Forwarded-For`. Esse número é o `TRUST_PROXY_HOPS`. A conferência é `clientIp` igual ao `cf-connecting-ip` da mesma linha.
+- `clientIp` igual a `203.0.113.7` (o valor forjado): o valor está alto demais e a API aceita cabeçalho do cliente. Baixar até o `clientIp` virar o IP real.
+- O schema limita o valor a `0..3` (`apps/api/src/config/env.ts`). Se a Render acrescentar um quarto proxy, a sonda mostra isso e o limite precisa subir junto, com teste.
+- Repetir a sonda se a Render mudar a rede de borda, ou se o `clientIp` dos logs voltar a ser o mesmo IP interno para todo mundo.
+
+Depois de decidir, ajustar a variável na Render com **Save only** e rodar o Deploy API (`gh workflow run deploy-api.yml --ref main --repo jguii/blog-no-law`). O "Save and deploy" do painel republica a imagem antiga gravada no serviço (ver `deploy.md`).
+
+### Sentry em produção (2026-11-27 UTC)
+
+O `SENTRY_DSN` da Render e o da Railway tinham uma chave pública que não existe no projeto (a organização e o projeto estavam certos). O Sentry descarta esses envios sem contá-los nem como rejeitados, por isso o projeto ficou sem nenhum evento. O DSN foi recolado a partir de Client Keys. Depois do deploy, o ambiente `production` passou a aparecer no projeto `blog-no-law-api`, alimentado pelas transações amostradas (5%). Para conferir no futuro: o projeto deve listar o ambiente `production` e a release do último SHA.
 
 ## Verificação
 

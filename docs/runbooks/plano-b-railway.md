@@ -35,7 +35,9 @@ Para o autor localizar o evento no projeto `blog-no-law-api`, issue `Error: sent
 | `verify-remote-api.sh --expect-debug` (sem id próprio) | 2026-11-21T01:55:59Z | gerado pela API                 |
 | `curl` dedicado a `/_debug/error`, resposta HTTP 500   | 2026-11-21T01:56:07Z | `sentry-smoke-20261121T015607Z` |
 
-O recebimento do evento no Sentry **ainda não foi confirmado**: é uma conferência humana do autor no fim da fase (o painel não é acessível ao executor). Anotar aqui a confirmação depois.
+Esse primeiro evento **não chegou**: o `SENTRY_DSN` colado no serviço tinha uma chave pública inexistente no projeto (organização e projeto certos), e o Sentry descarta esses envios em silêncio. Em 2026-11-27 (UTC) o DSN foi corrigido e a imagem do serviço trocada para a de produção (`e92302ea7288a803435f59b8c6802822ba8d724b`). Um novo `curl` em `/_debug/error` (HTTP 500) gerou a issue `BLOG-NO-LAW-API-2`, `Error: sentry-smoke`, com environment `railway-planob`, release `e92302e`, stack trace e sem headers da requisição (coleta de dados pessoais desligada, T-01-24).
+
+**Serviço removido:** depois dessa evidência, o projeto da Railway (só com este serviço) foi apagado em 2026-11-27 (UTC). O domínio `*.up.railway.app` passou a responder 404 em todas as rotas, inclusive `/_debug/error`. Para religar, seguir "Religar em emergência" abaixo.
 
 ## Armadilhas encontradas no boot
 
@@ -44,7 +46,7 @@ O recebimento do evento no Sentry **ainda não foi confirmado**: é uma conferê
 
 ## Variáveis do serviço (só nomes)
 
-`NODE_ENV`, `DATABASE_URL`, `PORT`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `DEBUG_ROUTES_ENABLED` (só neste serviço temporário). `TRUST_PROXY_HOPS` fica no default (1) a menos que a sonda do `render.md` mostre outro valor.
+`NODE_ENV`, `DATABASE_URL`, `PORT`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `DEBUG_ROUTES_ENABLED` (só neste serviço temporário). `TRUST_PROXY_HOPS` ficou no default (1) neste serviço temporário. O valor `3` medido no `render.md` vale para a rede da Render; num host novo, repetir a sonda antes de fixar o valor.
 
 ## Religar em emergência
 
@@ -52,10 +54,11 @@ Use só se a Render falhar ou deixar de ter plano gratuito. A imagem é pública
 
 1. Escolher o host: nova conta ou plano na Railway (ou outro PaaS que rode imagem Docker). Verificar antes o que o plano gratuito oferece naquele momento, porque o trial pode não estar mais disponível.
 2. Criar o serviço a partir da imagem `ghcr.io/jguii/blog-no-law-api:{sha}` (o último SHA bom; o do deploy em produção aparece em `/status` da Render quando ela responde).
-3. Definir as mesmas variáveis do `render.md` (`NODE_ENV`, `DATABASE_URL`, `PORT=10000`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `TRUST_PROXY_HOPS`, `CORS_ORIGINS`), **sem** `DEBUG_ROUTES_ENABLED`, e **aplicar** as variáveis antes do deploy. Como o Supabase é externo, não há migração de dados.
+3. Definir as variáveis do `render.md` (`NODE_ENV`, `DATABASE_URL`, `PORT=10000`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `CORS_ORIGINS`), **sem** `DEBUG_ROUTES_ENABLED`, e **aplicar** as variáveis antes do deploy. **Não copiar `TRUST_PROXY_HOPS` da Render:** o `3` medido lá vale só para a rede da Render, e num host com menos saltos o Express passaria a confiar em entradas do `X-Forwarded-For` que o cliente controla. Deixar `TRUST_PROXY_HOPS` sem valor (default seguro `1`) no primeiro boot. Como o Supabase é externo, não há migração de dados.
 4. Gerar o domínio apontando para a porta `10000`.
 5. Conferir: `bash scripts/verify-remote-api.sh https://{novo-host} {sha}` deve imprimir `REMOTE_API_OK`.
-6. Trocar `API_URL` na Vercel para a URL nova e `API_BASE_URL` no GitHub Environment `production` (`gh variable set API_BASE_URL --env production --body https://{novo-host} --repo jguii/blog-no-law`). Os monitores do 01-13 também passam a apontar para a URL nova.
-7. Ajustar `CORS_ORIGINS` se o domínio do web mudou.
+6. Rodar a sonda da secção "Sonda do trust proxy (D-02)" do `render.md` no novo host e só então fixar `TRUST_PROXY_HOPS` com o valor medido (aplicar e redeployar). Nunca reaproveitar o valor da Render.
+7. Trocar `API_URL` na Vercel para a URL nova e `API_BASE_URL` no GitHub Environment `production` (`gh variable set API_BASE_URL --env production --body https://{novo-host} --repo jguii/blog-no-law`). Os monitores do 01-13 também passam a apontar para a URL nova.
+8. Ajustar `CORS_ORIGINS` se o domínio do web mudou.
 
 Lembrar: a Railway não substitui a Render de graça de forma permanente. Se ficar como host definitivo, o custo mensal zero (restrição do projeto) deixa de valer; nesse caso, decidir de novo entre outro PaaS gratuito e pagar.
