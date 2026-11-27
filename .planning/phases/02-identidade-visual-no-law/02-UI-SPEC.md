@@ -131,16 +131,16 @@ Raio: `--radius: 6px` (cards e botões), `rounded-sm` 4px (selo), `rounded-full`
 | Body | 18px / 18px | 400 | 1.65 | Atkinson | Texto corrido, parágrafos, listas, `dd` do status |
 | Label | 14px / 14px | 700 | 1.4 | Atkinson | Rótulo da capa (caixa alta, `letter-spacing` 3px), botões e pílulas, `dt`, legenda, selo, texto do rodapé |
 | Heading | 26px / 22px | 400 | 1.2 | Yuji Boku | `h2`, nome "No Law" no header |
-| Display | 46px / 32px | 400 | 1.1 | Yuji Boku | `h1` das páginas de leitura, `/status`, `/kit`, 404 |
+| Display | 52px / 36px | 400 | 1.1 | Yuji Boku | **Todo `h1`**: capa (slogan), `/sobre`, `/regras`, `/privacidade`, `/status`, `/kit`, 404 e erro global (token `text-display`) |
 
-Exceção declarada, uma só: o **`h1` da capa** usa a mesma fonte do Display em escala maior, **60px (≥ 768px) / 38px (< 768px)**, `line-height` 1.1 (token `text-hero`, usado apenas em `app/page.tsx`).
+Não há exceção de tamanho: o `h1` da capa e o `h1` das páginas usam o **mesmo** Display (52px / 36px). O token `text-hero` não existe.
 
 Regras:
 
 - Corpo em `text-wrap: pretty`; títulos em `text-wrap: balance`. Nada de peso 500/600 nem de itálico fora do `<em>` semântico.
 - Links dentro de texto: sublinhados (`underline-offset: 4px`), cor `--link`; a cor não é o único indicador.
 - `code` (commit no `/status`) usa a pilha monoespaçada do sistema no tamanho Label, sem peso 700.
-- Fontes do cabeçalho "No Law" no header: Heading (26/22), sem negrito.
+- Nome "No Law" no header: Heading (26/22), sem negrito.
 
 ---
 
@@ -229,6 +229,7 @@ Landmarks em toda página: link "Pular para o conteúdo" (visível só no foco, 
 - **Marca** (`<a href="/">`): `DragonMark` 44px (`aria-hidden`, `detail=small`) + "No Law" em Heading (Yuji Boku). Nome acessível vem do texto (D-02). Alvo ≥ 44px de altura.
 - **Navegação ≥ 768px**: pílulas `rounded-full`, altura mínima 44px, padding lateral 16px, texto Label. Itens exatos (D-08): **Início**, **Sobre o clã**, **Regras**. Estados: normal texto `#d3aa82`; hover fundo `#2a0708`; ativo (`aria-current="page"`) fundo `#ac020f`, texto branco, anel interno `#ff6b75` de 2px; foco anel `--ring` de 2px com offset 2px. `/status` e `/kit` não marcam nenhum item.
 - **Navegação < 768px** (D-10): as pílulas somem; entram o botão de tema e o botão ☰ (44x44, ordem: tema, depois ☰). O painel abre **logo abaixo da faixa**, fundo `#0d0203`, largura total, itens de 52px de altura, texto Label alinhado à esquerda com padding 16px, item ativo com a mesma pílula. Se a viewport for baixa, o painel rola (`max-height: calc(100dvh - altura da faixa)`, `overflow-y: auto`).
+- **Nuvem decorativa** no canto direito da faixa, em todas as páginas (D-19): a mesma arte `Cloud` do rodapé (viewBox `0 0 120 60`, gradiente preto→vermelho, contorno `#c8a04a` de 1,5px), 120 a 150px de largura (`w-32`, 128px), `aria-hidden`, `pointer-events: none`, em camada abaixo do conteúdo (`z-index` menor). Ancorada no canto superior direito **do container** e deslocada 12px para cima, de modo que a borda da faixa (`overflow: clip` vertical) a corte parcialmente. A linha do header reserva 144px de `padding-right` para ela, então **nunca** fica sob a navegação, o botão de tema nem o ☰. Visível só a partir de 1024px (`hidden lg:block`); abaixo disso fica oculta (no celular o canto é ocupado pelos botões de tema e ☰). Sem movimento.
 - **Traço de pincel** abaixo da faixa: SVG `viewBox="0 0 1200 12"` com `preserveAspectRatio="none"`, traço de 4px em gradiente `#ac020f → #420b0d`, `aria-hidden`. Cabeçalho **não** é sticky.
 - **Botão de tema** (D-21): círculo de 44px, borda de 2px `--border` (na faixa: `#a8845f`), `DragonMark` de 28px, sem texto. No hover gira 180° em 300ms. A arte gira 180° quando `data-theme="light"` (estado por CSS, sem JS; ver P6). `aria-label`: "Mudar para tema claro" (no escuro) / "Mudar para tema escuro" (no claro); `type="button"`.
 
@@ -237,7 +238,7 @@ Landmarks em toda página: link "Pular para o conteúdo" (visível só no foco, 
 Ordem, de cima para baixo:
 
 1. **Seção hero** (`<section aria-labelledby="titulo-capa">`) com a camada de pétalas e duas colunas em flex com wrap: texto (`flex: 999 1 460px`) e emblema (`flex: 1 1 360px`). No celular empilha: emblema 220px primeiro, depois o texto.
-   - Texto: rótulo (Label, caixa alta, `--link`) "Clã do SA-MP · desde 2017"; `h1` no tamanho `text-hero` com o slogan; traço de pincel de 3px (160 a 260px de largura) sob o `h1`; parágrafo Body; dois CTAs: **primário** "Conheça o clã" → `/sobre` e **secundário** "Leia as regras" → `/regras` (52px, gap 16px, empilham a 100% abaixo de 480px).
+   - Texto: rótulo (Label, caixa alta, `--link`) "Clã do SA-MP · desde 2017"; `h1` no tamanho Display (`text-display`, 52/36) com o slogan; traço de pincel de 3px (160 a 260px de largura) sob o `h1`; parágrafo Body; dois CTAs: **primário** "Conheça o clã" → `/sobre` e **secundário** "Leia as regras" → `/regras` (52px, gap 16px, empilham a 100% abaixo de 480px).
    - Emblema: recorte PNG do emblema (`public/brand/emblema.png`, `alt=""`, decorativo, o nome está no `h1`), 340px (220px no celular), aro dourado, **brilho radial vermelho** atrás pulsando em 6s. `loading="eager"` e `fetchPriority="high"` (Next 16: sem `priority`).
 2. **Banner pendurado como pergaminho** (`<figure>`): bastão marrom (`aria-hidden`) em cima, imagem do banner `aspect-ratio: 3/1` (`public/brand/banner.jpg`, 1500x500, `loading="lazy"`), bastão embaixo, `<figcaption>` Label "Do acervo do clã · o banner". `alt`: ver Copywriting. Largura 100% do container, máximo 1152px.
 3. Texto da capa **nunca** fica sobre o banner nem sobre pétalas sem plano sólido: o fundo da seção é `--background`, as pétalas ficam em camada `aria-hidden` atrás do texto (`z-index` menor, `pointer-events: none`).
@@ -249,7 +250,7 @@ Pétalas: 6 `<span aria-hidden>` no desktop e 3 no celular (as 3 últimas com `h
 - `<article aria-labelledby>` num **card** centralizado, `max-w` 760px, raio 6px, padding 48px (24px no celular). Topo: faixa `div` de 6px com `--brand-gradient` (dentro do card, colada no topo). Escuro: `bg-card` (`#420b0d`) com contorno 1px `--border`. Claro: `bg-card` (`#f6eddc`) com sombra suave `0 8px 24px rgba(26,18,16,0.12)`.
 - `h1` (Display) + traço de pincel de 3px sob ele + corpo em `Prose` (Body). `Privacidade` tem `h2` (Heading) e `ul`.
 - Largura do texto dentro do card: a coluna interna fica entre 24 e 664px; `overflow-wrap: anywhere` nos parágrafos.
-- Ornamento só o traço de pincel (D-19). Sem pétalas, sem nuvens, sem brilho.
+- Ornamento nas páginas de leitura: **só o traço de pincel** (sob o `h1`) **mais a nuvem do header** (D-19). Sem pétalas, sem nuvens dentro do card, sem brilho.
 
 ### Rodapé (faixa de tinta, ambos os temas; D-09)
 
@@ -261,7 +262,7 @@ A antiga home com o visual novo, sem link no menu, `noindex`. `h1` "Status do se
 
 ### `/kit` (D-22)
 
-`noindex` (meta robots **e** cabeçalho `X-Robots-Tag: noindex`), fora do menu. Uma coluna de seções, cada uma num `Card`: (1) Cores: amostras com nome do token, hex e razão de contraste nos dois temas; (2) Tipografia: os 4 papéis + o `text-hero`; (3) Espaçamento: barras da escala; (4) Botões: primário e secundário, tamanhos `default` e `sm`, estados normal, hover, foco, desabilitado; (5) Link em texto; (6) Card; (7) Item de menu (pílula normal, ativa); (8) Menu sanduíche fechado e aberto (pré-visualização estática); (9) Botão de tema; (10) Ornamentos: `DragonMark` em 16, 32, 44 e 96px, traços de pincel, nuvem, hanko. A página serve de base aos testes de componente e de contraste.
+`noindex` (meta robots **e** cabeçalho `X-Robots-Tag: noindex`), fora do menu. Uma coluna de seções, cada uma num `Card`: (1) Cores: amostras com nome do token, hex e razão de contraste nos dois temas; (2) Tipografia: os 4 papéis (Label, Body, Heading, Display); (3) Espaçamento: barras da escala; (4) Botões: primário e secundário, tamanhos `default` e `sm`, estados normal, hover, foco, desabilitado; (5) Link em texto; (6) Card; (7) Item de menu (pílula normal, ativa); (8) Menu sanduíche fechado e aberto (pré-visualização estática); (9) Botão de tema; (10) Ornamentos: `DragonMark` em 16, 32, 44 e 96px, traços de pincel, nuvem, hanko. A página serve de base aos testes de componente e de contraste.
 
 ### 404 e erro global
 
@@ -275,6 +276,17 @@ A antiga home com o visual novo, sem link no menu, `noindex`. `h1` "Status do se
 - `viewport.themeColor`: `#000000` (a faixa do topo é preta nos dois temas).
 - Ícones (D-03): `app/icon.svg` (arte pequena dos dragões), `app/icon1.png` 32x32, `app/favicon.ico` (16 e 32, ICO com PNG embutido, escrito com teste, sem pacote), `app/apple-icon.png` 180x180 (arte a 140px centralizada sobre quadrado `#000000`, sem raio próprio), `public/brand/icon-512.png` 512x512.
 - Open Graph (D-04): `app/opengraph-image.jpg` 1200x630 (JPEG qualidade 82, recorte do banner com `extract` ajustado para não deixar o fragmento de nuvem na borda esquerda, mantendo emblema e slogan) + `opengraph-image.alt.txt`.
+
+### Ornamentos por superfície (D-19)
+
+| Superfície | Traço de pincel | Nuvem | Pétalas | Brilho | Hanko |
+|------------|-----------------|-------|---------|--------|-------|
+| Header (todas as páginas) | sim (4px, abaixo da faixa) | **sim**, 1 nuvem no canto direito, ≥ 1024px | não | não | não |
+| Capa | sim (3px sob o `h1`) | só as do header e do rodapé | sim (6 desktop, 3 celular) | sim (emblema) | não |
+| Páginas de leitura (`/sobre`, `/regras`, `/privacidade`) | sim (3px sob o `h1`) | só a do header e as do rodapé | não | não | não |
+| Rodapé | sim (5px, acima da faixa) | sim, par nos cantos, ≥ 640px | não | não | sim |
+
+Todos `aria-hidden`, sem `style=` inline, nunca sob texto sem plano sólido.
 
 ---
 
@@ -336,9 +348,9 @@ Tom: próximo, de amigos ("a gente"), um toque de humor (D-11) no Sobre e nas Re
 | Legenda do banner | "Do acervo do clã · o banner" |
 | `alt` do banner | "Banner do clã No Law com o emblema dos dois dragões e o slogan “Uma nova face, uma nova história.”" |
 | `alt` do Open Graph | "No Law: emblema dos dragões e o slogan “Uma nova face, uma nova história.”" |
-| Empty state heading | Não há lista nesta fase (o vazio do feed é da Fase 4). Conteúdo ainda não escrito: "A história completa chega em breve." (Sobre) |
+| Empty state heading | Não há lista nesta fase (o vazio do feed é da Fase 4). "A história completa chega em breve." (Sobre) é **copy provisório** (D-12: o autor escreve a história depois), **não** um estado vazio |
 | Empty state body | Regras provisórias: "As regras do clã estão vindo do nosso Discord e aparecem aqui em breve. Enquanto isso, vale o de sempre: respeito com todo mundo." |
-| Error state (API, `/status`) | Mantém "API indisponível no momento" (`data-testid="api-unavailable"`, `role="status"`), acrescenta "A API pode estar iniciando; tente de novo em alguns minutos." e o link "Tentar novamente" (→ `/status`) |
+| Error state (API, `/status`) | Mantém "API indisponível no momento" (`data-testid="api-unavailable"`, `role="status"`), acrescenta "A API pode estar iniciando; tente de novo em alguns minutos." e o link "Recarregar status" (→ `/status`) |
 | Error state (404) | `h1` "Página não encontrada" · "Esse endereço não existe ou mudou de lugar." · CTA "Voltar para o início" |
 | Error state (global) | `h1` "Algo deu errado" · "Tivemos um problema do nosso lado. Tente de novo em instantes." · link "Voltar para a página inicial" |
 | Destructive confirmation | Nenhuma ação destrutiva nesta fase. Nada a confirmar |
@@ -369,7 +381,7 @@ Tom: próximo, de amigos ("a gente"), um toque de humor (D-11) no Sobre e nas Re
 
 > Cobertura de estados por forma. O copy dos estados de vazio e de erro está em **Copywriting Contract**; aqui só se referencia.
 
-Applicable state considerations resolved: 13 covered, 3 backstop, 1 unresolved
+Applicable state considerations resolved: 14 covered, 3 backstop, 1 dismissed, 0 unresolved
 
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
@@ -380,16 +392,17 @@ Applicable state considerations resolved: 13 covered, 3 backstop, 1 unresolved
 | error | interactive-control (storage de tema bloqueado) | ✅ covered | O tema vale na sessão e a próxima visita abre no escuro padrão; nenhuma mensagem de erro |
 | loading | nav (menu ☰ sem JS ainda) | ✅ covered | O painel nasce fechado no SSR; os links também estão no rodapé, então nenhuma página fica inalcançável |
 | overflow | static-content (capa: pétalas, brilho, nuvens) | ✅ covered | Contêineres `overflow: clip`, sem `100vw`; teste `scrollWidth <= innerWidth` em 320, 375 e 412px nos dois temas |
-| long-text | static-content (`h1` da capa e das páginas) | ✅ covered | `text-wrap: balance`; em 38px (capa) e 32px (páginas) o título quebra em até 4 linhas sem sair do container |
+| long-text | static-content (`h1` da capa e das páginas) | ✅ covered | `text-wrap: balance`; em 36px (celular, capa e páginas) o título quebra em até 4 linhas sem sair do container |
 | long-text | static-content (parágrafos, listas, commit no `/status`) | ✅ covered | `overflow-wrap: anywhere` e coluna máxima de 664px; `code` do commit quebra em vez de rolar |
 | loading | media (banner e emblema) | ✅ covered | `aspect-ratio: 3/1` (banner) e largura fixa (emblema) reservam o espaço; sem salto de layout |
 | error | media (imagem que não carrega) | ✅ covered | Fundo sólido `--card`/`--background` por baixo e `alt` descritivo no banner; o emblema é decorativo (`alt=""`) |
 | error | static-content (`/status` com API fora) | ✅ covered | Ver Copywriting "Error state (API, `/status`)": mensagem, explicação e link para tentar de novo; a página responde 200 |
 | error | static-content (404 e erro global) | ✅ covered | Ver Copywriting: texto, e o CTA volta ao início; o erro global importa os estilos e o tema por conta própria |
 | long-text | static-content (Regras definitivas do Discord) | 🧪 backstop | Texto do autor ainda não chegou; teste visual em 320px com lista longa quando as regras entrarem |
+| overflow | static-content (nuvem do header) | ✅ covered | Reserva de 144px de `padding-right` na linha do header (≥ 1024px), `pointer-events: none`, corte pela borda da faixa; oculta abaixo de 1024px, então nunca colide com nav, tema ou ☰ |
 | overflow | static-content (legibilidade sobre textura e pétalas) | 🧪 backstop | O axe devolve `incomplete` em gradiente/imagem; a prova é o teste de contrato de tokens + conferência visual no celular real |
 | error | media (preview real no Discord/WhatsApp) | 🧪 backstop | Só conferível depois do deploy; os previews antigos ficam em cache do lado deles |
-| empty | list-collection (feed na capa) | ⚠ unresolved | Não há feed nem lista nesta fase; a capa não reserva espaço nem placeholder para posts. O planner assume: nenhum estado de lista até a Fase 4 |
+| empty | list-collection (feed na capa) | ➖ dismissed | A capa não tem lista nesta fase; o feed e seu estado vazio entram na Fase 4. A capa não reserva espaço nem placeholder para posts |
 
 ---
 
@@ -422,7 +435,7 @@ Corrigir o "10+ anos" do `PROJECT.md` para "desde 2017, de uma amizade de mais d
 
 | # | Decisão | Motivo | Risco se errada |
 |---|---------|--------|-----------------|
-| P1 | Escala de tipografia fechada em 4 tamanhos (14, 18, 26/22, 46/32) mais uma exceção só para o `h1` da capa (60/38) | O sketch usava ~12 tamanhos; consolidei para o contrato (3 a 4 tamanhos) | Títulos ligeiramente diferentes do sketch (corpo 18 em vez de 18-19; `h2` 26 como no sketch) |
+| P1 | Escala de tipografia fechada em exatamente 4 tamanhos: Label 14, Body 18, Heading 26/22, Display 52/36. O `h1` da capa e o `h1` das páginas foram fundidos num só Display (52px desktop / 36px celular); `text-hero` removido. **Desvia levemente do sketch** (capa 60/38 e páginas 46/32) para cumprir a regra de no máximo 4 tamanhos. Decidido em 2026-11-27 pelo orquestrador, por delegação do autor para o ajuste fino visual | O sketch usava ~12 tamanhos; consolidei para o contrato (3 a 4 tamanhos) | Capa um pouco menor (60 para 52) e títulos das páginas um pouco maiores (46 para 52) que no sketch; corpo 18 em vez de 18-19; `h2` 26 como no sketch |
 | P2 | Espaçamentos do sketch fora da escala (6, 10, 14, 22, 26, 40, 44, 52, 56) foram arredondados para a escala; 44 e 52 ficam só como alvos de toque | Regra de múltiplos de 4 e escala de 7 passos | Diferença de poucos pixels no padding do card (44-52 vira 48; 22-26 vira 24) |
 | P3 | Breakpoint do menu em 768px (`md`) | O sketch só tem "desktop" e "celular" | Tablets pequenos veem o ☰; ajustável em 1 classe |
 | P4 | O menu sanduíche é um **disclosure sob a faixa**, não um `Sheet` | É o que o sketch mostra e dispensa 3 pacotes | Se o autor preferir lateral/modal, o `Sheet` entra com `radix-ui` + `tw-animate-css` |
