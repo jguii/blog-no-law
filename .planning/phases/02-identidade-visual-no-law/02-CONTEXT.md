@@ -67,6 +67,13 @@ Fora desta fase: login, posts, feed, perfis (Fases 3 a 6). Nenhuma rota nova na 
 - **D-21:** O **botão de tema** é um **yin-yang inspirado nos dragões** (preto/vermelho), com rótulo acessível ("Mudar para tema claro/escuro").
 - **D-22:** A página do kit fica em **`/kit`**, fora do menu e fora dos buscadores (`noindex`). Serve de referência visual e de base para os testes de componentes e de contraste.
 
+### Pacotes novos (decidido em 2026-11-27, depois da pesquisa)
+- **D-23:** O autor aprovou, por delegação ("pode seguir esse processo... acredito em você"), a recomendação da pesquisa e do UI-SPEC:
+  - **Entram** em `apps/web`, com versão exata: `class-variance-authority@0.7.1`, `clsx@2.1.1` e `tailwind-merge@3.7.0`. A 3.7.1 é recente demais (SUS no seam de legitimidade).
+  - **Não entram:** `radix-ui` e `tw-animate-css`. O menu sanduíche é um disclosure sob a faixa (UI-SPEC P4), sem `Sheet`, e o `Button` não tem `asChild`: o link recebe `buttonVariants()`. Também ficam de fora `lucide-react` (ícones em SVG inline), `next-themes`, `@tailwindcss/typography`, `cn` e `happy-dom`/`@testing-library/*` (testes de componente por `renderToStaticMarkup`).
+  - **Já aprovados e agora usados:** `sharp@0.35.5` como devDependency do web (geração dos ativos) e `shadcn@4.23.0` exato em devDependencies.
+  - Qualquer outro pacote fora da lista do `.claude/CLAUDE.md` continua exigindo aprovação do autor.
+
 ### Claude's Discretion
 - O texto provisório do Sobre e a adaptação das Regras do Discord, dentro do tom D-11. O autor revisa.
 - A frase opcional de contato na Privacidade (D-14).
