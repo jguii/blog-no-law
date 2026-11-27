@@ -14,4 +14,4 @@ A casa do clã No Law: um clã antigo e nostálgico que segue vivo apesar das id
 | # | Name | Design Question | Winner | Tags |
 |---|------|----------------|--------|------|
 | 001 | direcoes-visuais | Qual das 3 direções visuais (Pergaminho, Tinta, Arquivo) é a cara do clã? | ★ Síntese (B + A + C) | direção, paleta, tipografia, ornamentos, tema |
-| 002 | icone-dragoes | Como fica o ícone dos dragões no header, no favicon e no botão de tema? | — | marca, ícone, favicon |
+| 002 | icone-dragoes | Como fica o ícone dos dragões no header, no favicon e no botão de tema? | ★ B (dragões em SVG) | marca, ícone, favicon |

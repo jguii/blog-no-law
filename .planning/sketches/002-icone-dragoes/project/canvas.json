@@ -1,0 +1,21 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-27T13:00:00Z" },
+  "title": "No Law — Esboço 002: ícone dos dragões",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1280, "h": 1240, "title": "Ícone dos dragões: A × B × C" }
+  },
+  "order": ["Main.dc.html"],
+  "notes": {
+    "comoComparar": {
+      "x": 1360,
+      "y": 0,
+      "w": 380,
+      "text": "Como comparar\n\nCada coluna mostra o mesmo ícone em todos os lugares onde ele aparece: ícone do app (180 px), favicon na aba (16 px) e solto (32 px), no header sobre a faixa de tinta e no botão de tema, no escuro e no claro.\n\nOlhe sobretudo o 16 px: é ali que o ícone precisa continuar sendo \"os dragões do No Law\".\n\nA direção já escolhida (Síntese) está aplicada: faixa preta, aro dourado e título em Yuji Boku.",
+      "fill": "orange"
+    }
+  },
+  "designSystems": []
+}
