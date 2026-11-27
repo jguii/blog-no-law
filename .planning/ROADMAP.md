@@ -93,24 +93,31 @@ Plans:
   3. Visitante lê as páginas Sobre o clã, Regras e Política de Privacidade com layout que se adapta a celular e desktop, sem rolagem horizontal.
   4. Uma página de referência do kit mostra os componentes base (Tailwind + shadcn/ui) com os tokens do clã: cores, tipografia e espaçamento. Os dois temas atingem contraste WCAG AA.
   5. Os testes da fase passam na CI: componentes no Vitest e E2E no Playwright com axe nos dois temas e em viewport de celular. O shell com a nova identidade está no ar.
-**Plans**: 9 plans
+**Plans**: 14 plans
 
 Plans:
 **Wave 1**
-- [ ] 02-01-PLAN.md — Tracer: tema escuro padrão sem flash, botão dos dragões, marca no shell, tokens com contraste AA e fontes do clã
+- [ ] 02-01-PLAN.md — Tracer: tema escuro padrão sem flash e o botão dos dragões que alterna e grava o tema (pacotes D-23, Tailwind, Vitest)
 - [ ] 02-02-PLAN.md — Textos de Sobre, Regras e Privacidade como conteúdo testado, com o checkpoint das regras do Discord (D-13)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 02-03-PLAN.md — Kit base (Button, Card, cn, components.json), 404 e erro global com a identidade
-- [ ] 02-04-PLAN.md — Marca: favicon e ícones dos dragões, emblema, banner e imagem de preview (sharp), metadados e manifesto
-- [ ] 02-05-PLAN.md — Navegação: pílulas, menu sanduíche, ornamentos das faixas, rodapé completo e projeto mobile do Playwright
+- [ ] 02-03-PLAN.md — Kit base (Button, Card, cn, components.json) e a 404 com a identidade
+- [ ] 02-04-PLAN.md — Favicon e ícones dos dragões (SVG, PNG e ICO gerados por sharp)
+- [ ] 02-10-PLAN.md — Tokens do clã com contraste AA provado, utilitários de tipografia e movimento, e os cenários BDD/E2E do tema
+- [ ] 02-11-PLAN.md — Faixas de tinta: header com a marca, rodapé com links e "desde 2017", ornamentos, fontes e metadados
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 02-06-PLAN.md — Páginas Sobre o clã, Regras e Política de Privacidade no card de leitura
+- [ ] 02-05-PLAN.md — Navegação: pílulas, menu sanduíche e projeto mobile do Playwright
 - [ ] 02-07-PLAN.md — Capa do clã em `/` e status técnico em `/status` (testes, smoke, BDD e runbook movidos)
-- [ ] 02-08-PLAN.md — `/kit` com tokens e componentes, CSP v1 e noindex de `/kit` e `/status`
+- [ ] 02-12-PLAN.md — Preview Open Graph, emblema recortado, banner, manifesto e os cenários da marca
+- [ ] 02-13-PLAN.md — Erro global com a identidade e os cenários BDD/E2E das telas de erro
 
 **Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 02-06-PLAN.md — Páginas Sobre o clã, Regras e Política de Privacidade no card de leitura
+- [ ] 02-08-PLAN.md — `/kit` com tokens e componentes, CSP v1 e noindex de `/kit` e `/status`
+- [ ] 02-14-PLAN.md — Capa completa: emblema com brilho, banner pendurado e pétalas
+
+**Wave 5** *(blocked on Wave 4 completion)*
 - [ ] 02-09-PLAN.md — Suíte E2E transversal, PR com `ci-ok` verde, merge e identidade comprovada em produção
 **UI hint**: yes
 
