@@ -76,14 +76,14 @@ Comando usado (a URL base é a pública do serviço):
 curl -s -o /dev/null -H 'X-Forwarded-For: 203.0.113.7' -H 'x-request-id: probe-{timestamp}' https://blog-no-law-api.onrender.com/status
 ```
 
-| Campo                           | Valor                                                                                       |
-| ------------------------------- | ------------------------------------------------------------------------------------------- |
-| Data e hora da sonda (UTC)      | 2026-11-21T01:56:07Z                                                                        |
-| IP público da máquina           | (registrado fora do repositório, em `~/.config/blog-no-law/trust-proxy-probe.txt`)          |
-| `x-request-id` usado            | `probe-1795226167`                                                                          |
-| IP forjado em `X-Forwarded-For` | `203.0.113.7` (faixa de documentação, não é IP real)                                        |
-| `clientIp` lido no log          | IP interno `10.x` (com `TRUST_PROXY_HOPS=1`), lido em 2026-11-26 pela API de logs da Render |
-| `TRUST_PROXY_HOPS` final        | `3`, aplicado em 2026-11-26                                                                 |
+| Campo                           | Valor                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Data e hora da sonda (UTC)      | 2026-11-21T01:56:07Z                                                                              |
+| IP público da máquina           | (registrado fora do repositório, em `~/.config/blog-no-law/trust-proxy-probe.txt`)                |
+| `x-request-id` usado            | `probe-1795226167`                                                                                |
+| IP forjado em `X-Forwarded-For` | `203.0.113.7` (faixa de documentação, não é IP real)                                              |
+| `clientIp` lido no log          | IP interno `10.x` (com `TRUST_PROXY_HOPS=1`), lido em 2026-11-27 (UTC) pela API de logs da Render |
+| `TRUST_PROXY_HOPS` final        | `3`, aplicado em 2026-11-27 (UTC)                                                                 |
 
 O IP público do autor é dado pessoal e este repositório é público, por isso ele fica só no arquivo local (modo 600) junto com o `x-request-id` e o horário.
 
@@ -97,7 +97,7 @@ A linha de log de `probe-1795226167` mostrou esta cadeia (IPs mascarados; da esq
 
 Há três proxies à frente da aplicação: a Cloudflare, a borda interna da Render e um proxy local no container. Com `TRUST_PROXY_HOPS=1` o Express confiava só no socket e devolvia o `10.x`, então todo visitante aparecia com o mesmo IP e o rate limit agruparia todo mundo. Com `3` ele confia no socket, no `10.x` e no `162.x` e para no IP real, ignorando o valor forjado à esquerda.
 
-Confirmação depois da troca (deploy de `e92302e` pelo Deploy API em 2026-11-26): a sonda `probe-1795744851`, de novo com `X-Forwarded-For: 203.0.113.7`, registrou `clientIp` igual ao `cf-connecting-ip` da mesma linha, que é o IP real do cliente.
+Confirmação depois da troca (deploy de `e92302e` pelo Deploy API em 2026-11-27 UTC): a sonda `probe-1795744851` (2026-11-27T02:00:51Z), de novo com `X-Forwarded-For: 203.0.113.7`, registrou `clientIp` igual ao `cf-connecting-ip` da mesma linha, que é o IP real do cliente.
 
 Regra de decisão (T-01-53), revista depois da medição:
 
@@ -108,7 +108,7 @@ Regra de decisão (T-01-53), revista depois da medição:
 
 Depois de decidir, ajustar a variável na Render com **Save only** e rodar o Deploy API (`gh workflow run deploy-api.yml --ref main --repo jguii/blog-no-law`). O "Save and deploy" do painel republica a imagem antiga gravada no serviço (ver `deploy.md`).
 
-### Sentry em produção (2026-11-26)
+### Sentry em produção (2026-11-27 UTC)
 
 O `SENTRY_DSN` da Render e o da Railway tinham uma chave pública que não existe no projeto (a organização e o projeto estavam certos). O Sentry descarta esses envios sem contá-los nem como rejeitados, por isso o projeto ficou sem nenhum evento. O DSN foi recolado a partir de Client Keys. Depois do deploy, o ambiente `production` passou a aparecer no projeto `blog-no-law-api`, alimentado pelas transações amostradas (5%). Para conferir no futuro: o projeto deve listar o ambiente `production` e a release do último SHA.
 

@@ -35,9 +35,9 @@ Para o autor localizar o evento no projeto `blog-no-law-api`, issue `Error: sent
 | `verify-remote-api.sh --expect-debug` (sem id próprio) | 2026-11-21T01:55:59Z | gerado pela API                 |
 | `curl` dedicado a `/_debug/error`, resposta HTTP 500   | 2026-11-21T01:56:07Z | `sentry-smoke-20261121T015607Z` |
 
-Esse primeiro evento **não chegou**: o `SENTRY_DSN` colado no serviço tinha uma chave pública inexistente no projeto (organização e projeto certos), e o Sentry descarta esses envios em silêncio. Em 2026-11-26 o DSN foi corrigido e a imagem do serviço trocada para a de produção (`e92302ea7288a803435f59b8c6802822ba8d724b`). Um novo `curl` em `/_debug/error` (HTTP 500) gerou a issue `BLOG-NO-LAW-API-2`, `Error: sentry-smoke`, com environment `railway-planob`, release `e92302e`, stack trace e sem headers da requisição (coleta de dados pessoais desligada, T-01-24).
+Esse primeiro evento **não chegou**: o `SENTRY_DSN` colado no serviço tinha uma chave pública inexistente no projeto (organização e projeto certos), e o Sentry descarta esses envios em silêncio. Em 2026-11-27 (UTC) o DSN foi corrigido e a imagem do serviço trocada para a de produção (`e92302ea7288a803435f59b8c6802822ba8d724b`). Um novo `curl` em `/_debug/error` (HTTP 500) gerou a issue `BLOG-NO-LAW-API-2`, `Error: sentry-smoke`, com environment `railway-planob`, release `e92302e`, stack trace e sem headers da requisição (coleta de dados pessoais desligada, T-01-24).
 
-**Serviço removido:** depois dessa evidência, o projeto da Railway (só com este serviço) foi apagado em 2026-11-26. O domínio `*.up.railway.app` passou a responder 404 em todas as rotas, inclusive `/_debug/error`. Para religar, seguir "Religar em emergência" abaixo.
+**Serviço removido:** depois dessa evidência, o projeto da Railway (só com este serviço) foi apagado em 2026-11-27 (UTC). O domínio `*.up.railway.app` passou a responder 404 em todas as rotas, inclusive `/_debug/error`. Para religar, seguir "Religar em emergência" abaixo.
 
 ## Armadilhas encontradas no boot
 
