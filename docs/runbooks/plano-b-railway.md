@@ -54,10 +54,11 @@ Use só se a Render falhar ou deixar de ter plano gratuito. A imagem é pública
 
 1. Escolher o host: nova conta ou plano na Railway (ou outro PaaS que rode imagem Docker). Verificar antes o que o plano gratuito oferece naquele momento, porque o trial pode não estar mais disponível.
 2. Criar o serviço a partir da imagem `ghcr.io/jguii/blog-no-law-api:{sha}` (o último SHA bom; o do deploy em produção aparece em `/status` da Render quando ela responde).
-3. Definir as mesmas variáveis do `render.md` (`NODE_ENV`, `DATABASE_URL`, `PORT=10000`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `TRUST_PROXY_HOPS`, `CORS_ORIGINS`), **sem** `DEBUG_ROUTES_ENABLED`, e **aplicar** as variáveis antes do deploy. Como o Supabase é externo, não há migração de dados.
+3. Definir as variáveis do `render.md` (`NODE_ENV`, `DATABASE_URL`, `PORT=10000`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `CORS_ORIGINS`), **sem** `DEBUG_ROUTES_ENABLED`, e **aplicar** as variáveis antes do deploy. **Não copiar `TRUST_PROXY_HOPS` da Render:** o `3` medido lá vale só para a rede da Render, e num host com menos saltos o Express passaria a confiar em entradas do `X-Forwarded-For` que o cliente controla. Deixar `TRUST_PROXY_HOPS` sem valor (default seguro `1`) no primeiro boot. Como o Supabase é externo, não há migração de dados.
 4. Gerar o domínio apontando para a porta `10000`.
 5. Conferir: `bash scripts/verify-remote-api.sh https://{novo-host} {sha}` deve imprimir `REMOTE_API_OK`.
-6. Trocar `API_URL` na Vercel para a URL nova e `API_BASE_URL` no GitHub Environment `production` (`gh variable set API_BASE_URL --env production --body https://{novo-host} --repo jguii/blog-no-law`). Os monitores do 01-13 também passam a apontar para a URL nova.
-7. Ajustar `CORS_ORIGINS` se o domínio do web mudou.
+6. Rodar a sonda da secção "Sonda do trust proxy (D-02)" do `render.md` no novo host e só então fixar `TRUST_PROXY_HOPS` com o valor medido (aplicar e redeployar). Nunca reaproveitar o valor da Render.
+7. Trocar `API_URL` na Vercel para a URL nova e `API_BASE_URL` no GitHub Environment `production` (`gh variable set API_BASE_URL --env production --body https://{novo-host} --repo jguii/blog-no-law`). Os monitores do 01-13 também passam a apontar para a URL nova.
+8. Ajustar `CORS_ORIGINS` se o domínio do web mudou.
 
 Lembrar: a Railway não substitui a Render de graça de forma permanente. Se ficar como host definitivo, o custo mensal zero (restrição do projeto) deixa de valer; nesse caso, decidir de novo entre outro PaaS gratuito e pagar.
