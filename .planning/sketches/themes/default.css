@@ -1,0 +1,54 @@
+/* Tema compartilhado dos esboços do No Law.
+   Valores com contraste calculado em 02-RESEARCH.md (Pattern 2).
+   Regra: o vermelho #ac020f é preenchimento (botão com texto branco), nunca texto no escuro. */
+
+:root {
+  /* Claro "pergaminho" */
+  --color-bg: #ecdcc4;
+  --color-surface: #f6eddc;
+  --color-border: #8a6a4a;
+  --color-text: #1a1210;
+  --color-text-muted: #5c4631;
+  --color-primary: #ac020f;
+  --color-primary-text: #ffffff;
+  --color-link: #8a0210;
+  --color-accent: #d3aa82;
+  --color-ornament-gold: #c8a04a;
+  --gradient-brand: linear-gradient(135deg, #ac020f, #420b0d);
+
+  /* Tipografia: o título varia por direção; o corpo é sempre Atkinson Hyperlegible Next */
+  --font-title: 'Yuji Boku', 'Rampart One', 'Reggae One', 'Cinzel', serif;
+  --font-body: 'Atkinson Hyperlegible Next', 'Inter', system-ui, sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.75rem;
+
+  /* Espaçamento */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Formas */
+  --radius-sm: 2px;
+  --radius-md: 8px;
+  --radius-full: 9999px;
+}
+
+[data-theme='dark'] {
+  /* Escuro "tinta" (padrão na primeira visita, D-15) */
+  --color-bg: #000000;
+  --color-surface: #420b0d;
+  --color-border: #a8845f;
+  --color-text: #d3aa82;
+  --color-text-muted: #bfa07f;
+  --color-primary: #ac020f;
+  --color-primary-text: #ffffff;
+  --color-link: #ff6b75;
+}
