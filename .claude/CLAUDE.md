@@ -337,7 +337,7 @@ Architecture not yet mapped. Follow existing patterns found in the codebase.
 
 ## Project Skills
 
-No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, `.github/skills/`, or `.codex/skills/` with a `SKILL.md` index file.
+- **Sketch findings for Blog No Law** (design decisions, CSS patterns, visual direction) → `Skill("sketch-findings-blog-no-law")`. Local skill (not in Git); the committed record is `.planning/sketches/WRAP-UP-SUMMARY.md`.
 <!-- GSD:skills-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->

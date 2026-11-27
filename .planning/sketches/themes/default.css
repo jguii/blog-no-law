@@ -16,8 +16,8 @@
   --color-ornament-gold: #c8a04a;
   --gradient-brand: linear-gradient(135deg, #ac020f, #420b0d);
 
-  /* Tipografia: o título varia por direção; o corpo é sempre Atkinson Hyperlegible Next */
-  --font-title: 'Yuji Boku', 'Rampart One', 'Reggae One', 'Cinzel', serif;
+  /* Tipografia (direção escolhida: Síntese, esboço 001): títulos em Yuji Boku; corpo em Atkinson Hyperlegible Next */
+  --font-title: 'Yuji Boku', serif;
   --font-body: 'Atkinson Hyperlegible Next', 'Inter', system-ui, sans-serif;
   --text-sm: 0.875rem;
   --text-base: 1.0625rem;
@@ -35,10 +35,15 @@
   --space-8: 32px;
   --space-12: 48px;
 
-  /* Formas */
-  --radius-sm: 2px;
-  --radius-md: 8px;
+  /* Formas (Síntese: raio de 6px em cards e botões; pílula no menu) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
   --radius-full: 9999px;
+
+  /* Faixas de tinta: header e rodapé ficam pretos nos dois temas */
+  --band-bg: #000000;
+  --band-text: #d3aa82;
+  --band-link: #ff6b75;
 }
 
 [data-theme='dark'] {
