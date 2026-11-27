@@ -93,7 +93,25 @@ Plans:
   3. Visitante lê as páginas Sobre o clã, Regras e Política de Privacidade com layout que se adapta a celular e desktop, sem rolagem horizontal.
   4. Uma página de referência do kit mostra os componentes base (Tailwind + shadcn/ui) com os tokens do clã: cores, tipografia e espaçamento. Os dois temas atingem contraste WCAG AA.
   5. Os testes da fase passam na CI: componentes no Vitest e E2E no Playwright com axe nos dois temas e em viewport de celular. O shell com a nova identidade está no ar.
-**Plans**: TBD
+**Plans**: 9 plans
+
+Plans:
+**Wave 1**
+- [ ] 02-01-PLAN.md — Tracer: tema escuro padrão sem flash, botão dos dragões, marca no shell, tokens com contraste AA e fontes do clã
+- [ ] 02-02-PLAN.md — Textos de Sobre, Regras e Privacidade como conteúdo testado, com o checkpoint das regras do Discord (D-13)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 02-03-PLAN.md — Kit base (Button, Card, cn, components.json), 404 e erro global com a identidade
+- [ ] 02-04-PLAN.md — Marca: favicon e ícones dos dragões, emblema, banner e imagem de preview (sharp), metadados e manifesto
+- [ ] 02-05-PLAN.md — Navegação: pílulas, menu sanduíche, ornamentos das faixas, rodapé completo e projeto mobile do Playwright
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 02-06-PLAN.md — Páginas Sobre o clã, Regras e Política de Privacidade no card de leitura
+- [ ] 02-07-PLAN.md — Capa do clã em `/` e status técnico em `/status` (testes, smoke, BDD e runbook movidos)
+- [ ] 02-08-PLAN.md — `/kit` com tokens e componentes, CSP v1 e noindex de `/kit` e `/status`
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 02-09-PLAN.md — Suíte E2E transversal, PR com `ci-ok` verde, merge e identidade comprovada em produção
 **UI hint**: yes
 
 ### Phase 3: Login com Discord e controle de acesso
@@ -215,7 +233,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Esqueleto no ar com testes e CI | 14/14 | Complete    | 2026-11-26 |
-| 2. Identidade visual No Law | 0/TBD | Not started | - |
+| 2. Identidade visual No Law | 0/9 | Not started | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |
 | 5. Imagens e YouTube nos posts | 0/TBD | Not started | - |
