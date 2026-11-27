@@ -10,6 +10,14 @@ const ORIGIN_PATTERN =
 // Painéis de PaaS costumam deixar variáveis opcionais em branco: vazio vale como ausente.
 const emptyToUndefined = (value: unknown): unknown => (value === '' ? undefined : value);
 
+// Inteiros de ambiente: apara espaço/quebra de linha (vazio após aparar vale como ausente) e
+// exige só dígitos decimais. `Number(' ')` é 0 e `Number('0x2')` é 2, o que desligaria o trust
+// proxy ou aceitaria notação inesperada; qualquer outra coisa vira NaN e falha citando a chave.
+const digitsOnly = (value: unknown): unknown => {
+  const v = emptyToUndefined(typeof value === 'string' ? value.trim() : value);
+  return typeof v === 'string' && !/^\d+$/.test(v) ? Number.NaN : v;
+};
+
 const corsOrigins = z
   .string()
   .default('')
@@ -29,17 +37,14 @@ export const envSchema = z
   .object({
     // Toda chave passa por emptyToUndefined (WR-01): vazio cai no default ou em "ausente",
     // nunca em 0 (`z.coerce.number()` faria '' virar 0) nem em erro de boot.
-    PORT: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).max(65535).default(3001)),
+    PORT: z.preprocess(digitsOnly, z.coerce.number().int().min(1).max(65535).default(3001)),
     NODE_ENV: z.preprocess(
       emptyToUndefined,
       z.enum(['development', 'test', 'production']).default('development'),
     ),
     GIT_SHA: z.preprocess(emptyToUndefined, z.string().min(1).default('dev')),
     // Saltos de proxy confiáveis (D-02): 1 atrás da Render; nunca `true`.
-    TRUST_PROXY_HOPS: z.preprocess(
-      emptyToUndefined,
-      z.coerce.number().int().min(0).max(3).default(1),
-    ),
+    TRUST_PROXY_HOPS: z.preprocess(digitsOnly, z.coerce.number().int().min(0).max(3).default(1)),
     CORS_ORIGINS: z.preprocess(emptyToUndefined, corsOrigins),
     LOG_LEVEL: z.preprocess(
       emptyToUndefined,
