@@ -46,9 +46,12 @@ describe('Erro global com a identidade do clã', () => {
   });
 
   it('mostra o h1 Display e a explicação no tom do clã', () => {
-    const h1Display = /<h1[^>]*class="[^"]*text-display[^"]*text-balance[^"]*"[^>]*>Algo deu errado<\/h1>/;
+    const h1Display =
+      /<h1[^>]*class="[^"]*text-display[^"]*text-balance[^"]*"[^>]*>Algo deu errado<\/h1>/;
     expect(h1Display.test(html)).toBe(true);
-    expect(html.includes('Tivemos um problema do nosso lado. Tente de novo em instantes.')).toBe(true);
+    expect(html.includes('Tivemos um problema do nosso lado. Tente de novo em instantes.')).toBe(
+      true,
+    );
   });
 
   it('oferece o link de volta à página inicial como CTA primário', () => {
