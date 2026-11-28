@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { body, title } from '@/lib/fonts';
 import { siteMetadata, siteViewport } from '@/lib/site';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
 import './globals.css';
@@ -15,7 +16,12 @@ export const viewport: Viewport = siteViewport;
 // O link de atalho é o primeiro item da tabulação e só aparece quando recebe o foco.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" data-theme="dark" suppressHydrationWarning>
+    <html
+      lang="pt-BR"
+      data-theme="dark"
+      className={`${body.variable} ${title.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script>{THEME_INIT_SCRIPT}</script>
       </head>
