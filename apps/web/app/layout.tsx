@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
 import './globals.css';
 
@@ -16,7 +17,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script>{THEME_INIT_SCRIPT}</script>
       </head>
-      <body>{children}</body>
+      <body>
+        <header className="faixa">
+          <ThemeToggle />
+        </header>
+        {children}
+      </body>
     </html>
   );
 }
