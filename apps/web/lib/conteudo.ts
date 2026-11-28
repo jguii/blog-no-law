@@ -2,7 +2,8 @@
 // Ficam num lugar só para o autor revisar com calma. São strings puras: as páginas
 // (plano 02-06) renderizam como texto pelo JSX, nunca como HTML, então aqui não entra
 // marcação, link, menção, convite do Discord nem contato pessoal (o teste vigia isso).
-// O texto definitivo do Sobre é do backlog (D-12).
+// O Sobre é o texto que o autor escreveu (substitui o provisório da D-12); a história
+// completa do clã continua podendo crescer depois.
 
 export type Secao = {
   titulo: string;
@@ -18,13 +19,14 @@ export type GrupoDeRegras = {
 export const SOBRE: { titulo: 'Sobre o clã'; paragrafos: readonly string[] } = {
   titulo: 'Sobre o clã',
   paragrafos: [
-    'O No Law nasceu em 2017, no GTA San Andreas Multiplayer (SA-MP), de uma amizade que já vinha de antes do jogo.',
-    'Desde então a gente foi e voltou muitas vezes, mas o clã nunca deixou de existir.',
-    'A história completa chega em breve.',
+    'A No Law nasceu em 2017, no GTA San Andreas Multiplayer (SA-MP) no servidor Cidade Vida Real (CVR).',
+    'Em nossa jornada tivemos alguns fins de ciclos e reinícios e até hoje o clã resiste.',
   ],
 };
 
-// Versão mínima, até as regras do Discord serem adaptadas (D-13).
+// Regras do clã no Discord, adaptadas ao blog e ao tom da D-13/D-11: agrupadas por tema
+// (cada título vira um h2) e uma regra por item (vira um item da lista numerada).
+// Se um dia ficar sem grupos, a página volta à versão provisória (REGRAS_PROVISORIAS).
 export const REGRAS: {
   titulo: 'Regras';
   introducao: readonly string[];
@@ -32,10 +34,32 @@ export const REGRAS: {
 } = {
   titulo: 'Regras',
   introducao: [
-    'As regras do clã estão vindo do nosso Discord e aparecem aqui em breve.',
-    'Enquanto isso, vale o de sempre: respeito com todo mundo.',
+    'A ideia da No Law é simples: reunir o pessoal, fazer amizades e zoar.',
+    'Pra isso funcionar, o respeito entre todos é o que mais importa, e valeu a quem ajuda a manter o clã bacana.',
   ],
-  grupos: [],
+  grupos: [
+    {
+      titulo: 'Respeito vem primeiro',
+      regras: ['Respeite todo mundo: o respeito entre todos é o que mais importa aqui.'],
+    },
+    {
+      titulo: 'Preconceito e piadas',
+      regras: [
+        'Não aceitamos nenhum tipo de preconceito, como racismo, homofobia ou xenofobia.',
+        'Também não toleramos piadas de cunho sexual.',
+        'Não importa se a intenção era fazer uma “brincadeira”: esse tipo de atitude não tem lugar aqui.',
+        'Quem fizer isso é banido do clã e do nosso Discord.',
+      ],
+    },
+    {
+      titulo: 'Desentendimentos e brigas',
+      regras: [
+        'Se tiver algum problema ou desentendimento com alguém, resolvam na conversa e com calma.',
+        'Não permitimos brigas no chat: mensagens desse tipo serão apagadas.',
+        'Lembrem-se: é apenas SA-MP. Vamos manter o ambiente amigável para todo mundo jogar de boa!',
+      ],
+    },
+  ],
 };
 
 // Verdadeiro enquanto não há grupo de regras: a página mostra a versão mínima.
