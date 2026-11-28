@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Petals } from '@/components/ornaments/petals';
 import Home from './page';
 
 // Capa estática do clã (D-06): conteúdo final, sem chamar a API. Cenários BDD: docs/bdd/capa.feature.md.
@@ -74,5 +75,24 @@ describe('capa do clã em /', () => {
     expect(html).not.toContain('api-commit');
     expect(html).not.toContain('api-unavailable');
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  describe('pétalas (D-20)', () => {
+    const petals = renderToStaticMarkup(<Petals />);
+
+    it('é um contêiner aria-hidden com exatamente 6 pétalas', () => {
+      expect(petals.startsWith('<div aria-hidden="true"')).toBe(true);
+      expect(petals.match(/<span/g)?.length).toBe(6);
+    });
+
+    it('esconde 3 das 6 pétalas no celular (hidden md:block)', () => {
+      const hidden = petals.match(/<span[^>]*class="[^"]*\bhidden md:block\b[^"]*"/g) ?? [];
+      expect(hidden.length).toBe(3);
+    });
+
+    it('fica dentro da seção hero da capa', () => {
+      const section = html.match(/<section[\s\S]*<\/section>/)?.[0] ?? '';
+      expect(section.includes(petals)).toBe(true);
+    });
   });
 });
