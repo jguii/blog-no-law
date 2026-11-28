@@ -33,15 +33,12 @@ const PROIBIDOS: ReadonlyArray<readonly [string, RegExp]> = [
 ];
 
 describe('textos das páginas institucionais', () => {
-  it('Sobre: os parágrafos são o texto provisório da UI-SPEC', () => {
+  it('Sobre: os parágrafos são exatamente o texto do autor (sem "chega em breve")', () => {
     expect(SOBRE.titulo).toBe('Sobre o clã');
-    expect(umaLinha(SOBRE.paragrafos)).toBe(
-      umaLinha([
-        'O No Law nasceu em 2017, no GTA San Andreas Multiplayer (SA-MP), de uma amizade que já vinha de antes do jogo.',
-        'Desde então a gente foi e voltou muitas vezes, mas o clã nunca deixou de existir.',
-        'A história completa chega em breve.',
-      ]),
+    expect(SOBRE.paragrafos.join(' ')).toBe(
+      'A No Law nasceu em 2017, no GTA San Andreas Multiplayer (SA-MP) no servidor Cidade Vida Real (CVR). Em nossa jornada tivemos alguns fins de ciclos e reinícios e até hoje o clã resiste.',
     );
+    expect(SOBRE.paragrafos.join(' ')).not.toContain('chega em breve');
   });
 
   it('Sobre: cita 2017 e SA-MP', () => {
@@ -50,16 +47,45 @@ describe('textos das páginas institucionais', () => {
     expect(texto).toContain('SA-MP');
   });
 
-  it('Regras: sem as regras do Discord, fica a versão mínima e provisória', () => {
+  it('Regras: a adaptação do Discord tem 3 grupos e 8 regras e deixa de ser provisória', () => {
     expect(REGRAS.titulo).toBe('Regras');
-    expect(umaLinha(REGRAS.introducao)).toBe(
-      umaLinha([
-        'As regras do clã estão vindo do nosso Discord e aparecem aqui em breve.',
-        'Enquanto isso, vale o de sempre: respeito com todo mundo.',
-      ]),
-    );
-    expect(REGRAS.grupos).toHaveLength(0);
-    expect(REGRAS_PROVISORIAS).toBe(true);
+    expect(REGRAS.grupos.map((g) => g.regras.length).join(',')).toBe('1,4,3');
+    expect(REGRAS_PROVISORIAS).toBe(false);
+  });
+
+  it('Regras: a introdução tem uma ou duas frases', () => {
+    expect(REGRAS.introducao.length).toBeGreaterThanOrEqual(1);
+    expect(REGRAS.introducao.length).toBeLessThanOrEqual(2);
+  });
+
+  it('Regras: todo grupo tem título e toda regra tem texto', () => {
+    const vazios = REGRAS.grupos.flatMap((g) => [g.titulo, ...g.regras]).filter((t) => !t.trim());
+    expect(vazios).toHaveLength(0);
+  });
+
+  it('Regras: o sentido das regras do Discord se mantém (D-13)', () => {
+    const texto = coletarTextos(REGRAS).join(' ').toLowerCase();
+    const ideias = [
+      'respeito',
+      'preconceito',
+      'racismo',
+      'homofobia',
+      'xenofobia',
+      'sexual',
+      'brincadeira',
+      'banido',
+      'discord',
+      'conversa',
+      'calma',
+      'brigas',
+      'apagadas',
+      'sa-mp',
+    ];
+    expect(ideias.filter((ideia) => !texto.includes(ideia)).join(',')).toBe('');
+  });
+
+  it('Regras: sem grupos, a página cai na versão provisória', () => {
+    expect(REGRAS_PROVISORIAS).toBe(REGRAS.grupos.length === 0);
   });
 
   it('Privacidade: abertura e fecho são os da UI-SPEC', () => {
