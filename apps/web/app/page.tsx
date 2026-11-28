@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { BrushStroke } from '@/components/ornaments/brush-stroke';
+import { Petals } from '@/components/ornaments/petals';
 import { buttonVariants } from '@/components/ui/button';
 import { SITE } from '@/lib/site';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,7 @@ export default function Home() {
       aria-labelledby="titulo-capa"
       className="relative overflow-x-clip bg-background pt-8 pb-6 md:pt-16 md:pb-12"
     >
+      <Petals />
       <div className="relative z-10 mx-auto flex max-w-288 flex-col gap-12 px-4 md:px-8">
         <div className="flex flex-wrap items-center gap-6 md:gap-12">
           <div className="flex min-w-0 flex-[999_1_460px] flex-col items-start gap-6">
