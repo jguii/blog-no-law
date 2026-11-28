@@ -93,7 +93,7 @@ Plans:
   3. Visitante lê as páginas Sobre o clã, Regras e Política de Privacidade com layout que se adapta a celular e desktop, sem rolagem horizontal.
   4. Uma página de referência do kit mostra os componentes base (Tailwind + shadcn/ui) com os tokens do clã: cores, tipografia e espaçamento. Os dois temas atingem contraste WCAG AA.
   5. Os testes da fase passam na CI: componentes no Vitest e E2E no Playwright com axe nos dois temas e em viewport de celular. O shell com a nova identidade está no ar.
-**Plans**: 6/14 plans executed
+**Plans**: 9/14 plans executed
 
 Plans:
 **Wave 1**
@@ -107,10 +107,10 @@ Plans:
 - [x] 02-11-PLAN.md — Faixas de tinta: header com a marca, rodapé com links e "desde 2017", ornamentos, fontes e metadados
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 02-05-PLAN.md — Navegação: pílulas, menu sanduíche e projeto mobile do Playwright
+- [x] 02-05-PLAN.md — Navegação: pílulas, menu sanduíche e projeto mobile do Playwright
 - [ ] 02-07-PLAN.md — Capa do clã em `/` e status técnico em `/status` (testes, smoke, BDD e runbook movidos)
-- [ ] 02-12-PLAN.md — Preview Open Graph, emblema recortado, banner, manifesto e os cenários da marca
-- [ ] 02-13-PLAN.md — Erro global com a identidade e os cenários BDD/E2E das telas de erro
+- [x] 02-12-PLAN.md — Preview Open Graph, emblema recortado, banner, manifesto e os cenários da marca
+- [x] 02-13-PLAN.md — Erro global com a identidade e os cenários BDD/E2E das telas de erro
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 02-06-PLAN.md — Páginas Sobre o clã, Regras e Política de Privacidade no card de leitura
@@ -240,7 +240,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Esqueleto no ar com testes e CI | 14/14 | Complete    | 2026-11-26 |
-| 2. Identidade visual No Law | 6/14 | In Progress | - |
+| 2. Identidade visual No Law | 9/14 | In Progress | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |
 | 5. Imagens e YouTube nos posts | 0/TBD | Not started | - |
