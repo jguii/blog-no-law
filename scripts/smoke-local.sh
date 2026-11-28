@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Smoke full-stack local: sobe a API e o web já compilados e confere a home por HTTP.
-# Cenários BDD: docs/bdd/home.feature.md (tag @smoke-local).
+# Smoke full-stack local: sobe a API e o web já compilados e confere a capa (/) e o status (/status) por HTTP.
+# Cenários BDD: docs/bdd/status.feature.md (tag @smoke-local) e docs/bdd/capa.feature.md (escrito no 02-14).
 #
 # Uso:
-#   scripts/smoke-local.sh              # Postgres do compose + API + web: home com commit, db "up" e /?detail=full
-#   scripts/smoke-local.sh --degraded   # só o web, com a API fora do ar: home degradada com 200
+#   scripts/smoke-local.sh              # Postgres do compose + API + web: /status com commit, db "up" e ?detail=full; / é a capa
+#   scripts/smoke-local.sh --degraded   # só o web, com a API fora do ar: /status degradado com 200 e a capa abre normalmente
 set -euo pipefail
 
 MODE=normal
@@ -55,12 +55,24 @@ wait_for() {
   return 1
 }
 
-fetch_home() {
-  # fetch_home <caminho> <arquivo-de-saida>: exige HTTP 200
+fetch_page() {
+  # fetch_page <caminho> <arquivo-de-saida>: exige HTTP 200
   local path=$1 out=$2 status
   status=$(curl -sS -o "$out" -w '%{http_code}' --max-time 15 "http://$HOST:$WEB_PORT$path")
   if [ "$status" != "200" ]; then
     echo "FALHA: GET $path devolveu HTTP $status" >&2
+    exit 1
+  fi
+}
+
+check_cover() {
+  # check_cover <arquivo>: a capa tem o slogan e nunca o status técnico (ela não chama a API)
+  if ! grep -q 'Uma nova face, uma nova história.' "$1"; then
+    echo 'FALHA: / sem o slogan da capa' >&2
+    exit 1
+  fi
+  if grep -q 'api-commit' "$1"; then
+    echo 'FALHA: / mostra o status técnico (api-commit); a capa não depende da API' >&2
     exit 1
   fi
 }
@@ -80,12 +92,21 @@ if [ "$MODE" = degraded ]; then
   echo "==> subindo só o web em $HOST:$WEB_PORT, com a API apontada para a porta fechada $CLOSED_PORT"
   start_web "http://$HOST:$CLOSED_PORT"
 
-  echo "==> conferindo a home degradada"
-  fetch_home / "$LOG_DIR/home.html"
-  if ! grep -q 'data-testid="api-unavailable"' "$LOG_DIR/home.html"; then
-    echo 'FALHA: HTML sem data-testid="api-unavailable"' >&2
+  echo "==> conferindo o /status degradado"
+  fetch_page /status "$LOG_DIR/status.html"
+  if ! grep -q 'data-testid="api-unavailable"' "$LOG_DIR/status.html"; then
+    echo 'FALHA: /status sem data-testid="api-unavailable"' >&2
     exit 1
   fi
+  if ! grep -q 'Recarregar status' "$LOG_DIR/status.html"; then
+    echo 'FALHA: /status degradado sem o link "Recarregar status"' >&2
+    exit 1
+  fi
+
+  echo "==> conferindo a capa com a API fora do ar"
+  fetch_page / "$LOG_DIR/capa.html"
+  check_cover "$LOG_DIR/capa.html"
+
   echo "SMOKE_LOCAL_DEGRADED_OK"
   exit 0
 fi
@@ -108,27 +129,31 @@ wait_for "http://$HOST:$API_PORT/health/live" 30 "API"
 echo "==> subindo o web em $HOST:$WEB_PORT"
 start_web "http://$HOST:$API_PORT"
 
-echo "==> conferindo a home"
-fetch_home / "$LOG_DIR/home.html"
-if ! grep -q "data-testid=\"api-commit\">$GIT_SHA<" "$LOG_DIR/home.html"; then
-  echo "FALHA: HTML sem data-testid=\"api-commit\" com o SHA $GIT_SHA" >&2
+echo "==> conferindo o /status"
+fetch_page /status "$LOG_DIR/status.html"
+if ! grep -q "data-testid=\"api-commit\">$GIT_SHA<" "$LOG_DIR/status.html"; then
+  echo "FALHA: /status sem data-testid=\"api-commit\" com o SHA $GIT_SHA" >&2
   exit 1
 fi
 
-if ! grep -q 'data-testid="api-db">up<' "$LOG_DIR/home.html"; then
-  echo 'FALHA: HTML sem data-testid="api-db" com "up" (a API não leu o banco)' >&2
+if ! grep -q 'data-testid="api-db">up<' "$LOG_DIR/status.html"; then
+  echo 'FALHA: /status sem data-testid="api-db" com "up" (a API não leu o banco)' >&2
   exit 1
 fi
 
-echo "==> conferindo /?detail=full"
-fetch_home "/?detail=full" "$LOG_DIR/home-full.html"
-if ! grep -q 'href="/"' "$LOG_DIR/home-full.html"; then
-  echo 'FALHA: /?detail=full sem o link "Ocultar detalhes" (href="/")' >&2
+echo "==> conferindo /status?detail=full"
+fetch_page "/status?detail=full" "$LOG_DIR/status-full.html"
+if ! grep -q 'href="/status"' "$LOG_DIR/status-full.html"; then
+  echo 'FALHA: /status?detail=full sem o link "Ocultar detalhes" (href="/status")' >&2
   exit 1
 fi
-if ! grep -q 'data-testid="api-db-latency"' "$LOG_DIR/home-full.html"; then
-  echo 'FALHA: /?detail=full sem data-testid="api-db-latency"' >&2
+if ! grep -q 'data-testid="api-db-latency"' "$LOG_DIR/status-full.html"; then
+  echo 'FALHA: /status?detail=full sem data-testid="api-db-latency"' >&2
   exit 1
 fi
+
+echo "==> conferindo a capa"
+fetch_page / "$LOG_DIR/capa.html"
+check_cover "$LOG_DIR/capa.html"
 
 echo "SMOKE_LOCAL_OK"
