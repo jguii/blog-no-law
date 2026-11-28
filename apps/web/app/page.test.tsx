@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Petals } from '@/components/ornaments/petals';
 import Home from './page';
 
 // Capa estática do clã (D-06): conteúdo final, sem chamar a API. Cenários BDD: docs/bdd/capa.feature.md.
@@ -46,9 +47,52 @@ describe('capa do clã em /', () => {
     }
   });
 
+  it('mostra o emblema decorativo com prioridade alta', () => {
+    const img = html.match(/<img[^>]*emblema\.png[^>]*>/)?.[0] ?? '';
+    expect(img.includes('alt=""')).toBe(true);
+    // React 19 emite o atributo em camelCase; no HTML a caixa não importa.
+    expect(img.toLowerCase().includes('fetchpriority="high"')).toBe(true);
+  });
+
+  it('pendura o banner numa figure com alt descritivo e carga preguiçosa', () => {
+    const figure = html.match(/<figure[\s\S]*<\/figure>/)?.[0] ?? '';
+    const img = figure.match(/<img[^>]*banner\.jpg[^>]*>/)?.[0] ?? '';
+    const alt =
+      'alt="Banner do clã No Law com o emblema dos dois dragões e o slogan “Uma nova face, uma nova história.”"';
+    expect(img.includes(alt)).toBe(true);
+    expect(img.includes('loading="lazy"')).toBe(true);
+  });
+
+  it('legenda o banner como acervo do clã', () => {
+    expect(/<figcaption[^>]*>Do acervo do clã · o banner<\/figcaption>/.test(html)).toBe(true);
+  });
+
+  it('põe o traço de pincel sob o título', () => {
+    expect(html.includes('viewBox="0 0 300 10"')).toBe(true);
+  });
+
   it('não mostra nada do status técnico nem chama a API', () => {
     expect(html).not.toContain('api-commit');
     expect(html).not.toContain('api-unavailable');
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  describe('pétalas (D-20)', () => {
+    const petals = renderToStaticMarkup(<Petals />);
+
+    it('é um contêiner aria-hidden com exatamente 6 pétalas', () => {
+      expect(petals.startsWith('<div aria-hidden="true"')).toBe(true);
+      expect(petals.match(/<span/g)?.length).toBe(6);
+    });
+
+    it('esconde 3 das 6 pétalas no celular (hidden md:block)', () => {
+      const hidden = petals.match(/<span[^>]*class="[^"]*\bhidden md:block\b[^"]*"/g) ?? [];
+      expect(hidden.length).toBe(3);
+    });
+
+    it('fica dentro da seção hero da capa', () => {
+      const section = html.match(/<section[\s\S]*<\/section>/)?.[0] ?? '';
+      expect(section.includes(petals)).toBe(true);
+    });
   });
 });

@@ -1,0 +1,94 @@
+/*
+ * Pétalas da capa (D-20): só CSS, só `transform` e `opacity`. A camada cobre a seção, fica atrás do
+ * texto e não pega clique nem foco. A queda usa `cqh` (altura da própria camada) e nunca unidades de
+ * largura da janela, e o `overflow: clip` impede rolagem horizontal no celular (Pitfall 7).
+ */
+.camada {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  container-type: size;
+}
+
+.petala {
+  position: absolute;
+  top: -24px;
+  width: 11px;
+  height: 15px;
+  background: #ac020f;
+  border-radius: 0 80% 0 80%;
+  opacity: 0.9;
+  animation-name: cair;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (max-width: 767px) {
+  .petala {
+    width: 9px;
+    height: 13px;
+  }
+}
+
+/* Posição, duração e atraso (negativo, para já nascerem espalhadas) de cada pétala. */
+.petala:nth-child(1) {
+  left: 6%;
+  animation-duration: 14s;
+  animation-delay: -6s;
+}
+
+.petala:nth-child(2) {
+  left: 52%;
+  animation-duration: 12s;
+  animation-delay: -2s;
+}
+
+.petala:nth-child(3) {
+  left: 63%;
+  width: 9px;
+  height: 12px;
+  animation-duration: 15s;
+  animation-delay: -8s;
+}
+
+.petala:nth-child(4) {
+  left: 74%;
+  animation-duration: 11s;
+  animation-delay: -5s;
+}
+
+.petala:nth-child(5) {
+  left: 86%;
+  animation-duration: 14s;
+  animation-delay: -10s;
+}
+
+.petala:nth-child(6) {
+  left: 95%;
+  animation-duration: 13s;
+  animation-delay: -1s;
+}
+
+@keyframes cair {
+  0% {
+    transform: translate(0, -20px) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(28px, 50cqh) rotate(180deg);
+  }
+
+  100% {
+    transform: translate(-12px, calc(100cqh + 24px)) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Movimento reduzido (D-20): as pétalas somem. */
+@media (prefers-reduced-motion: reduce) {
+  .petala {
+    display: none;
+  }
+}
