@@ -66,10 +66,10 @@ function readFile(relativePath) {
   return fs.readFileSync(full);
 }
 
-function withTempDir(fn) {
+async function withTempDir(fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'brand-icons-'));
   try {
-    return fn(dir);
+    return await fn(dir);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
