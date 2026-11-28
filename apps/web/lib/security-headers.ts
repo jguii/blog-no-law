@@ -34,3 +34,9 @@ export function securityHeaders(options: SecurityHeaderOptions = {}): HeaderRule
     })),
   ];
 }
+
+// Esqueleto do RED (02-08, Task 3): a CSP real entra no commit GREEN.
+export function buildCsp(options: SecurityHeaderOptions): string {
+  void options;
+  return '';
+}
