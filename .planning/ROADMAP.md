@@ -93,12 +93,12 @@ Plans:
   3. Visitante lê as páginas Sobre o clã, Regras e Política de Privacidade com layout que se adapta a celular e desktop, sem rolagem horizontal.
   4. Uma página de referência do kit mostra os componentes base (Tailwind + shadcn/ui) com os tokens do clã: cores, tipografia e espaçamento. Os dois temas atingem contraste WCAG AA.
   5. Os testes da fase passam na CI: componentes no Vitest e E2E no Playwright com axe nos dois temas e em viewport de celular. O shell com a nova identidade está no ar.
-**Plans**: 14 plans
+**Plans**: 2/14 plans executed
 
 Plans:
 **Wave 1**
-- [ ] 02-01-PLAN.md — Tracer: tema escuro padrão sem flash e o botão dos dragões que alterna e grava o tema (pacotes D-23, Tailwind, Vitest)
-- [ ] 02-02-PLAN.md — Textos de Sobre, Regras e Privacidade como conteúdo testado, com o checkpoint das regras do Discord (D-13)
+- [x] 02-01-PLAN.md — Tracer: tema escuro padrão sem flash e o botão dos dragões que alterna e grava o tema (pacotes D-23, Tailwind, Vitest)
+- [x] 02-02-PLAN.md — Textos de Sobre, Regras e Privacidade como conteúdo testado, com o checkpoint das regras do Discord (D-13)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 02-03-PLAN.md — Kit base (Button, Card, cn, components.json) e a 404 com a identidade
@@ -240,7 +240,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Esqueleto no ar com testes e CI | 14/14 | Complete    | 2026-11-26 |
-| 2. Identidade visual No Law | 0/9 | Not started | - |
+| 2. Identidade visual No Law | 2/14 | In Progress | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |
 | 5. Imagens e YouTube nos posts | 0/TBD | Not started | - |
