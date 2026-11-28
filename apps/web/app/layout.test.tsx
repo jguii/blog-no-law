@@ -1,8 +1,14 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { SITE, siteMetadata, siteViewport } from '@/lib/site';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
 import RootLayout from './layout';
+
+// O loader do next/font só funciona dentro do build do Next: no teste entram objetos fictícios.
+vi.mock('@/lib/fonts', () => ({
+  body: { variable: 'fonte-corpo', className: 'fonte-corpo-cls' },
+  title: { variable: 'fonte-titulo', className: 'fonte-titulo-cls' },
+}));
 
 // O layout é chamado como função e o elemento resultante vai para o renderToStaticMarkup:
 // nenhum navegador, nenhum servidor Next (mesmo padrão do test/home.int-spec.ts).
@@ -32,6 +38,11 @@ describe('RootLayout: casca do clã', () => {
   it('abre o <html> em pt-BR com o tema escuro e o script anti-flash no <head>', () => {
     expect(html.startsWith('<html lang="pt-BR" data-theme="dark"')).toBe(true);
     expect(html).toContain(`<script>${THEME_INIT_SCRIPT}</script>`);
+  });
+
+  it('põe as classes de variável das fontes no <html>, depois de lang e data-theme', () => {
+    const open = html.slice(0, html.indexOf('>') + 1);
+    expect(open).toBe('<html lang="pt-BR" data-theme="dark" class="fonte-corpo fonte-titulo">');
   });
 
   it('tem o link "Pular para o conteúdo" como primeiro link do <body>', () => {
