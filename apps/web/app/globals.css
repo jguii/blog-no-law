@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+/* Variantes por atributo: o tema vem de data-theme no <html>, não de prefers-color-scheme (D-15). */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@custom-variant light (&:where([data-theme=light], [data-theme=light] *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+}
+
+/* Claro "pergaminho". Os outros tokens (card, primário, ring...) entram no plano 02-10. */
+:root {
+  color-scheme: light;
+  --background: #ecdcc4;
+  --foreground: #1a1210;
+  --border: #8a6a4a;
+}
+
+/* Escuro "tinta": o padrão servido pelo servidor. */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #000000;
+  --foreground: #d3aa82;
+  --border: #a8845f;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
