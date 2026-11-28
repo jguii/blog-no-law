@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { DragonMark } from '@/components/dragon-mark';
+import { MobileMenu } from '@/components/mobile-menu';
 import { NavLinks } from '@/components/nav-links';
 import { BrushStroke } from '@/components/ornaments/brush-stroke';
 import { Cloud } from '@/components/ornaments/cloud';
@@ -41,6 +42,7 @@ export function SiteHeader() {
               <NavLinks variant="pill" />
             </nav>
             <ThemeToggle />
+            <MobileMenu />
           </div>
         </div>
       </div>
