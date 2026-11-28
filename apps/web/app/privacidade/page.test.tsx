@@ -18,7 +18,7 @@ describe('página Política de Privacidade', () => {
 
   it('lista três itens do que o site guarda numa ul', () => {
     expect(html.match(/<ul/g)?.length).toBe(1);
-    expect(html.match(/<li/g)?.length).toBe(3);
+    expect(html.match(/<li[ >]/g)?.length).toBe(3);
   });
 
   it('termina com o fecho que manda falar com um admin do clã', () => {

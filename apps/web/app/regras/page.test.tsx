@@ -62,7 +62,7 @@ describe('página Regras com conteúdo simulado', () => {
     expect(html).toMatch(/<h2[^>]*>Grupo A<\/h2>/);
     expect(html).toMatch(/<h2[^>]*>Grupo B<\/h2>/);
     expect(html.match(/<ol/g)?.length).toBe(2);
-    expect(html.match(/<li/g)?.length).toBe(4);
+    expect(html.match(/<li[ >]/g)?.length).toBe(4);
     expect(html.match(/<h1/g)?.length).toBe(1);
   });
 
