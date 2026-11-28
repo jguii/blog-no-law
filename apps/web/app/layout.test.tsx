@@ -79,6 +79,25 @@ describe('RootLayout: header com a marca', () => {
   });
 });
 
+describe('RootLayout: ornamentos do header', () => {
+  const header = section(renderLayout(), 'header');
+
+  it('tem o traço de pincel de 4px logo abaixo da faixa', () => {
+    expect(header.includes('viewBox="0 0 1200 12"')).toBe(true);
+    expect(header.includes('stroke-width="4"')).toBe(true);
+  });
+
+  it('tem uma nuvem decorativa que só aparece a partir de 1024px', () => {
+    expect(header.includes('viewBox="0 0 120 60"')).toBe(true);
+    expect(header.includes('hidden lg:block')).toBe(true);
+  });
+
+  it('não usa estilo inline nem largura da janela inteira', () => {
+    expect(header.includes('style=')).toBe(false);
+    expect(header.includes('w-screen')).toBe(false);
+  });
+});
+
 describe('RootLayout: rodapé do clã', () => {
   const footer = section(renderLayout(), 'footer');
 
@@ -119,5 +138,29 @@ describe('metadados do site', () => {
   it('guarda o ano de fundação e o slogan do clã', () => {
     expect(SITE.foundedYear).toBe(2017);
     expect(SITE.slogan).toBe('Uma nova face, uma nova história.');
+  });
+});
+
+describe('RootLayout: ornamentos do rodapé', () => {
+  const footer = section(renderLayout(), 'footer');
+
+  it('tem o traço de pincel de 5px acima da faixa', () => {
+    expect(footer.includes('viewBox="0 0 1200 12"')).toBe(true);
+    expect(footer.includes('stroke-width="5"')).toBe(true);
+  });
+
+  it('tem o selo hanko NO / LAW', () => {
+    expect(footer.includes('>NO<')).toBe(true);
+    expect(footer.includes('>LAW<')).toBe(true);
+  });
+
+  it('tem um par de nuvens nos cantos, só a partir de 640px', () => {
+    expect((footer.match(/viewBox="0 0 120 60"/g) ?? []).length).toBe(2);
+    expect((footer.match(/hidden sm:block/g) ?? []).length).toBe(2);
+  });
+
+  it('corta o excesso horizontal e não usa estilo inline', () => {
+    expect(footer.includes('overflow-x-clip')).toBe(true);
+    expect(footer.includes('style=')).toBe(false);
   });
 });
