@@ -53,6 +53,13 @@ function readFile(relativePath) {
   return fs.readFileSync(full);
 }
 
+// Arquivo escrito pelo gerador no diretório temporário; falha na asserção se não foi escrito.
+function readOutput(dir, relativePath) {
+  const full = path.join(dir, relativePath);
+  assert.ok(fs.existsSync(full), `o gerador precisa escrever ${relativePath}`);
+  return fs.readFileSync(full);
+}
+
 async function withTempDir(fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'brand-images-'));
   try {
@@ -105,4 +112,56 @@ test('o leitor de cabeçalho do PNG devolve dimensões e tipo de cor', async () 
   const base = { create: { width: 40, height: 24, channels: 4, background: '#ac020f' } };
   const png = await sharp(base).png().toBuffer();
   assert.deepEqual(readPngHeader(png), { width: 40, height: 24, colorType: 6 });
+});
+
+test('gerador: escreve o emblema 600x600 com 4 canais e o banner 1500x500, sem EXIF', async () => {
+  const sharp = loadSharp();
+  await withTempDir(async (tmp) => {
+    const result = runGenerator(tmp);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+
+    const emblema = readOutput(tmp, 'public/brand/emblema.png');
+    const emblemaMeta = await sharp(emblema).metadata();
+    assert.equal(emblemaMeta.format, 'png');
+    assert.deepEqual([emblemaMeta.width, emblemaMeta.height], [600, 600]);
+    assert.equal(emblemaMeta.channels, 4, 'o emblema precisa de canal alfa');
+    assert.equal(emblemaMeta.exif, undefined, 'o emblema não pode carregar EXIF');
+
+    const banner = readOutput(tmp, 'public/brand/banner.jpg');
+    const bannerMeta = await sharp(banner).metadata();
+    assert.equal(bannerMeta.format, 'jpeg');
+    assert.deepEqual([bannerMeta.width, bannerMeta.height], [1500, 500]);
+    assert.equal(bannerMeta.exif, undefined, 'o banner não pode carregar EXIF');
+  });
+});
+
+test('gerador: o emblema é um círculo opaco sobre transparência (cantos sem pixel)', async () => {
+  const sharp = loadSharp();
+  await withTempDir(async (tmp) => {
+    const result = runGenerator(tmp);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+
+    const { data, info } = await sharp(readOutput(tmp, 'public/brand/emblema.png'))
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const alpha = (x, y) => data[(y * info.width + x) * info.channels + 3];
+    for (const [x, y] of [
+      [0, 0],
+      [599, 0],
+      [0, 599],
+      [599, 599],
+    ]) {
+      assert.equal(alpha(x, y), 0, `canto ${x},${y} é transparente`);
+    }
+    assert.equal(alpha(300, 300), 255, 'o centro é opaco');
+    assert.equal(alpha(300, 5), 255, 'a borda de cima do círculo é opaca');
+    assert.equal(alpha(5, 300), 255, 'a borda da esquerda do círculo é opaca');
+  });
+});
+
+test('arquivos versionados: o emblema é PNG 600x600 com alfa e o banner é JPEG 1500x500', () => {
+  const emblema = readPngHeader(readFile('apps/web/public/brand/emblema.png'));
+  assert.deepEqual(emblema, { width: 600, height: 600, colorType: 6 });
+  const banner = readJpegSize(readFile('apps/web/public/brand/banner.jpg'));
+  assert.deepEqual(banner, { width: 1500, height: 500 });
 });
