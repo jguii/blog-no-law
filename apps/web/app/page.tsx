@@ -1,59 +1,34 @@
 import Link from 'next/link';
-import { getStatus } from '../lib/api';
+import { buttonVariants } from '@/components/ui/button';
+import { SITE } from '@/lib/site';
+import { cn } from '@/lib/utils';
 
-// A home é montada a cada requisição: o status da API muda o tempo todo.
-export const dynamic = 'force-dynamic';
+// Capa do clã (D-06): estática, sem chamar a API (por isso abre mesmo com a API fora do ar).
+// O 02-14 acrescenta emblema, banner, pétalas e o traço de pincel sem mudar este conteúdo.
+const CTA_LARGURA = 'max-[480px]:w-full';
 
-interface HomeProps {
-  searchParams: Promise<{ detail?: string | string[] }>;
-}
-
-export default async function Home({ searchParams }: HomeProps) {
-  const params = await searchParams;
-  const detail = params.detail === 'full' ? 'full' : 'basic';
-  const result = await getStatus(detail);
-
-  if (!result.ok) {
-    return (
-      <div>
-        <h1>Blog No Law</h1>
-        <p role="status" data-testid="api-unavailable">
-          API indisponível no momento
-        </p>
-      </div>
-    );
-  }
-
-  const { service, version, commit, db, time, dbLatencyMs } = result.data;
-
+export default function Home() {
   return (
-    <div>
-      <h1>Blog No Law</h1>
-      <dl>
-        <dt>Serviço</dt>
-        <dd>{service}</dd>
-        <dt>Versão</dt>
-        <dd>{version}</dd>
-        <dt>Commit</dt>
-        <dd>
-          <code data-testid="api-commit">{commit}</code>
-        </dd>
-        <dt>Banco</dt>
-        <dd data-testid="api-db">{db}</dd>
-        <dt>Horário</dt>
-        <dd data-testid="api-time">{time}</dd>
-        {dbLatencyMs !== undefined && (
-          <>
-            <dt>Latência do banco</dt>
-            <dd data-testid="api-db-latency">{dbLatencyMs} ms</dd>
-          </>
-        )}
-      </dl>
-      {detail === 'full' ? (
-        <Link href="/">Ocultar detalhes</Link>
-      ) : (
-        <Link href="/?detail=full">Ver detalhes</Link>
-      )}
-    </div>
+    <section aria-labelledby="titulo-capa" className="flex flex-col items-start gap-6">
+      <p className="text-label text-link tracking-[3px] uppercase">
+        {`Clã do SA-MP · desde ${SITE.foundedYear}`}
+      </p>
+      <h1 id="titulo-capa" className="text-display text-balance">
+        {SITE.slogan}
+      </h1>
+      <p className="text-body max-w-prose">
+        Somos o No Law, um clã nascido no GTA San Andreas Multiplayer em 2017, de uma amizade de
+        mais de 10 anos. Este é o nosso canto para guardar as histórias, as fotos e os vídeos do
+        grupo.
+      </p>
+      <div className="flex w-full flex-wrap gap-4 max-[480px]:flex-col">
+        <Link href="/sobre" className={cn(buttonVariants({ variant: 'primary' }), CTA_LARGURA)}>
+          Conheça o clã
+        </Link>
+        <Link href="/regras" className={cn(buttonVariants({ variant: 'secondary' }), CTA_LARGURA)}>
+          Leia as regras
+        </Link>
+      </div>
+    </section>
   );
 }

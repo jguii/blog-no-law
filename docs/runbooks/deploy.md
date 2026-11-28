@@ -4,15 +4,15 @@ Este repositório é público (D-07). Este documento cita segredos e variáveis 
 
 ## Resumo
 
-| Item                   | Valor                                                                                                                |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Web (produção)         | `https://blog-no-law.vercel.app`, projeto Vercel com Root Directory `apps/web`, Production Branch `main`             |
-| API (produção)         | `https://blog-no-law-api.onrender.com`, serviço `blog-no-law-api` na Render Free (ver `render.md`)                   |
-| Banco                  | Supabase `us-east-1`, pooler em modo session (ver `supabase-producao.md`)                                            |
-| Colocação (D-04)       | Funções da Vercel em `iad1` (`apps/web/vercel.json`), Render em Virginia, Supabase em `us-east-1`                    |
-| Gatilho (D-10)         | Merge na `main` com CI verde: a Vercel publica o web e o workflow `Deploy API` publica a API                         |
-| Imagem da API          | `ghcr.io/jguii/blog-no-law-api:{sha}`, pública, `linux/amd64`; o `{sha}` é o commit cujo conteúdo está nela          |
-| Prova de ponta a ponta | 2026-11-21: a home na Vercel mostra `api-commit` = SHA da `main` e `api-db` = `up`, com `x-vercel-id` citando `iad1` |
+| Item                   | Valor                                                                                                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Web (produção)         | `https://blog-no-law.vercel.app`, projeto Vercel com Root Directory `apps/web`, Production Branch `main`                                                                                               |
+| API (produção)         | `https://blog-no-law-api.onrender.com`, serviço `blog-no-law-api` na Render Free (ver `render.md`)                                                                                                     |
+| Banco                  | Supabase `us-east-1`, pooler em modo session (ver `supabase-producao.md`)                                                                                                                              |
+| Colocação (D-04)       | Funções da Vercel em `iad1` (`apps/web/vercel.json`), Render em Virginia, Supabase em `us-east-1`                                                                                                      |
+| Gatilho (D-10)         | Merge na `main` com CI verde: a Vercel publica o web e o workflow `Deploy API` publica a API                                                                                                           |
+| Imagem da API          | `ghcr.io/jguii/blog-no-law-api:{sha}`, pública, `linux/amd64`; o `{sha}` é o commit cujo conteúdo está nela                                                                                            |
+| Prova de ponta a ponta | 2026-11-21: a home na Vercel mostrava `api-commit` = SHA da `main` e `api-db` = `up`, com `x-vercel-id` citando `iad1`. Desde a Fase 2 a prova é conferida em `/status` (a home virou a capa estática) |
 
 ## Fluxo completo
 
@@ -107,7 +107,7 @@ Salvar variáveis de ambiente na Render com **Save and deploy** (ou qualquer dep
 - ou disparar o hook com o `imgURL` da versão que deve estar no ar;
 - ou atualizar a Image URL nas Settings da Render para a tag atual antes de salvar.
 
-Confira sempre com `wait-for-commit.sh` ou pela home (`api-commit`).
+Confira sempre com `wait-for-commit.sh` ou pelo `/status` do web (`api-commit`).
 
 ### Rollback do web na Vercel
 
@@ -123,7 +123,7 @@ Só os nomes (D-07). Valores nunca passam por chat, log, issue ou repositório.
 | `RENDER_DEPLOY_HOOK_URL`                                 | secret     | GitHub Environment `production` e painel da Render                   | Job `deploy`                                              |
 | `API_BASE_URL`                                           | variável   | GitHub Environment `production`                                      | Job `verify` e verificações locais                        |
 | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`               | variáveis  | GitHub Environment `production` e env file local                     | Smoke anônimo do PostgREST (valores públicos por desenho) |
-| `WEB_BASE_URL`                                           | variável   | GitHub Environment `production`                                      | Verificação da home de produção                           |
+| `WEB_BASE_URL`                                           | variável   | GitHub Environment `production`                                      | Verificação do /status de produção                        |
 | `GITHUB_TOKEN`                                           | automático | Gerado pelo Actions em cada run                                      | Push da imagem no GHCR (`packages: write`)                |
 | `DATABASE_URL`, `CORS_ORIGINS`, `SENTRY_DSN` e as demais | variáveis  | Painel da Render (lista completa em `render.md`)                     | Runtime da API                                            |
 | `API_URL`                                                | variável   | Vercel, Production e Preview                                         | Endereço da API para o Next                               |
@@ -148,8 +148,8 @@ Depois, `gh run rerun {run-id} --failed --repo jguii/blog-no-law`. A tentativa 3
 ## Checagem de produção
 
 ```bash
-curl -fsS -D - -o /tmp/home.html https://blog-no-law.vercel.app/ | grep -i '^x-vercel-id'
-grep -oE 'data-testid="api-(commit|db)"[^>]*>[^<]*<' /tmp/home.html
+curl -fsS -D - -o /tmp/status.html https://blog-no-law.vercel.app/status | grep -i '^x-vercel-id'
+grep -oE 'data-testid="api-(commit|db)"[^>]*>[^<]*<' /tmp/status.html
 ```
 
-Esperado: `x-vercel-id` com `iad1` (por exemplo `gru1::iad1::...`: borda em São Paulo, função em `iad1`), `api-commit` igual ao SHA de `origin/main` e `api-db` igual a `up`. O primeiro acesso pode esperar o cold start da Render (cerca de 1 minuto).
+Esperado: `x-vercel-id` com `iad1` (por exemplo `gru1::iad1::...`: borda em São Paulo, função em `iad1`), `api-commit` igual ao SHA de `origin/main` e `api-db` igual a `up`. A `/` agora é a capa estática, servida pela borda, então o `x-vercel-id` com `iad1` se confere no `/status`, que roda na função. O primeiro acesso pode esperar o cold start da Render (cerca de 1 minuto).
