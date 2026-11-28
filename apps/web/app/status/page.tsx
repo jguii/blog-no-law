@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getStatus } from '../lib/api';
+import { getStatus } from '@/lib/api';
 
 // A home é montada a cada requisição: o status da API muda o tempo todo.
 export const dynamic = 'force-dynamic';
