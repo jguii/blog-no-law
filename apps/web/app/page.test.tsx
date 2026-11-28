@@ -46,6 +46,29 @@ describe('capa do clã em /', () => {
     }
   });
 
+  it('mostra o emblema decorativo com prioridade alta', () => {
+    const img = html.match(/<img[^>]*emblema\.png[^>]*>/)?.[0] ?? '';
+    expect(img.includes('alt=""')).toBe(true);
+    expect(img.includes('fetchpriority="high"')).toBe(true);
+  });
+
+  it('pendura o banner numa figure com alt descritivo e carga preguiçosa', () => {
+    const figure = html.match(/<figure[\s\S]*<\/figure>/)?.[0] ?? '';
+    const img = figure.match(/<img[^>]*banner\.jpg[^>]*>/)?.[0] ?? '';
+    const alt =
+      'alt="Banner do clã No Law com o emblema dos dois dragões e o slogan “Uma nova face, uma nova história.”"';
+    expect(img.includes(alt)).toBe(true);
+    expect(img.includes('loading="lazy"')).toBe(true);
+  });
+
+  it('legenda o banner como acervo do clã', () => {
+    expect(/<figcaption[^>]*>Do acervo do clã · o banner<\/figcaption>/.test(html)).toBe(true);
+  });
+
+  it('põe o traço de pincel sob o título', () => {
+    expect(html.includes('viewBox="0 0 300 10"')).toBe(true);
+  });
+
   it('não mostra nada do status técnico nem chama a API', () => {
     expect(html).not.toContain('api-commit');
     expect(html).not.toContain('api-unavailable');
