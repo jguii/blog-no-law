@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// E2E dos cenários @e2e de docs/bdd/home.feature.md. Roda só na CI (D-09); o pre-push não usa Playwright.
+// E2E dos cenários @e2e de docs/bdd/*.feature.md. Roda só na CI (D-09); o pre-push não usa Playwright.
+// Dois projetos: `chromium` (desktop) e `mobile` (Pixel 7, que também usa o Chromium da CI). O movimento
+// reduzido vale para todos, para o axe não medir contraste no meio de uma transição de cores.
 // Pré-requisitos (a CI faz tudo isso antes de chamar `playwright test`):
 //   1. `pnpm turbo run build --filter=@blog/web --filter=@blog/api` (dist da API e .next do web);
 //   2. um Postgres de teste com o banco `blog_e2e` migrado (`TEST_DB_NAME=blog_e2e node apps/api/scripts/prepare-test-db.mjs`).
@@ -26,8 +28,12 @@ export default defineConfig({
   use: {
     baseURL: `http://${HOST}:${WEB_PORT}`,
     trace: 'retain-on-failure',
+    reducedMotion: 'reduce',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+  ],
   webServer: [
     {
       // API compilada, carregada como em produção (`--import ./dist/instrument.js`).

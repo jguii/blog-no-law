@@ -1,17 +1,17 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 2
+current_phase: 02
 current_phase_name: Identidade visual No Law
-status: planning
-stopped_at: Phase 01 complete, ready to plan Phase 2
-last_updated: "2026-11-27T02:35:36.145Z"
-last_activity: 2026-11-26
-last_activity_desc: Phase 01 complete, transitioned to Phase 2
-state_head: 6986a55a5ae1b2bab93e4f214acd2df9a7074910
+status: executing
+stopped_at: Phase 2 UI-SPEC approved
+last_updated: "2026-11-28T01:34:08.797Z"
+last_activity: 2026-11-27
+last_activity_desc: Phase 02 execution started
+state_head: 27d761110c052feb5931e55a535d0700781eaec7
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 14
+  total_plans: 28
   completed_plans: 14
   percent: 13
 ---
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-11-26)
 
 **Core value:** Membros do clã conseguem publicar e reencontrar a história do grupo — posts com imagens/vídeos, organizados por ano e categoria, navegáveis por qualquer pessoa.
-**Current focus:** Phase 2 — Identidade visual No Law
+**Current focus:** Phase 02 — Identidade visual No Law
 
 ## Current Position
 
-Phase: 2 — Identidade visual No Law
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-11-26 — Phase 01 complete, transitioned to Phase 2
+Phase: 02 (Identidade visual No Law) — EXECUTING
+Plan: 1 of 14
+Status: Executing Phase 02
+Last activity: 2026-11-27 — Phase 02 execution started
 
 Progress: [█░░░░░░░░░] 13%
 
@@ -70,14 +70,15 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- Texto definitivo do Sobre o clã, escrito pelo autor (D-12, backlog).
 
 ### Blockers/Concerns
 
 - [Fase 5] `sharp` num container de ~512 MB pode estourar memória.
 - [Fase 5] Definir a política para GIFs animados: recusar, usar o primeiro quadro ou converter para WebP animado com limite.
 - [Fase 7] Qualquer usuário Discord pode comentar, mas ban/mute e denúncia estão em "Ideias futuras". Mitigação: rate limit e remoção por moderador. Reavaliar antes de divulgar o blog.
-- [Fase 2] A home atual é só a página de status, sem CSS: copy técnico ("Banco up", horário ISO), sem retry no "API indisponível" e sem CSP no web (ver 01-UI-REVIEW.md, 13/24). A Fase 2 reconstrói a home.
+- [Fase 2] RESOLVIDO (02-09): a home era só a página de status, sem CSS e sem CSP (01-UI-REVIEW.md, 13/24). A Fase 2 reconstruiu a home como capa estática, moveu o status para `/status` e pôs a CSP v1 no web.
+- [Fase 4] A CSP v1 do web usa `'unsafe-inline'` em `script-src` (sem nonce); migrar para nonce por `proxy.ts` quando houver conteúdo de usuário (02-RESEARCH, Open Question 5). Em produção, conferir que o `.ts` importado pelo `next.config.ts` carrega na Vercel e que as rotas continuam estáticas.
 - [Backlog 999.1] Backup sem retry em 5xx da API do GitHub (falhou em 2026-11-25).
 - [Fases 3, 4, 5, 6] Há spikes indicados pela pesquisa; ver "Notas transversais" no ROADMAP.md.
 
@@ -91,6 +92,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-27T02:36:18.563Z
-Stopped at: Phase 01 complete, ready to plan Phase 2
-Resume file: None
+Last session: 2026-11-27T05:06:44.329Z
+Stopped at: Phase 2 UI-SPEC approved
+Resume file: .planning/phases/02-identidade-visual-no-law/02-UI-SPEC.md

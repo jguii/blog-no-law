@@ -4,7 +4,7 @@
 
 **Blog No Law**
 
-Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA-MP) há mais de 10 anos, cuja amizade foi além do jogo. É um espaço público para ler, onde os membros do clã compartilham qualquer coisa de interesse do grupo (SA-MP, outros jogos, memes, vida) e onde fica guardado o acervo de imagens e vídeos que fazem parte da história do clã. Membros postam, a comunidade comenta e reage.
+Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA-MP) em 2017, de uma amizade de mais de 10 anos que foi além do jogo. É um espaço público para ler, onde os membros do clã compartilham qualquer coisa de interesse do grupo (SA-MP, outros jogos, memes, vida) e onde fica guardado o acervo de imagens e vídeos que fazem parte da história do clã. Membros postam, a comunidade comenta e reage.
 
 **Core Value:** Membros do clã conseguem publicar e reencontrar a história do grupo — posts com imagens/vídeos, organizados por ano e categoria, navegáveis por qualquer pessoa.
 
@@ -337,7 +337,7 @@ Architecture not yet mapped. Follow existing patterns found in the codebase.
 
 ## Project Skills
 
-No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, `.github/skills/`, or `.codex/skills/` with a `SKILL.md` index file.
+- **Sketch findings for Blog No Law** (design decisions, CSS patterns, visual direction) → `Skill("sketch-findings-blog-no-law")`. Local skill (not in Git); the committed record is `.planning/sketches/WRAP-UP-SUMMARY.md`.
 <!-- GSD:skills-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->

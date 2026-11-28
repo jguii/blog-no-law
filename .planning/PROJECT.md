@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA-MP) há mais de 10 anos, cuja amizade foi além do jogo. É um espaço público para ler, onde os membros do clã compartilham qualquer coisa de interesse do grupo (SA-MP, outros jogos, memes, vida) e onde fica guardado o acervo de imagens e vídeos que fazem parte da história do clã. Membros postam, a comunidade comenta e reage.
+Blog No Law é o blog do clã No Law, nascido no GTA San Andreas Multiplayer (SA-MP) em 2017, de uma amizade de mais de 10 anos que foi além do jogo. É um espaço público para ler, onde os membros do clã compartilham qualquer coisa de interesse do grupo (SA-MP, outros jogos, memes, vida) e onde fica guardado o acervo de imagens e vídeos que fazem parte da história do clã. Membros postam, a comunidade comenta e reage.
 
 ## Core Value
 
@@ -64,7 +64,7 @@ Membros do clã conseguem publicar e reencontrar a história do grupo — posts 
 
 ## Context
 
-- Clã com 15–50 pessoas ativas no blog; existe há 10+ anos, com várias saídas e retornos ao servidor SA-MP onde joga — por isso filtro por ano e eras fazem sentido.
+- Clã com 15–50 pessoas ativas no blog; existe desde 2017 (os membros se conhecem há mais de 10 anos), com várias saídas e retornos ao servidor SA-MP onde joga — por isso filtro por ano e eras fazem sentido.
 - O clã já tem servidor Discord com cargos (roles) estabelecidos.
 - O autor é desenvolvedor e quer um projeto "FODA" que consolide conhecimentos de ponta a ponta: frontend, backend, banco, segurança, infra e deploy. Valor educacional é um objetivo explícito — preferir fazer do jeito certo a fazer do jeito mais rápido.
 - Discord: o Supabase não guarda nem renova o token do Discord do usuário, então membresia e cargos são consultados por um bot somente-leitura (REST) no login e em ressincronizações; nomes/cores dos cargos vêm do mesmo bot.

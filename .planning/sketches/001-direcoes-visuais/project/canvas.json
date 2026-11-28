@@ -1,0 +1,48 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-27T12:00:00Z" },
+  "title": "No Law — Esboço 001: direções visuais",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1280, "h": 1400, "title": "A · Pergaminho — desktop", "expand": "fill", "is_interactive": true },
+    "Pergaminho-celular.dc.html": { "x": 1360, "y": 0, "w": 390, "h": 1500, "title": "A · Pergaminho — celular", "is_interactive": true, "radius": 28 },
+    "Tinta.dc.html": { "x": 0, "y": 2000, "w": 1280, "h": 1400, "title": "B · Tinta — desktop", "expand": "fill", "is_interactive": true },
+    "Tinta-celular.dc.html": { "x": 1360, "y": 2000, "w": 390, "h": 1500, "title": "B · Tinta — celular", "is_interactive": true, "radius": 28 },
+    "Arquivo.dc.html": { "x": 0, "y": 4000, "w": 1280, "h": 1400, "title": "C · Arquivo — desktop", "expand": "fill", "is_interactive": true },
+    "Arquivo-celular.dc.html": { "x": 1360, "y": 4000, "w": 390, "h": 1500, "title": "C · Arquivo — celular", "is_interactive": true, "radius": 28 },
+    "Sintese.dc.html": { "x": 0, "y": 6000, "w": 1280, "h": 1700, "title": "★ Síntese — desktop", "expand": "fill", "is_interactive": true },
+    "Sintese-celular.dc.html": { "x": 1360, "y": 6000, "w": 390, "h": 1700, "title": "★ Síntese — celular", "is_interactive": true, "radius": 28 }
+  },
+  "order": [
+    "Main.dc.html",
+    "Pergaminho-celular.dc.html",
+    "Tinta.dc.html",
+    "Tinta-celular.dc.html",
+    "Arquivo.dc.html",
+    "Arquivo-celular.dc.html",
+    "Sintese.dc.html",
+    "Sintese-celular.dc.html"
+  ],
+  "notes": {
+    "tituloA": { "x": 0, "y": -300, "text": "A · Pergaminho / sumi-e", "kind": "title1", "maxW": 1750 },
+    "tituloB": { "x": 0, "y": 1700, "text": "B · Tinta / sombrio", "kind": "title1", "maxW": 1750 },
+    "tituloC": { "x": 0, "y": 3700, "text": "C · Arquivo / memória", "kind": "title1", "maxW": 1750 },
+    "tituloSintese": { "x": 0, "y": 5700, "text": "★ Direção escolhida: Síntese (B + A + C)", "kind": "title1", "maxW": 1750 },
+    "origemSintese": {
+      "x": 1830,
+      "y": 6000,
+      "w": 380,
+      "text": "De onde veio cada parte\n\nB · Tinta: faixas pretas no header e no rodapé (nos dois temas), o gradiente vermelho como assinatura, o emblema grande com brilho na capa, o menu em pílulas e o botão com gradiente.\n\nA · Pergaminho: o traço de pincel vermelho, o banner pendurado como pergaminho abaixo da capa, o tema claro com textura de papel e a fonte de pincel (Yuji Boku) nos títulos.\n\nC · Arquivo: o selo vermelho (hanko) no rodapé e a legenda de acervo no banner.\n\nNos ajustes dá para trocar a fonte do título (Yuji Boku, Rampart One, Reggae One).",
+      "fill": "green"
+    },
+    "comoComparar": {
+      "x": 1830,
+      "y": 0,
+      "w": 380,
+      "text": "Como comparar\n\nCada prancheta funciona: use o menu (Início, Sobre o clã, Regras, Privacidade no rodapé) e o botão yin-yang para trocar o tema.\n\nTodas abrem no escuro \"tinta\" (o padrão, D-15).\n\nNos ajustes (Tweaks) de cada prancheta dá para trocar a fonte de título entre as candidatas da direção.\n\nPode misturar: \"o header da A com as cores da B\".\n\nO ícone dos dragões aqui é um recorte provisório do JPG; o esboço 002 decide o ícone de verdade.",
+      "fill": "orange"
+    }
+  },
+  "designSystems": []
+}

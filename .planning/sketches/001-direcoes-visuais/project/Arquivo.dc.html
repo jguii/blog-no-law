@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>No Law · Arquivo (desktop)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;family=Cinzel:wght@400;600;700&amp;family=Shippori+Mincho:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#ff6b75}a:hover{color:#d3aa82}
+.nl{--bg:#000000;--fg:#d3aa82;--muted:#bfa07f;--link:#ff6b75;--line:#a8845f;--frame:#140d0a;background-color:var(--bg);color:var(--fg);font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;transition:background-color .25s ease,color .25s ease}
+.nl.claro{--bg:#f6eddc;--fg:#1a1210;--muted:#5c4631;--link:#8a0210;--line:#8a6a4a;--frame:#ecdcc4}
+.titulo{font-family:var(--titulo);font-weight:600}
+.rotulo{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.regra-dupla{border-top:1px solid var(--line);border-bottom:1px solid var(--line);height:3px}
+.nav-btn{background:none;border:0;padding:10px 18px;min-height:44px;font:inherit;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--fg);cursor:pointer;transition:color .15s ease}
+.nav-btn:hover{color:var(--link)}
+.nav-btn.ativo{color:var(--link);text-decoration:underline;text-underline-offset:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;font:inherit;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;border-radius:0;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.btn-primario{background:#ac020f;color:#ffffff;border:1px solid #ac020f}
+.btn-primario:hover{background:#8a0210}
+.btn-secundario{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn-secundario:hover{border-color:var(--fg)}
+.tema-btn{width:44px;height:44px;border-radius:9999px;border:1px solid var(--line);background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .35s ease}
+.tema-btn:hover{transform:rotate(180deg)}
+.link-btn{background:none;border:0;padding:8px 4px;min-height:44px;font:inherit;color:var(--link);text-decoration:underline;cursor:pointer}
+.nav-btn:focus-visible,.btn:focus-visible,.tema-btn:focus-visible,.link-btn:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.petala{position:absolute;top:-24px;width:9px;height:13px;background:#ac020f;border-radius:0 80% 0 80%;opacity:.7;animation-name:cair;animation-timing-function:linear;animation-iteration-count:infinite}
+@keyframes cair{0%{transform:translate(0,-20px) rotate(0deg)}50%{transform:translate(24px,260px) rotate(180deg)}100%{transform:translate(-10px,560px) rotate(360deg);opacity:0}}
+@media (prefers-reduced-motion: reduce){.petala{display:none}.nl,.nl *{transition:none !important}.tema-btn:hover{transform:none}}
+</style>
+</helmet>
+<div class="{{temaClasse}}" style="--titulo: {{fonteTitulo}}; min-height: 1400px; display: flex; flex-direction: column;">
+
+  <header style="max-width: 1120px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 24px 32px 0;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+      <p class="rotulo" style="margin: 0;">Arquivo do clã</p>
+      <button class="nav-btn" onClick="{{irInicio}}" style="display: flex; align-items: center; gap: 14px; padding: 4px 8px; text-transform: none; letter-spacing: 0;">
+        <span aria-hidden="true" style="position: relative; display: block; width: 48px; height: 48px; border-radius: 9999px; overflow: hidden; box-shadow: 0 0 0 1px var(--line);">
+          <img src="/_blob/f139283af25d089ff67f1ebb1c32843d" alt="" style="position: absolute; width: 79px; height: 79px; left: -16px; top: -12px;">
+        </span>
+        <span class="titulo" style="font-size: 34px; letter-spacing: 4px; text-transform: uppercase;">No Law</span>
+      </button>
+      <button class="tema-btn" aria-label="{{rotuloTema}}" title="{{rotuloTema}}" onClick="{{alternarTema}}">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26">
+          <circle cx="12" cy="12" r="11" fill="#ac020f" stroke="#c8a04a" stroke-width="1"></circle>
+          <path d="M12 1 A11 11 0 0 0 12 23 A5.5 5.5 0 0 0 12 12 A5.5 5.5 0 0 1 12 1 Z" fill="#000000"></path>
+          <circle cx="12" cy="6.5" r="1.8" fill="#000000"></circle>
+          <circle cx="12" cy="17.5" r="1.8" fill="#ac020f"></circle>
+        </svg>
+      </button>
+    </div>
+    <div class="regra-dupla" style="margin-top: 18px;"></div>
+    <nav aria-label="Principal" style="display: flex; justify-content: center; gap: 8px; padding: 6px 0;">
+      <button class="{{navInicio}}" aria-current="{{atualInicio}}" onClick="{{irInicio}}">Início</button>
+      <button class="{{navSobre}}" aria-current="{{atualSobre}}" onClick="{{irSobre}}">Sobre o clã</button>
+      <button class="{{navRegras}}" aria-current="{{atualRegras}}" onClick="{{irRegras}}">Regras</button>
+    </nav>
+    <div style="border-top: 1px solid var(--line);"></div>
+  </header>
+
+  <main style="flex-grow: 1;">
+    <sc-if value="{{eInicio}}" hint-placeholder-val="{{ true }}">
+      <section aria-labelledby="capa-titulo-c" style="position: relative; overflow: hidden; padding: 64px 32px 24px;">
+        <div aria-hidden="true" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none;">
+          <span class="petala" style="left: 8%; animation-duration: 14s; animation-delay: -3s;"></span>
+          <span class="petala" style="left: 47%; animation-duration: 16s; animation-delay: -9s;"></span>
+          <span class="petala" style="left: 90%; animation-duration: 13s; animation-delay: -6s;"></span>
+        </div>
+        <div style="position: relative; max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center;">
+          <p class="rotulo" style="margin: 0;">Desde 2017 · San Andreas Multiplayer</p>
+          <h1 id="capa-titulo-c" class="titulo" style="margin: 0; font-size: 56px; line-height: 1.15; max-width: 18ch;">Uma nova face, uma nova história.</h1>
+          <p style="margin: 0; font-size: 19px; line-height: 1.65; color: var(--muted); max-width: 58ch;">Somos o No Law, um clã nascido no GTA San Andreas Multiplayer em 2017, de uma amizade de mais de 10 anos. Este é o nosso canto para guardar as histórias, as fotos e os vídeos do grupo.</p>
+          <div style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;">
+            <button class="btn btn-primario" onClick="{{irSobre}}">Conheça o clã</button>
+            <button class="btn btn-secundario" onClick="{{irRegras}}">Leia as regras</button>
+          </div>
+        </div>
+
+        <div style="position: relative; max-width: 1120px; margin: 56px auto 0; display: flex; gap: 48px; align-items: flex-start; flex-wrap: wrap;">
+          <figure style="flex: 999 1 520px; min-width: 0; margin: 0; padding: 14px 14px 10px; background: var(--frame); border: 1px solid var(--line);">
+            <img src="/_blob/7f59ef2514e8e38289f427882215ab3c" alt="Banner do No Law: emblema dos dragões sobre pergaminho, com o slogan do clã." style="display: block; width: 100%; aspect-ratio: 3 / 1; object-fit: cover;">
+            <figcaption style="display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: 14px; color: var(--muted);">
+              <span>Banner do clã</span>
+              <span>Acervo · peça nº 001</span>
+            </figcaption>
+          </figure>
+          <section aria-labelledby="linha-tempo" style="flex: 1 1 280px; min-width: 0;">
+            <h2 id="linha-tempo" class="rotulo" style="margin: 0 0 16px;">Linha do tempo</h2>
+            <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;">
+              <li style="display: flex; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line);">
+                <span class="titulo" style="font-size: 20px; min-width: 64px; color: var(--link);">2017</span>
+                <span style="font-size: 17px; line-height: 1.5;">O No Law nasce no SA-MP.</span>
+              </li>
+              <li style="display: flex; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line);">
+                <span class="titulo" style="font-size: 20px; min-width: 64px; color: var(--link);">[ano]</span>
+                <span style="font-size: 17px; line-height: 1.5; color: var(--muted);">[um momento marcante do clã]</span>
+              </li>
+              <li style="display: flex; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+                <span class="titulo" style="font-size: 20px; min-width: 64px; color: var(--link);">Hoje</span>
+                <span style="font-size: 17px; line-height: 1.5;">O acervo do clã ganha uma casa.</span>
+              </li>
+            </ol>
+          </section>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{eSobre}}" hint-placeholder-val="{{ false }}">
+      <article aria-labelledby="sobre-titulo-c" style="max-width: 720px; margin: 56px auto; padding: 0 32px;">
+        <p class="rotulo" style="margin: 0 0 12px;">Documento · Sobre</p>
+        <h1 id="sobre-titulo-c" class="titulo" style="margin: 0 0 20px; font-size: 44px;">Sobre o clã</h1>
+        <div class="regra-dupla" style="margin-bottom: 28px;"></div>
+        <p style="margin: 0 0 18px; font-size: 19px; line-height: 1.75;">O No Law nasceu em 2017, no GTA San Andreas Multiplayer (SA-MP), de uma amizade que já vinha de antes do jogo.</p>
+        <p style="margin: 0 0 18px; font-size: 19px; line-height: 1.75;">Desde então a gente foi e voltou muitas vezes, mas o clã nunca deixou de existir.</p>
+        <p style="margin: 0; font-size: 19px; line-height: 1.75; color: var(--muted);">A história completa chega em breve.</p>
+      </article>
+    </sc-if>
+
+    <sc-if value="{{eRegras}}" hint-placeholder-val="{{ false }}">
+      <article aria-labelledby="regras-titulo-c" style="max-width: 720px; margin: 56px auto; padding: 0 32px;">
+        <p class="rotulo" style="margin: 0 0 12px;">Documento · Regras</p>
+        <h1 id="regras-titulo-c" class="titulo" style="margin: 0 0 20px; font-size: 44px;">Regras</h1>
+        <div class="regra-dupla" style="margin-bottom: 28px;"></div>
+        <p style="margin: 0 0 18px; font-size: 19px; line-height: 1.75;">As regras do clã estão vindo do nosso Discord e aparecem aqui em breve.</p>
+        <p style="margin: 0; font-size: 19px; line-height: 1.75; color: var(--muted);">Enquanto isso, vale o de sempre: respeito com todo mundo.</p>
+      </article>
+    </sc-if>
+
+    <sc-if value="{{ePrivacidade}}" hint-placeholder-val="{{ false }}">
+      <article aria-labelledby="priv-titulo-c" style="max-width: 720px; margin: 56px auto; padding: 0 32px;">
+        <p class="rotulo" style="margin: 0 0 12px;">Documento · Privacidade</p>
+        <h1 id="priv-titulo-c" class="titulo" style="margin: 0 0 20px; font-size: 40px;">Política de Privacidade</h1>
+        <div class="regra-dupla" style="margin-bottom: 28px;"></div>
+        <p style="margin: 0 0 18px; font-size: 18px; line-height: 1.75;">Este site é o espaço do clã No Law para guardar e mostrar a nossa história. Por enquanto ele não pede cadastro e não coleta dados pessoais de quem visita.</p>
+        <h2 class="titulo" style="margin: 32px 0 12px; font-size: 24px;">O que o site guarda</h2>
+        <ul style="margin: 0 0 18px; padding-left: 22px; font-size: 18px; line-height: 1.75;">
+          <li>A sua escolha de tema (claro ou escuro), salva no seu próprio navegador para a próxima visita.</li>
+          <li>Registros técnicos da hospedagem, como data, hora e endereço de acesso, usados para manter o site no ar e investigar problemas.</li>
+          <li>Avisos automáticos de erro, sem dados pessoais, para a gente corrigir o que quebrar.</li>
+        </ul>
+        <h2 class="titulo" style="margin: 32px 0 12px; font-size: 24px;">O que o site não faz</h2>
+        <p style="margin: 0 0 18px; font-size: 18px; line-height: 1.75;">Não vende, não compartilha e não usa os seus dados para propaganda.</p>
+        <p style="margin: 0; font-size: 18px; line-height: 1.75; color: var(--muted);">Quando o login com o Discord chegar, esta página explica o que muda. Dúvidas sobre os seus dados? Fale com um admin do clã.</p>
+      </article>
+    </sc-if>
+  </main>
+
+  <footer style="max-width: 1120px; width: 100%; box-sizing: border-box; margin: 48px auto 0; padding: 0 32px 32px;">
+    <div class="regra-dupla"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 16px;">
+      <nav aria-label="Rodapé" style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <button class="link-btn" onClick="{{irSobre}}">Sobre o clã</button>
+        <button class="link-btn" onClick="{{irRegras}}">Regras</button>
+        <button class="link-btn" onClick="{{irPrivacidade}}">Privacidade</button>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <svg aria-hidden="true" viewBox="0 0 120 60" width="72" height="36"><path d="M8 48 C8 36 20 30 30 34 C30 20 48 14 58 24 C64 10 88 10 92 26 C104 22 116 32 112 44 C116 46 116 52 110 52 L12 52 C6 52 4 50 8 48 Z" fill="none" stroke="#c8a04a" stroke-width="2"></path><path d="M40 40 c0 -6 8 -6 8 0 c0 3 -4 3 -4 1" fill="none" stroke="#c8a04a" stroke-width="2" stroke-linecap="round"></path><path d="M70 36 c0 -7 10 -7 10 0 c0 4 -5 4 -5 1" fill="none" stroke="#c8a04a" stroke-width="2" stroke-linecap="round"></path></svg>
+        <p class="titulo" style="margin: 0; font-size: 18px; letter-spacing: 2px; text-transform: uppercase;">No Law · desde 2017</p>
+        <span aria-hidden="true" class="titulo" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #ac020f; color: #ffffff; font-size: 12px; line-height: 1.05; text-align: center; letter-spacing: 1px;">NO<br>LAW</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"temaInicial":{"editor":"enum","options":["escuro","claro"],"default":"escuro","section":"Direção"},"fonteTitulo":{"editor":"enum","options":["Cinzel","Shippori Mincho"],"default":"Cinzel","section":"Direção"},"$preview":{"width":1280,"height":1400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pagina: 'inicio', tema: null };
+  }
+  renderVals() {
+    const tema = this.state.tema || this.props.temaInicial || 'escuro';
+    const escuro = tema === 'escuro';
+    const p = this.state.pagina;
+    const ir = (destino) => () => this.setState({ pagina: destino });
+    const nav = (nome) => (p === nome ? 'nav-btn ativo' : 'nav-btn');
+    const atual = (nome) => (p === nome ? 'page' : 'false');
+    return {
+      temaClasse: escuro ? 'nl escuro' : 'nl claro',
+      fonteTitulo: "'" + (this.props.fonteTitulo || 'Cinzel') + "', serif",
+      rotuloTema: escuro ? 'Mudar para tema claro' : 'Mudar para tema escuro',
+      alternarTema: () => this.setState({ tema: escuro ? 'claro' : 'escuro' }),
+      eInicio: p === 'inicio',
+      eSobre: p === 'sobre',
+      eRegras: p === 'regras',
+      ePrivacidade: p === 'privacidade',
+      irInicio: ir('inicio'),
+      irSobre: ir('sobre'),
+      irRegras: ir('regras'),
+      irPrivacidade: ir('privacidade'),
+      navInicio: nav('inicio'),
+      navSobre: nav('sobre'),
+      navRegras: nav('regras'),
+      atualInicio: atual('inicio'),
+      atualSobre: atual('sobre'),
+      atualRegras: atual('regras')
+    };
+  }
+}
+</script>
+</body>
+</html>
