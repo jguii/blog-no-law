@@ -49,7 +49,8 @@ describe('capa do clã em /', () => {
   it('mostra o emblema decorativo com prioridade alta', () => {
     const img = html.match(/<img[^>]*emblema\.png[^>]*>/)?.[0] ?? '';
     expect(img.includes('alt=""')).toBe(true);
-    expect(img.includes('fetchpriority="high"')).toBe(true);
+    // React 19 emite o atributo em camelCase; no HTML a caixa não importa.
+    expect(img.toLowerCase().includes('fetchpriority="high"')).toBe(true);
   });
 
   it('pendura o banner numa figure com alt descritivo e carga preguiçosa', () => {
