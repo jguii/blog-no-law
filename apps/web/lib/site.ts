@@ -20,3 +20,8 @@ export const siteMetadata: Metadata = {
 export const siteViewport: Viewport = {
   themeColor: '#000000',
 };
+
+// Esqueleto do RED (02-12): a implementação real vem no commit GREEN.
+export function resolveSiteUrl(_raw: string | undefined): URL {
+  return new URL('http://esqueleto.invalid');
+}
