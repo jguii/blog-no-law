@@ -11,7 +11,7 @@ vi.mock('@/lib/fonts', () => ({
 }));
 
 // O layout é chamado como função e o elemento resultante vai para o renderToStaticMarkup:
-// nenhum navegador, nenhum servidor Next (mesmo padrão do test/home.int-spec.ts).
+// nenhum navegador, nenhum servidor Next (mesmo padrão do test/status.int-spec.ts).
 function renderLayout(): string {
   return renderToStaticMarkup(
     <RootLayout>

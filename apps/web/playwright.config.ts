@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// E2E dos cenários @e2e de docs/bdd/home.feature.md. Roda só na CI (D-09); o pre-push não usa Playwright.
+// E2E dos cenários @e2e de docs/bdd/*.feature.md. Roda só na CI (D-09); o pre-push não usa Playwright.
 // Pré-requisitos (a CI faz tudo isso antes de chamar `playwright test`):
 //   1. `pnpm turbo run build --filter=@blog/web --filter=@blog/api` (dist da API e .next do web);
 //   2. um Postgres de teste com o banco `blog_e2e` migrado (`TEST_DB_NAME=blog_e2e node apps/api/scripts/prepare-test-db.mjs`).

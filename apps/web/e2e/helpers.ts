@@ -2,8 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 import { THEME_KEY } from '../lib/theme';
 
-// Ajudantes compartilhados pelos E2E da fase de identidade visual. O `home.spec.ts` ainda tem a
-// sua própria cópia do helper do axe; o 02-07 o move para `status.spec.ts` já usando este módulo.
+// Ajudantes compartilhados pelos E2E da fase de identidade visual (o `status.spec.ts` e os demais
+// usam este módulo em vez de manter cada um a sua cópia do helper do axe).
 
 export const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
