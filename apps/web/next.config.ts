@@ -1,22 +1,17 @@
 // No SDK 11.x o `withSentryConfig` saiu do pacote principal e vive em `@sentry/nextjs/config`.
 import { withSentryConfig } from '@sentry/nextjs/config';
 import type { NextConfig } from 'next';
+// Extensão `.ts` explícita: o Next carrega esta config pelo resolvedor TypeScript nativo do Node.
+import { securityHeaders } from './lib/security-headers.ts';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-        ],
-      },
-    ];
+    return securityHeaders({
+      isDev: process.env.NODE_ENV === 'development',
+      sentryDsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    });
   },
 };
 
