@@ -93,7 +93,7 @@ Plans:
   3. Visitante lê as páginas Sobre o clã, Regras e Política de Privacidade com layout que se adapta a celular e desktop, sem rolagem horizontal.
   4. Uma página de referência do kit mostra os componentes base (Tailwind + shadcn/ui) com os tokens do clã: cores, tipografia e espaçamento. Os dois temas atingem contraste WCAG AA.
   5. Os testes da fase passam na CI: componentes no Vitest e E2E no Playwright com axe nos dois temas e em viewport de celular. O shell com a nova identidade está no ar.
-**Plans**: 2/14 plans executed
+**Plans**: 6/14 plans executed
 
 Plans:
 **Wave 1**
@@ -101,10 +101,10 @@ Plans:
 - [x] 02-02-PLAN.md — Textos de Sobre, Regras e Privacidade como conteúdo testado, com o checkpoint das regras do Discord (D-13)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 02-03-PLAN.md — Kit base (Button, Card, cn, components.json) e a 404 com a identidade
-- [ ] 02-04-PLAN.md — Favicon e ícones dos dragões (SVG, PNG e ICO gerados por sharp)
-- [ ] 02-10-PLAN.md — Tokens do clã com contraste AA provado, utilitários de tipografia e movimento, e os cenários BDD/E2E do tema
-- [ ] 02-11-PLAN.md — Faixas de tinta: header com a marca, rodapé com links e "desde 2017", ornamentos, fontes e metadados
+- [x] 02-03-PLAN.md — Kit base (Button, Card, cn, components.json) e a 404 com a identidade
+- [x] 02-04-PLAN.md — Favicon e ícones dos dragões (SVG, PNG e ICO gerados por sharp)
+- [x] 02-10-PLAN.md — Tokens do clã com contraste AA provado, utilitários de tipografia e movimento, e os cenários BDD/E2E do tema
+- [x] 02-11-PLAN.md — Faixas de tinta: header com a marca, rodapé com links e "desde 2017", ornamentos, fontes e metadados
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 02-05-PLAN.md — Navegação: pílulas, menu sanduíche e projeto mobile do Playwright
@@ -240,7 +240,7 @@ As fases rodam em ordem numérica: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Esqueleto no ar com testes e CI | 14/14 | Complete    | 2026-11-26 |
-| 2. Identidade visual No Law | 2/14 | In Progress | - |
+| 2. Identidade visual No Law | 6/14 | In Progress | - |
 | 3. Login com Discord e controle de acesso | 0/TBD | Not started | - |
 | 4. Publicar e moderar posts | 0/TBD | Not started | - |
 | 5. Imagens e YouTube nos posts | 0/TBD | Not started | - |
