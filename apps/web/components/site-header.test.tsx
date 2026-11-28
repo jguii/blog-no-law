@@ -68,6 +68,13 @@ describe('SiteHeader: navegação principal (D-08)', () => {
     expect(html.includes('hidden md:block')).toBe(true);
     expect(html.includes('whitespace-nowrap')).toBe(true);
   });
+
+  it('põe o ☰ depois do botão de tema (ordem no celular: tema, depois menu)', () => {
+    const html = renderHeader('/');
+    const tema = html.indexOf('aria-label="Mudar para tema claro"');
+    const menu = html.indexOf('aria-label="Abrir menu"');
+    expect(menu > tema && tema > -1).toBe(true);
+  });
 });
 
 describe('SiteHeader: marca e ornamentos do 02-11 continuam no lugar', () => {
