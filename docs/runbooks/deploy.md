@@ -117,17 +117,18 @@ Vercel -> projeto -> Deployments -> escolher um deploy de produção anterior ->
 
 Só os nomes (D-07). Valores nunca passam por chat, log, issue ou repositório.
 
-| Nome                                                     | Tipo       | Onde vive                                                            | Uso                                                       |
-| -------------------------------------------------------- | ---------- | -------------------------------------------------------------------- | --------------------------------------------------------- |
-| `MIGRATE_DATABASE_URL`                                   | secret     | GitHub Environment `production` (restrito à `main`) e env file local | Job `migrate` (credencial `postgres`)                     |
-| `RENDER_DEPLOY_HOOK_URL`                                 | secret     | GitHub Environment `production` e painel da Render                   | Job `deploy`                                              |
-| `API_BASE_URL`                                           | variável   | GitHub Environment `production`                                      | Job `verify` e verificações locais                        |
-| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`               | variáveis  | GitHub Environment `production` e env file local                     | Smoke anônimo do PostgREST (valores públicos por desenho) |
-| `WEB_BASE_URL`                                           | variável   | GitHub Environment `production`                                      | Verificação do /status de produção                        |
-| `GITHUB_TOKEN`                                           | automático | Gerado pelo Actions em cada run                                      | Push da imagem no GHCR (`packages: write`)                |
-| `DATABASE_URL`, `CORS_ORIGINS`, `SENTRY_DSN` e as demais | variáveis  | Painel da Render (lista completa em `render.md`)                     | Runtime da API                                            |
-| `API_URL`                                                | variável   | Vercel, Production e Preview                                         | Endereço da API para o Next                               |
-| `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`                   | variáveis  | Vercel, **só** Production                                            | Sentry do web                                             |
+| Nome                                                     | Tipo       | Onde vive                                                            | Uso                                                                               |
+| -------------------------------------------------------- | ---------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `MIGRATE_DATABASE_URL`                                   | secret     | GitHub Environment `production` (restrito à `main`) e env file local | Job `migrate` (credencial `postgres`)                                             |
+| `RENDER_DEPLOY_HOOK_URL`                                 | secret     | GitHub Environment `production` e painel da Render                   | Job `deploy`                                                                      |
+| `API_BASE_URL`                                           | variável   | GitHub Environment `production`                                      | Job `verify` e verificações locais                                                |
+| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`               | variáveis  | GitHub Environment `production` e env file local                     | Smoke anônimo do PostgREST (valores públicos por desenho)                         |
+| `WEB_BASE_URL`                                           | variável   | GitHub Environment `production`                                      | Verificação do /status e da identidade de produção                                |
+| `NEXT_PUBLIC_SITE_URL`                                   | variável   | Vercel, **só** Production (opcional)                                 | `metadataBase` (og:image absoluto); sem ela vale `https://blog-no-law.vercel.app` |
+| `GITHUB_TOKEN`                                           | automático | Gerado pelo Actions em cada run                                      | Push da imagem no GHCR (`packages: write`)                                        |
+| `DATABASE_URL`, `CORS_ORIGINS`, `SENTRY_DSN` e as demais | variáveis  | Painel da Render (lista completa em `render.md`)                     | Runtime da API                                                                    |
+| `API_URL`                                                | variável   | Vercel, Production e Preview                                         | Endereço da API para o Next                                                       |
+| `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`                   | variáveis  | Vercel, **só** Production                                            | Sentry do web                                                                     |
 
 O env file local é `~/.config/blog-no-law/production.env` (diretório `700`, arquivo `600`), fora do repositório. Para gravar um secret, passe o valor por stdin ou pelo prompt do `gh secret set ... --env production --repo jguii/blog-no-law`, nunca como argumento.
 
@@ -153,3 +154,15 @@ grep -oE 'data-testid="api-(commit|db)"[^>]*>[^<]*<' /tmp/status.html
 ```
 
 Esperado: `x-vercel-id` com `iad1` (por exemplo `gru1::iad1::...`: borda em São Paulo, função em `iad1`), `api-commit` igual ao SHA de `origin/main` e `api-db` igual a `up`. A `/` agora é a capa estática, servida pela borda, então o `x-vercel-id` com `iad1` se confere no `/status`, que roda na função. O primeiro acesso pode esperar o cold start da Render (cerca de 1 minuto).
+
+### Identidade visual publicada
+
+Depois de cada deploy do web, `scripts/verify-remote-web.sh` prova a identidade do clã por HTTPS (só leituras públicas; imprime rota e item, nunca corpo de resposta):
+
+```bash
+bash scripts/verify-remote-web.sh "$(gh variable get WEB_BASE_URL --env production --repo jguii/blog-no-law)"
+```
+
+Esperado: `REMOTE_WEB_OK {url}`. O script espera (`VERIFY_TIMEOUT_S`, padrão 300; `VERIFY_POLL_S`, padrão 10) a capa trazer o tema escuro e o slogan, porque a Vercel leva alguns minutos para promover o deploy, e depois confere a CSP (`frame-ancestors 'none'`) e o `X-Frame-Options`, o `og:image` absoluto respondendo `image/jpeg`, os ícones (`/icon.svg`, `/favicon.ico`, `/apple-icon.png`), o `noindex` de `/kit` e `/status` e as páginas `/sobre`, `/regras` e `/privacidade` com `h1`. Saída de falha: `REMOTE_WEB_FAIL {shell|csp|xframe|og_image|icon|noindex:/rota|page:/rota}`, com saída 1. Se reprovar e a correção não for imediata, fazer o rollback do web (seção acima).
+
+O `og:image` vem com o domínio de `NEXT_PUBLIC_SITE_URL` (ou o padrão de produção); o script usa só o caminho dele e o busca no próprio host verificado, então também serve a um `next start` local.

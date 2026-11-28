@@ -70,14 +70,15 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- Texto definitivo do Sobre o clã, escrito pelo autor (D-12, backlog).
 
 ### Blockers/Concerns
 
 - [Fase 5] `sharp` num container de ~512 MB pode estourar memória.
 - [Fase 5] Definir a política para GIFs animados: recusar, usar o primeiro quadro ou converter para WebP animado com limite.
 - [Fase 7] Qualquer usuário Discord pode comentar, mas ban/mute e denúncia estão em "Ideias futuras". Mitigação: rate limit e remoção por moderador. Reavaliar antes de divulgar o blog.
-- [Fase 2] A home atual é só a página de status, sem CSS: copy técnico ("Banco up", horário ISO), sem retry no "API indisponível" e sem CSP no web (ver 01-UI-REVIEW.md, 13/24). A Fase 2 reconstrói a home.
+- [Fase 2] RESOLVIDO (02-09): a home era só a página de status, sem CSS e sem CSP (01-UI-REVIEW.md, 13/24). A Fase 2 reconstruiu a home como capa estática, moveu o status para `/status` e pôs a CSP v1 no web.
+- [Fase 4] A CSP v1 do web usa `'unsafe-inline'` em `script-src` (sem nonce); migrar para nonce por `proxy.ts` quando houver conteúdo de usuário (02-RESEARCH, Open Question 5). Em produção, conferir que o `.ts` importado pelo `next.config.ts` carrega na Vercel e que as rotas continuam estáticas.
 - [Backlog 999.1] Backup sem retry em 5xx da API do GitHub (falhou em 2026-11-25).
 - [Fases 3, 4, 5, 6] Há spikes indicados pela pesquisa; ver "Notas transversais" no ROADMAP.md.
 
