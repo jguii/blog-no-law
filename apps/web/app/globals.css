@@ -97,8 +97,157 @@
   color: var(--foreground);
 }
 
+/*
+ * Marca: não muda por tema e só decora (gradiente de faixas e de botão, aro dourado dos dragões e
+ * bastões do banner). Texto nunca fica direto sobre estes gradientes sem um plano sólido por baixo.
+ */
+:root {
+  --brand-gradient: linear-gradient(90deg, #ac020f, #420b0d);
+  --brand-gradient-button: linear-gradient(135deg, #ac020f, #5a0a0f);
+  --gold: #c8a04a;
+  --wood: #6b4a2b;
+}
+
+/* Brilho do emblema da capa. A queda das pétalas fica no CSS module da capa (02-14). */
+@theme {
+  --animate-brilho: brilho 6s ease-in-out infinite;
+
+  @keyframes brilho {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.06);
+    }
+  }
+}
+
+/* Os quatro papéis de tipografia (UI-SPEC): 4 tamanhos, 2 pesos. */
+@utility text-label {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+@utility text-body {
+  font-size: 18px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+@utility text-heading {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 400;
+
+  @media (width >= 768px) {
+    font-size: 26px;
+  }
+}
+
+@utility text-display {
+  font-size: 36px;
+  line-height: 1.1;
+  font-weight: 400;
+
+  @media (width >= 768px) {
+    font-size: 52px;
+  }
+}
+
+@utility bg-brand {
+  background-image: var(--brand-gradient);
+}
+
+@utility bg-brand-button {
+  background-color: var(--primary);
+  background-image: var(--brand-gradient-button);
+}
+
+@utility shadow-folha {
+  box-shadow: 0 8px 24px rgba(26, 18, 16, 0.12);
+}
+
+@utility shadow-botao {
+  box-shadow: 0 8px 16px rgba(172, 2, 15, 0.4);
+}
+
 @layer base {
+  /* Troca de tema e hover suaves (D-20); o bloco de movimento reduzido abaixo as anula. */
+  *,
+  ::before,
+  ::after {
+    transition:
+      background-color 250ms ease,
+      color 250ms ease,
+      border-color 250ms ease;
+  }
+
+  /* O fundo do body é sólido: o axe só avalia contraste sobre cor sólida (Pitfall 4). */
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans text-body;
+  }
+
+  /* Só os títulos usam Yuji Boku, que existe apenas no peso 400: nada de negrito sintético. */
+  h1,
+  h2 {
+    @apply font-display;
+    font-weight: 400;
+    font-synthesis: none;
+    text-wrap: balance;
+  }
+
+  h1 {
+    @apply text-display;
+  }
+
+  h2 {
+    @apply text-heading;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Todo elemento focável mostra o anel --ring de 2px, afastado 2px. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /*
+   * Textura de papel (D-19): camada decorativa fixa atrás do conteúdo, só no tema claro.
+   * Sem url() de imagem: três gradientes radiais marrons de 8 a 12%.
+   */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    display: none;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 18% 12%, rgba(107, 74, 43, 0.12), transparent 45%),
+      radial-gradient(circle at 82% 58%, rgba(107, 74, 43, 0.1), transparent 50%),
+      radial-gradient(circle at 36% 92%, rgba(107, 74, 43, 0.08), transparent 42%);
+  }
+
+  [data-theme='light'] body::before {
+    display: block;
+  }
+}
+
+/* Movimento reduzido (D-20): transições instantâneas e animações paradas. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }
