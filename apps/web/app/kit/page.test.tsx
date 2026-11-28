@@ -148,9 +148,11 @@ describe('/kit: menu e botão de tema', () => {
 
 describe('/kit: ornamentos', () => {
   it('mostra o DragonMark em 16, 32, 44 e 96px', () => {
-    const widths = [...html.matchAll(/<svg[^>]*viewBox="0 0 100 100"[^>]*width="(\d+)"/g)].map(
-      (match) => match[1],
-    );
+    // Só a seção Ornamentos: o botão de tema (seção anterior) também tem um DragonMark, de 28px.
+    const ornamentos = html.slice(html.indexOf('>Ornamentos</h2>'));
+    const widths = [
+      ...ornamentos.matchAll(/<svg[^>]*viewBox="0 0 100 100"[^>]*width="(\d+)"/g),
+    ].map((match) => match[1]);
     expect(widths.join(',')).toBe('16,32,44,96');
   });
 
