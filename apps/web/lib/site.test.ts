@@ -32,7 +32,7 @@ describe('resolveSiteUrl', () => {
 describe('siteMetadata', () => {
   it('traz o metadataBase como URL absoluta https', () => {
     expect(siteMetadata.metadataBase).toBeInstanceOf(URL);
-    expect(siteMetadata.metadataBase?.protocol).toBe('https:');
+    expect(new URL(String(siteMetadata.metadataBase)).protocol).toBe('https:');
   });
 
   it('declara siteName, locale e type do Open Graph', () => {
