@@ -15,19 +15,19 @@ export default async function Home({ searchParams }: HomeProps) {
 
   if (!result.ok) {
     return (
-      <main>
+      <div>
         <h1>Blog No Law</h1>
         <p role="status" data-testid="api-unavailable">
           API indisponível no momento
         </p>
-      </main>
+      </div>
     );
   }
 
   const { service, version, commit, db, time, dbLatencyMs } = result.data;
 
   return (
-    <main>
+    <div>
       <h1>Blog No Law</h1>
       <dl>
         <dt>Serviço</dt>
@@ -54,6 +54,6 @@ export default async function Home({ searchParams }: HomeProps) {
       ) : (
         <Link href="/?detail=full">Ver detalhes</Link>
       )}
-    </main>
+    </div>
   );
 }
