@@ -10,6 +10,11 @@ vi.mock('@/lib/fonts', () => ({
   title: { variable: 'fonte-titulo', className: 'fonte-titulo-cls' },
 }));
 
+// O header marca a página atual com o `usePathname` do App Router, que não existe no teste.
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+}));
+
 // O layout é chamado como função e o elemento resultante vai para o renderToStaticMarkup:
 // nenhum navegador, nenhum servidor Next (mesmo padrão do test/home.int-spec.ts).
 function renderLayout(): string {
@@ -76,6 +81,13 @@ describe('RootLayout: header com a marca', () => {
 
   it('mantém o botão de tema no header', () => {
     expect(header).toContain('aria-label="Mudar para tema claro"');
+  });
+
+  it('tem a navegação "Principal" com os três destinos da D-08', () => {
+    expect(header.includes('aria-label="Principal"')).toBe(true);
+    expect(hasLink(header, '/', 'Início')).toBe(true);
+    expect(hasLink(header, '/sobre', 'Sobre o clã')).toBe(true);
+    expect(hasLink(header, '/regras', 'Regras')).toBe(true);
   });
 });
 
